@@ -6,6 +6,7 @@ import './MountainProgressGame.css'
 const STORAGE_KEY = 'mountainProgressGameLevels'
 const CAMP2_EXTERNAL_URL =
   'https://antiz-digital.com/snake/?topic=Fire%20Safety'
+const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
 
 const positions = [
   { top: '95%', left: '60%' },
@@ -31,7 +32,7 @@ const remapPointToMountain = (point) => {
 const defaultLevels = [
   { id: 1, title: 'Camp 1', status: 'active', url: '/learn-video' },
   { id: 2, title: 'Camp 2', status: 'locked', url: CAMP2_EXTERNAL_URL },
-  { id: 3, title: 'Camp 3', status: 'locked', url: '/fire-shield' },
+  { id: 3, title: 'Camp 3', status: 'locked', url: CAMP3_EXTERNAL_URL },
   { id: 4, title: 'Camp 4', status: 'locked', url: '/evacuation' },
 ]
 
