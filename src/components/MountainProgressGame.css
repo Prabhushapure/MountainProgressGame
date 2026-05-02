@@ -1,0 +1,195 @@
+.mountain-map {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-image: url('/assets/mountain.png');
+  background-size: 95% auto;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-color: #0b1f3a;
+  font-family: Arial, sans-serif;
+}
+
+.hud-title {
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  z-index: 12;
+  background: rgba(32, 18, 10, 0.9);
+  color: #f5f5f5;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.hud-title h2 {
+  margin: 0;
+  line-height: 1.1;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+.hud-title p {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.tent-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+  display: block;
+}
+
+.tent-button {
+  position: relative;
+  z-index: 2;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+
+.tent-button:disabled {
+  cursor: not-allowed;
+}
+
+.tent-image {
+  width: 105px;
+  height: 105px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.tent-button:hover .tent-image {
+  transform: scale(1.08);
+}
+
+.camp-label {
+  position: absolute;
+  top: 50%;
+  left: 78px;
+  transform: translateY(-50%);
+  z-index: 1;
+  min-width: 145px;
+  background: #f8f8f8;
+  border: 2px solid #b01212;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+}
+
+.camp-label-title {
+  display: block;
+  background: #b01212;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 5px 10px 4px;
+  line-height: 1.1;
+}
+
+.camp-label-subtitle {
+  display: block;
+  color: #1e1e1e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.25;
+  padding: 7px 10px 9px;
+}
+
+.camp-label.status-active {
+  border-color: #e0ac00;
+}
+
+.camp-label.status-active .camp-label-title {
+  background: #f4b400;
+  color: #2a2100;
+}
+
+.camp-label.status-completed {
+  border-color: #1a7f39;
+}
+
+.camp-label.status-completed .camp-label-title {
+  background: #1a7f39;
+}
+
+.player-indicator {
+  position: absolute;
+  transform: translate(-50%, -80%);
+  z-index: 10;
+  font-size: 2rem;
+  transition:
+    top 0.5s ease,
+    left 0.5s ease;
+}
+
+.summit-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(12, 30, 68, 0.9);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.summit-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.complete-level-btn {
+  position: absolute;
+  left: 2%;
+  bottom: 4%;
+  z-index: 12;
+  border: 2px solid #7f5e00;
+  border-radius: 10px;
+  background: #ffd32a;
+  color: #111;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.complete-level-btn:hover {
+  filter: brightness(1.03);
+}
+
+.path-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.path-line {
+  stroke: #ff8c00;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: none;
+  opacity: 0.9;
+}
+
+.path-line.completed {
+  stroke: #ff8c00;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.55));
+}
