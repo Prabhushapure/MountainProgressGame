@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
 
 const STORAGE_KEY = 'mountainProgressGameLevels'
@@ -42,9 +43,9 @@ const campSubtitleById = {
 }
 
 const tentImageByStatus = {
-  active: '/assets/tent-yellow.png',
-  locked: '/assets/tent-red.png',
-  completed: '/assets/tent-green.png',
+  active: publicUrl('assets/tent-yellow.png'),
+  locked: publicUrl('assets/tent-red.png'),
+  completed: publicUrl('assets/tent-green.png'),
 }
 
 function MountainProgressGame() {
@@ -124,7 +125,12 @@ function MountainProgressGame() {
   }
 
   return (
-    <div className="mountain-map">
+    <div
+      className="mountain-map"
+      style={{
+        backgroundImage: `url(${publicUrl('assets/mountain.png')})`,
+      }}
+    >
       <div className="hud-title">
         <h2>COMBO GAME</h2>
         <p>Fire Safety & Immediate Response</p>
@@ -220,22 +226,23 @@ function MountainProgressGame() {
       </div>
 
       {/* 🎮 CONTROLS */}
-      <button
-        type="button"
-        className="complete-level-btn"
-        onClick={completeLevel}
-      >
-        Complete Level
-      </button>
+      <div className="map-controls">
+        <button
+          type="button"
+          className="complete-level-btn"
+          onClick={completeLevel}
+        >
+          Complete Level
+        </button>
 
-      <button
-        type="button"
-        className="complete-level-btn"
-        style={{ left: '15%' }}
-        onClick={resetProgress}
-      >
-        Reset Color
-      </button>
+        <button
+          type="button"
+          className="complete-level-btn complete-level-btn--secondary"
+          onClick={resetProgress}
+        >
+          Reset Color
+        </button>
+      </div>
     </div>
   )
 }

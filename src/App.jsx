@@ -1,7 +1,8 @@
 import { Link, Route, Routes, useNavigate } from 'react-router-dom'
 import MountainProgressGame from './components/MountainProgressGame'
+import { publicUrl } from './utils/publicUrl'
 
-const CAMP1_VIDEO_SRC = '/assets/Fire Extinguisher.mp4'
+const CAMP1_VIDEO_SRC = publicUrl('assets/Fire Extinguisher.mp4')
 const STORAGE_KEY = 'mountainProgressGameLevels'
 
 function GamePage({ title }) {
