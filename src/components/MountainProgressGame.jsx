@@ -19,6 +19,32 @@ const applyCampPassOutcome = (prevLevels, campId, passed) => {
   }
   return next
 }
+
+/** Maps return URL params (e.g. antiz `status=Pass`, `play_result=Pass`) to pass/fail. */
+const parseOutcomeToken = (raw) => {
+  if (raw == null || raw === '') return null
+  const n = String(raw).trim().toLowerCase()
+  if (['true', '1', 'pass', 'passed', 'success'].includes(n)) return true
+  if (['false', '0', 'fail', 'failed', 'failure'].includes(n)) return false
+  return null
+}
+
+const RETURN_OUTCOME_PARAM_KEYS = ['pass', 'result', 'status', 'play_result']
+
+/**
+ * If any known outcome param is present and parses, returns explicit result.
+ * Mixed pass+fail → fail (do not advance).
+ */
+const getExplicitReturnPassState = (params) => {
+  const parsed = RETURN_OUTCOME_PARAM_KEYS.map((key) =>
+    parseOutcomeToken(params.get(key)),
+  ).filter((x) => x !== null)
+
+  if (parsed.length === 0) return { explicit: false, passed: false }
+
+  const passed = parsed.every(Boolean)
+  return { explicit: true, passed }
+}
 const CAMP2_EXTERNAL_URL =
   'https://antiz-digital.com/snake/?topic=Fire%20Safety'
 const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
@@ -98,29 +124,17 @@ function MountainProgressGame() {
 
   useEffect(() => {
     const campIdRaw = searchParams.get('campOutcome') ?? searchParams.get('camp')
-    const passRaw = searchParams.get('pass') ?? searchParams.get('result')
 
     if (!campIdRaw) return
 
     const campId = Number(campIdRaw)
     if (Number.isNaN(campId)) return
 
-    const hasExplicitResult = passRaw !== null && passRaw !== ''
+    const { explicit, passed } = getExplicitReturnPassState(searchParams)
 
-    if (hasExplicitResult) {
-      const passed =
-        passRaw === 'true' ||
-        passRaw === '1' ||
-        passRaw === 'pass'
-      const failed =
-        passRaw === 'false' ||
-        passRaw === '0' ||
-        passRaw === 'fail'
-
-      if (passed || failed) {
-        setLevels((prev) => applyCampPassOutcome(prev, campId, passed))
-        sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
-      }
+    if (explicit) {
+      setLevels((prev) => applyCampPassOutcome(prev, campId, passed))
+      sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
       setSearchParams({}, { replace: true })
       return
     }
