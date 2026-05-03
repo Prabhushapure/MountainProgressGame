@@ -1,9 +1,14 @@
-import { Link, Route, Routes, useNavigate } from 'react-router-dom'
+import {
+  createSearchParams,
+  Link,
+  Route,
+  Routes,
+  useNavigate,
+} from 'react-router-dom'
 import MountainProgressGame from './components/MountainProgressGame'
 import { publicUrl } from './utils/publicUrl'
 
 const CAMP1_VIDEO_SRC = publicUrl('assets/Fire Extinguisher.mp4')
-const STORAGE_KEY = 'mountainProgressGameLevels'
 
 function GamePage({ title }) {
   return (
@@ -21,31 +26,14 @@ function LearnVideoPage() {
   const navigate = useNavigate()
 
   const completeCamp1AndReturn = () => {
-    const fallbackLevels = [
-      { status: 'completed' },
-      { status: 'active' },
-      { status: 'locked' },
-      { status: 'locked' },
-    ]
-
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      const parsed = stored ? JSON.parse(stored) : null
-      if (Array.isArray(parsed) && parsed.length >= 4) {
-        const next = parsed.map((level) => ({ ...level }))
-        next[0] = { ...next[0], status: 'completed' }
-        if (next[1]?.status === 'locked') {
-          next[1] = { ...next[1], status: 'active' }
-        }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-      } else {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackLevels))
-      }
-    } catch (error) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackLevels))
-    }
-
-    navigate('/')
+    navigate({
+      pathname: '/',
+      search: createSearchParams({
+        campOutcome: '1',
+        status: 'Pass',
+        play_result: 'Pass',
+      }).toString(),
+    })
   }
 
   return (

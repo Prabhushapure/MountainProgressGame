@@ -1,10 +1,27 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
 
-const STORAGE_KEY = 'mountainProgressGameLevels'
-const PENDING_EXTERNAL_CAMP_KEY = 'mountainPendingExternalCamp'
+/** Old persisted progress — cleared once so it no longer drives the map. */
+const LEGACY_LEVELS_STORAGE_KEY = 'mountainProgressGameLevels'
+/** In-tab only; cleared when the tab closes (“fresh” next visit). */
+const SESSION_LEVELS_KEY = 'mountainProgressSessionLevels'
+
+const loadSessionLevels = () => {
+  try {
+    const raw = sessionStorage.getItem(SESSION_LEVELS_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed) || parsed.length !== defaultLevels.length) return null
+    return defaultLevels.map((def, i) => ({
+      ...def,
+      status: parsed[i]?.status ?? def.status,
+    }))
+  } catch {
+    return null
+  }
+}
 
 const applyCampPassOutcome = (prevLevels, campId, passed) => {
   const idx = prevLevels.findIndex((l) => l.id === campId)
@@ -94,32 +111,22 @@ const tentImageByStatus = {
 function MountainProgressGame() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const [returnPromptCampId, setReturnPromptCampId] = useState(null)
-  const levelsRef = useRef(null)
 
   const [levels, setLevels] = useState(() => {
-    const storedLevels = localStorage.getItem(STORAGE_KEY)
-    if (!storedLevels) return defaultLevels
-
-    try {
-      const parsed = JSON.parse(storedLevels)
-      if (Array.isArray(parsed) && parsed.length === defaultLevels.length) {
-        return parsed.map((savedLevel, index) => ({
-          ...defaultLevels[index],
-          status: savedLevel.status ?? defaultLevels[index].status,
-        }))
-      }
-    } catch (error) {
-      console.error('Failed to parse level state:', error)
-    }
-
-    return defaultLevels
+    const fromSession = loadSessionLevels()
+    if (fromSession) return fromSession
+    return defaultLevels.map((level) => ({ ...level }))
   })
 
-  levelsRef.current = levels
+  useEffect(() => {
+    localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(levels))
+    sessionStorage.setItem(
+      SESSION_LEVELS_KEY,
+      JSON.stringify(levels.map((l) => ({ status: l.status }))),
+    )
   }, [levels])
 
   useEffect(() => {
@@ -134,42 +141,12 @@ function MountainProgressGame() {
 
     if (explicit) {
       setLevels((prev) => applyCampPassOutcome(prev, campId, passed))
-      sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
       setSearchParams({}, { replace: true })
       return
     }
 
     setSearchParams({}, { replace: true })
-    const stillActive = levelsRef.current?.some(
-      (l) => l.id === campId && l.status === 'active',
-    )
-    if (stillActive) {
-      setReturnPromptCampId(campId)
-    }
   }, [searchParams, setSearchParams])
-
-  useEffect(() => {
-    if ([...searchParams.keys()].length > 0) return
-    if (returnPromptCampId !== null) return
-
-    const pending = sessionStorage.getItem(PENDING_EXTERNAL_CAMP_KEY)
-    if (!pending) return
-
-    const pid = Number(pending)
-    if (!levels.some((l) => l.id === pid && l.status === 'active')) {
-      sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
-      return
-    }
-
-    const ref = document.referrer
-    const fromAntiz = ref.includes('antiz-digital.com')
-    const nav = performance.getEntriesByType?.('navigation')?.[0]
-    const backNav = nav?.type === 'back_forward'
-
-    if (!fromAntiz && !backNav) return
-
-    setReturnPromptCampId(pid)
-  }, [searchParams, levels, returnPromptCampId])
 
   const activeIndex = useMemo(
     () => levels.findIndex((level) => level.status === 'active'),
@@ -212,47 +189,16 @@ function MountainProgressGame() {
       returnUrl.search = ''
       returnUrl.searchParams.set('campOutcome', String(level.id))
       gameUrl.searchParams.set('returnUrl', returnUrl.href)
-      sessionStorage.setItem(PENDING_EXTERNAL_CAMP_KEY, String(level.id))
       window.location.assign(gameUrl.href)
       return
     }
     navigate(level.url)
   }
 
-  const completeLevel = () => {
-    setLevels((prevLevels) => {
-      const currentActiveIndex = prevLevels.findIndex(
-        (level) => level.status === 'active',
-      )
-      if (currentActiveIndex === -1) return prevLevels
-
-      const nextLevels = prevLevels.map((l) => ({ ...l }))
-      nextLevels[currentActiveIndex].status = 'completed'
-
-      const nextIndex = currentActiveIndex + 1
-      if (nextIndex < nextLevels.length) {
-        nextLevels[nextIndex].status = 'active'
-      }
-
-      return nextLevels
-    })
-  }
-
-  const resolveReturnPrompt = (passed) => {
-    const campId = returnPromptCampId
-    setReturnPromptCampId(null)
-    sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
-    if (campId == null) return
-    if (passed) {
-      setLevels((prev) => applyCampPassOutcome(prev, campId, true))
-    }
-  }
-
   const resetProgress = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    sessionStorage.removeItem(PENDING_EXTERNAL_CAMP_KEY)
-    setReturnPromptCampId(null)
-    setLevels(defaultLevels)
+    localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
+    sessionStorage.removeItem(SESSION_LEVELS_KEY)
+    setLevels(defaultLevels.map((level) => ({ ...level })))
   }
 
   return (
@@ -396,58 +342,12 @@ function MountainProgressGame() {
       <div className="map-controls">
         <button
           type="button"
-          className="complete-level-btn"
-          onClick={completeLevel}
-        >
-          Complete Level
-        </button>
-
-        <button
-          type="button"
           className="complete-level-btn complete-level-btn--secondary"
           onClick={resetProgress}
         >
           Reset Color
         </button>
       </div>
-
-      {returnPromptCampId != null && (
-        <div
-          className="camp-return-dialog-backdrop"
-          role="presentation"
-          onClick={() => resolveReturnPrompt(false)}
-        >
-          <div
-            className="camp-return-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="camp-return-dialog-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 id="camp-return-dialog-title">How did you do?</h3>
-            <p className="camp-return-dialog__body">
-              The map only advances when you <strong>pass</strong> this camp’s
-              game. If you did not pass yet, choose “Not yet” and try again.
-            </p>
-            <div className="camp-return-dialog__actions">
-              <button
-                type="button"
-                className="complete-level-btn"
-                onClick={() => resolveReturnPrompt(true)}
-              >
-                I passed
-              </button>
-              <button
-                type="button"
-                className="complete-level-btn complete-level-btn--secondary"
-                onClick={() => resolveReturnPrompt(false)}
-              >
-                Not yet
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
