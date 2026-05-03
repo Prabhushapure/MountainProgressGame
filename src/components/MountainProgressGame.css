@@ -181,6 +181,51 @@
   filter: brightness(1.03);
 }
 
+.camp-return-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top));
+  background: rgba(5, 12, 28, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.camp-return-dialog {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px 22px;
+  border-radius: 14px;
+  background: #f5f5f5;
+  border: 2px solid rgba(180, 18, 18, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  color: #111;
+}
+
+.camp-return-dialog h3 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+}
+
+.camp-return-dialog__body {
+  margin: 0 0 18px;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.camp-return-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.camp-return-dialog__actions .complete-level-btn {
+  flex: 1;
+  min-width: 120px;
+}
+
 .path-lines {
   position: absolute;
   width: 100%;
@@ -189,20 +234,65 @@
   left: 0;
   z-index: 5;
   pointer-events: none;
+  overflow: visible;
 }
 
-.path-line {
-  stroke: #ff8c00;
-  stroke-width: 2;
+/* Wide base (“trail bed”) */
+.path-line-rail {
+  stroke: rgba(45, 22, 12, 0.72);
+  stroke-width: 3;
   stroke-linecap: round;
-  stroke-dasharray: none;
-  opacity: 0.9;
+  stroke-linejoin: round;
 }
 
-.path-line.completed {
-  stroke: #ff8c00;
+.path-segment--upcoming .path-line-rail {
+  stroke: rgba(45, 22, 12, 0.35);
+  stroke-width: 2.45;
+}
+
+/* Main trail stroke — variant per progress state */
+.path-line-main {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+}
+
+.path-line-main--completed {
+  stroke: url(#trailGradientDone);
+  stroke-width: 1.6;
   stroke-dasharray: none;
-  filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.55));
+  opacity: 1;
+  filter: url(#trailGlow) drop-shadow(0 0 0.4px rgba(255, 213, 79, 0.9));
+}
+
+.path-line-main--active {
+  stroke: url(#trailGradientMain);
+  stroke-width: 1.75;
+  stroke-dasharray: 3 2.2;
+  stroke-dashoffset: 0;
+  opacity: 1;
+  filter: drop-shadow(0 0 1px rgba(255, 171, 64, 0.85));
+  animation: pathTrailMarch 2.4s linear infinite;
+}
+
+.path-line-main--upcoming {
+  stroke: #bcaaa4;
+  stroke-width: 1.4;
+  stroke-dasharray: 2 2.4;
+  stroke-opacity: 0.55;
+}
+
+@keyframes pathTrailMarch {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-line-main--active {
+    animation: none;
+    stroke-dasharray: none;
+  }
 }
 
 /* ——— Tablet ——— */
@@ -258,8 +348,20 @@
     font-size: 1.6rem;
   }
 
-  .path-line {
-    stroke-width: 1.6;
+  .path-line-rail {
+    stroke-width: 2.85;
+  }
+
+  .path-line-main--completed {
+    stroke-width: 1.55;
+  }
+
+  .path-line-main--active {
+    stroke-width: 1.75;
+  }
+
+  .path-line-main--upcoming {
+    stroke-width: 1.2;
   }
 }
 
@@ -336,7 +438,19 @@
     white-space: nowrap;
   }
 
-  .path-line {
-    stroke-width: 1.35;
+  .path-line-rail {
+    stroke-width: 1.8;
+  }
+
+  .path-line-main--completed {
+    stroke-width: 1;
+  }
+
+  .path-line-main--active {
+    stroke-width: 1.15;
+  }
+
+  .path-line-main--upcoming {
+    stroke-width: 0.8;
   }
 }

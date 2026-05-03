@@ -49,18 +49,35 @@ function LearnVideoPage() {
   }
 
   return (
-    <div className="game-page">
-      <h1>Learn Video</h1>
-      <video
-        src={CAMP1_VIDEO_SRC}
-        style={{ width: 'min(960px, 92vw)', borderRadius: 12, marginTop: 12 }}
-        autoPlay
-        controls
-        playsInline
-        onEnded={completeCamp1AndReturn}
+    <div className="game-page game-page--learn-video">
+      <h1 className="learn-video-heading">Camp 1 — Learn Video</h1>
+      <p className="learn-video-subtitle">
+        Watch inside the frame below. Finish the video to return to the map.
+      </p>
+      <div
+        className="learn-video-frame"
+        onContextMenu={(e) => e.preventDefault()}
+        role="presentation"
       >
-        Your browser does not support the video tag.
-      </video>
+        <div className="learn-video-frame__bezel" aria-hidden="true" />
+        <div className="learn-video-frame__inner">
+          <video
+            className="learn-video-player"
+            src={CAMP1_VIDEO_SRC}
+            autoPlay
+            controls
+            controlsList="nodownload noremoteplayback"
+            disablePictureInPicture
+            playsInline
+            draggable={false}
+            onContextMenu={(e) => e.preventDefault()}
+            onDragStart={(e) => e.preventDefault()}
+            onEnded={completeCamp1AndReturn}
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
       <Link to="/" className="back-link">
         Back to Mountain Map
       </Link>
