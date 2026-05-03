@@ -152,35 +152,6 @@
   letter-spacing: 0.5px;
 }
 
-.map-controls {
-  position: absolute;
-  left: max(8px, env(safe-area-inset-left));
-  bottom: max(12px, env(safe-area-inset-bottom));
-  z-index: 12;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  max-width: calc(100% - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
-}
-
-.complete-level-btn {
-  position: relative;
-  border: 2px solid #7f5e00;
-  border-radius: 10px;
-  background: #ffd32a;
-  color: #111;
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 10px 16px;
-  cursor: pointer;
-  min-height: 44px;
-}
-
-.complete-level-btn:hover {
-  filter: brightness(1.03);
-}
-
 .path-lines {
   position: absolute;
   width: 100%;
@@ -373,24 +344,6 @@
 
   .player-indicator {
     font-size: 1.35rem;
-  }
-
-  .map-controls {
-    left: max(6px, env(safe-area-inset-left));
-    right: max(6px, env(safe-area-inset-right));
-    bottom: max(10px, env(safe-area-inset-bottom));
-    flex-direction: column;
-    align-items: stretch;
-    max-width: none;
-    width: auto;
-  }
-
-  .complete-level-btn {
-    font-size: 0.75rem;
-    padding: 10px 12px;
-    width: 100%;
-    max-width: 100%;
-    white-space: nowrap;
   }
 
   .path-line-rail {

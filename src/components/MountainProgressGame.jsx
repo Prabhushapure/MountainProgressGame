@@ -195,12 +195,6 @@ function MountainProgressGame() {
     navigate(level.url)
   }
 
-  const resetProgress = () => {
-    localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
-    sessionStorage.removeItem(SESSION_LEVELS_KEY)
-    setLevels(defaultLevels.map((level) => ({ ...level })))
-  }
-
   return (
     <div
       className="mountain-map"
@@ -336,17 +330,6 @@ function MountainProgressGame() {
       >
         <span className="summit-flag">🏁</span>
         <span className="summit-text">Summit</span>
-      </div>
-
-      {/* 🎮 CONTROLS */}
-      <div className="map-controls">
-        <button
-          type="button"
-          className="complete-level-btn complete-level-btn--secondary"
-          onClick={resetProgress}
-        >
-          Reset Color
-        </button>
       </div>
     </div>
   )
