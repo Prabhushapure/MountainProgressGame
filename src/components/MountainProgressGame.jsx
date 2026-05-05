@@ -7,6 +7,7 @@ import './MountainProgressGame.css'
 const LEGACY_LEVELS_STORAGE_KEY = 'mountainProgressGameLevels'
 /** In-tab only; cleared when the tab closes (“fresh” next visit). */
 const SESSION_LEVELS_KEY = 'mountainProgressSessionLevels'
+const EXTERNAL_RETURN_TOKEN_KEY = 'mountainProgressExternalReturnToken'
 
 const loadSessionLevels = () => {
   try {
@@ -137,11 +138,21 @@ function MountainProgressGame() {
 
     const campId = Number(campIdRaw)
     if (Number.isNaN(campId)) return
+    const returnToken = searchParams.get('returnToken')
+    const expectedReturnToken = sessionStorage.getItem(EXTERNAL_RETURN_TOKEN_KEY)
 
     const { explicit, passed } = getExplicitReturnPassState(searchParams)
 
     if (explicit) {
       setLevels((prev) => applyCampPassOutcome(prev, campId, passed))
+      setSearchParams({}, { replace: true })
+      return
+    }
+
+    // Camp 1 is a learn-video step; returning from it implies completion.
+    if (campId === 1 && returnToken && expectedReturnToken === returnToken) {
+      setLevels((prev) => applyCampPassOutcome(prev, campId, true))
+      sessionStorage.removeItem(EXTERNAL_RETURN_TOKEN_KEY)
       setSearchParams({}, { replace: true })
       return
     }
@@ -184,8 +195,11 @@ function MountainProgressGame() {
         window.location.origin,
       )
       const returnUrl = new URL(returnBase.href)
+      const returnToken = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      sessionStorage.setItem(EXTERNAL_RETURN_TOKEN_KEY, returnToken)
       returnUrl.search = ''
       returnUrl.searchParams.set('campOutcome', String(level.id))
+      returnUrl.searchParams.set('returnToken', returnToken)
       gameUrl.searchParams.set('returnUrl', returnUrl.href)
       window.location.assign(gameUrl.href)
       return
