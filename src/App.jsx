@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { Link, Route, Routes } from 'react-router-dom'
 import MountainProgressGame from './components/MountainProgressGame'
+import { publicUrl } from './utils/publicUrl'
 
 function GamePage({ title }) {
   return (
@@ -14,6 +16,37 @@ function GamePage({ title }) {
 }
 
 function App() {
+  const [isSplashDone, setIsSplashDone] = useState(false)
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      setIsSplashDone(true)
+    }, 4000)
+
+    return () => {
+      window.clearTimeout(timerId)
+    }
+  }, [])
+
+  if (!isSplashDone) {
+    return (
+      <div className="splash-screen">
+        <div className="splash-content">
+          <h1 className="splash-title">Fire Shield 360</h1>
+          <div className="splash-frame">
+            <video
+              className="splash-video"
+              src={publicUrl('assets/mp_.mp4')}
+              autoPlay
+              muted
+              playsInline
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <Routes>
       <Route path="/" element={<MountainProgressGame />} />

@@ -14,6 +14,50 @@ body {
   min-height: 100dvh;
 }
 
+.splash-screen {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 28px 16px;
+  background: radial-gradient(circle at 50% 15%, #102c74 0%, #06123a 50%, #020718 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-content {
+  width: min(1120px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.splash-title {
+  margin: 0;
+  color: #f8fafc;
+  font-size: clamp(1.25rem, 3vw, 2.2rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.splash-frame {
+  width: min(980px, 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #000;
+}
+
+.splash-video {
+  width: 100%;
+  max-height: min(68vh, 720px);
+  display: block;
+  object-fit: contain;
+  background: #000;
+}
+
 .game-page {
   min-height: 100vh;
   min-height: 100dvh;
@@ -53,6 +97,18 @@ body {
 }
 
 @media (max-width: 480px) {
+  .splash-screen {
+    padding: 20px 10px;
+  }
+
+  .splash-content {
+    gap: 10px;
+  }
+
+  .splash-title {
+    font-size: clamp(1rem, 5vw, 1.35rem);
+  }
+
   .game-page {
     gap: 12px;
     padding-left: max(12px, env(safe-area-inset-left));
