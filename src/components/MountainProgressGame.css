@@ -121,16 +121,6 @@
   background: #1a7f39;
 }
 
-.player-indicator {
-  position: absolute;
-  transform: translate(-50%, -80%);
-  z-index: 10;
-  font-size: 2rem;
-  transition:
-    top 0.5s ease,
-    left 0.5s ease;
-}
-
 .summit-node {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -270,10 +260,6 @@
     font-size: 0.72rem;
   }
 
-  .player-indicator {
-    font-size: 1.6rem;
-  }
-
   .path-line-rail {
     stroke-width: 2.85;
   }
@@ -340,10 +326,6 @@
 
   .summit-text {
     font-size: 0.62rem;
-  }
-
-  .player-indicator {
-    font-size: 1.35rem;
   }
 
   .path-line-rail {

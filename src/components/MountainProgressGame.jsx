@@ -66,6 +66,7 @@ const CAMP2_EXTERNAL_URL =
   'https://antiz-digital.com/snake/?topic=Fire%20Safety'
 const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
 const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
+const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 
 const positions = [
   { top: '95%', left: '60%' },
@@ -89,7 +90,7 @@ const remapPointToMountain = (point) => {
 }
 
 const defaultLevels = [
-  { id: 1, title: 'Camp 1', status: 'active', url: '/learn-video' },
+  { id: 1, title: 'Camp 1', status: 'active', url: CAMP1_EXTERNAL_URL },
   { id: 2, title: 'Camp 2', status: 'locked', url: CAMP2_EXTERNAL_URL },
   { id: 3, title: 'Camp 3', status: 'locked', url: CAMP3_EXTERNAL_URL },
   { id: 4, title: 'Camp 4', status: 'locked', url: CAMP4_EXTERNAL_URL },
@@ -161,9 +162,6 @@ function MountainProgressGame() {
     () => remapPointToMountain(summitPosition),
     [],
   )
-
-  const playerPosition =
-    activeIndex >= 0 ? mappedPositions[activeIndex] : mappedPositions[0]
 
   const allCampsCompleted = useMemo(
     () => levels.every((level) => level.status === 'completed'),
@@ -306,19 +304,6 @@ function MountainProgressGame() {
           </div>
         </div>
       ))}
-
-      {/* 🧗 PLAYER */}
-      {activeIndex > 0 && (
-        <div
-          className="player-indicator"
-          style={{
-            top: playerPosition.top,
-            left: playerPosition.left,
-          }}
-        >
-          🧗
-        </div>
-      )}
 
       {/* 🏁 SUMMIT */}
       <div
