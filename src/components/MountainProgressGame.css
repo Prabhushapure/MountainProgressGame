@@ -178,37 +178,22 @@
   stroke-width: 1.6;
   stroke-dasharray: none;
   opacity: 1;
-  filter: url(#trailGlow) drop-shadow(0 0 0.4px rgba(255, 213, 79, 0.9));
+  filter: url(#trailGlow) drop-shadow(0 0 0.6px rgba(76, 175, 80, 0.9));
 }
 
 .path-line-main--active {
-  stroke: url(#trailGradientMain);
+  stroke: #ff9800;
   stroke-width: 1.75;
-  stroke-dasharray: 3 2.2;
-  stroke-dashoffset: 0;
-  opacity: 1;
-  filter: drop-shadow(0 0 1px rgba(255, 171, 64, 0.85));
-  animation: pathTrailMarch 2.4s linear infinite;
+  stroke-dasharray: none;
+  opacity: 0.45;
+  filter: none;
 }
 
 .path-line-main--upcoming {
-  stroke: #bcaaa4;
+  stroke: #ff9800;
   stroke-width: 1.4;
-  stroke-dasharray: 2 2.4;
-  stroke-opacity: 0.55;
-}
-
-@keyframes pathTrailMarch {
-  to {
-    stroke-dashoffset: -12;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .path-line-main--active {
-    animation: none;
-    stroke-dasharray: none;
-  }
+  stroke-dasharray: none;
+  stroke-opacity: 0.45;
 }
 
 /* ——— Tablet ——— */

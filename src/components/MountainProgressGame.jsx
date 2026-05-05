@@ -215,7 +215,7 @@ function MountainProgressGame() {
       }}
     >
       <div className="hud-title">
-        <h2>COMBO GAME</h2>
+        <h2>FIRE SHIELD 360</h2>
         <p>Fire Safety & Immediate Response</p>
       </div>
 
@@ -235,9 +235,9 @@ function MountainProgressGame() {
             <stop offset="100%" stopColor="#ef6c00" />
           </linearGradient>
           <linearGradient id="trailGradientDone" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fff59d" />
-            <stop offset="50%" stopColor="#ffca28" />
-            <stop offset="100%" stopColor="#ffa000" />
+            <stop offset="0%" stopColor="#9be7a5" />
+            <stop offset="50%" stopColor="#4caf50" />
+            <stop offset="100%" stopColor="#1b8f3a" />
           </linearGradient>
           <filter id="trailGlow" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur in="SourceGraphic" stdDeviation="0.35" result="blur" />
