@@ -5,7 +5,7 @@
   min-height: 100dvh;
   position: relative;
   overflow: hidden;
-  background-size: 95% auto;
+  background-size: 96% auto;
   background-position: center top;
   background-repeat: no-repeat;
   background-color: #0b1f3a;
@@ -63,6 +63,11 @@
   height: 105px;
   object-fit: contain;
   transition: transform 0.2s ease;
+}
+
+.tent-image-camp-1 {
+  width: 125px;
+  height: 125px;
 }
 
 .tent-button:hover .tent-image {
@@ -199,7 +204,7 @@
 /* ——— Tablet ——— */
 @media (max-width: 900px) {
   .mountain-map {
-    background-size: 100% auto;
+    background-size: 96% auto;
   }
 
   .hud-title {
@@ -219,6 +224,11 @@
   .tent-image {
     width: 80px;
     height: 80px;
+  }
+
+  .tent-image-camp-1 {
+    width: 96px;
+    height: 96px;
   }
 
   .camp-label {
@@ -283,6 +293,11 @@
   .tent-image {
     width: 56px;
     height: 56px;
+  }
+
+  .tent-image-camp-1 {
+    width: 68px;
+    height: 68px;
   }
 
   .camp-label {

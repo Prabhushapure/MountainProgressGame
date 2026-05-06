@@ -70,13 +70,13 @@ const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 
 const positions = [
-  { top: '95%', left: '60%' },
-  { top: '68%', left: '52%' },
-  { top: '50%', left: '65%' },
-  { top: '30%', left: '50%' },
+  { top: '100%', left: '31%' },
+  { top: '88%', left: '48%' },
+  { top: '66%', left: '52%' },
+  { top: '42%', left: '56%' },
 ]
 
-const summitPosition = { top: '15%', left: '50%' }
+const summitPosition = { top: '10%', left: '62%' }
 const MAP_SCALE_X = 0.95
 const MAP_SCALE_Y = 0.95
 
@@ -160,11 +160,6 @@ function MountainProgressGame() {
     setSearchParams({}, { replace: true })
   }, [searchParams, setSearchParams])
 
-  const activeIndex = useMemo(
-    () => levels.findIndex((level) => level.status === 'active'),
-    [levels],
-  )
-
   const mappedPositions = useMemo(
     () => positions.map(remapPointToMountain),
     [],
@@ -173,18 +168,6 @@ function MountainProgressGame() {
     () => remapPointToMountain(summitPosition),
     [],
   )
-
-  const allCampsCompleted = useMemo(
-    () => levels.every((level) => level.status === 'completed'),
-    [levels],
-  )
-
-  const getPathSegmentClass = (segmentIndex) => {
-    if (allCampsCompleted) return 'completed'
-    if (segmentIndex < activeIndex) return 'completed'
-    if (segmentIndex === activeIndex) return 'active'
-    return 'upcoming'
-  }
 
   const handleTentClick = (level) => {
     if (level.status === 'locked') return
@@ -219,74 +202,6 @@ function MountainProgressGame() {
         <p>Fire Safety & Immediate Response</p>
       </div>
 
-      {/* 🔥 PATH LINES */}
-      <svg className="path-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <linearGradient
-            id="trailGradientMain"
-            x1="0%"
-            y1="100%"
-            x2="100%"
-            y2="0%"
-          >
-            <stop offset="0%" stopColor="#ffe082" />
-            <stop offset="35%" stopColor="#ffb300" />
-            <stop offset="70%" stopColor="#ff8f00" />
-            <stop offset="100%" stopColor="#ef6c00" />
-          </linearGradient>
-          <linearGradient id="trailGradientDone" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#9be7a5" />
-            <stop offset="50%" stopColor="#4caf50" />
-            <stop offset="100%" stopColor="#1b8f3a" />
-          </linearGradient>
-          <filter id="trailGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.35" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {mappedPositions.map((pos, index) => {
-          if (index === mappedPositions.length - 1) return null
-
-          const next = mappedPositions[index + 1]
-          const startX = parseFloat(pos.left)
-          const startY = parseFloat(pos.top) + 2
-          const endX = parseFloat(next.left)
-          const endY = parseFloat(next.top) + 2
-          const segmentOffset =
-            index === 1 ? 6 : index % 2 === 0 ? 4 : -4
-          const controlX = (startX + endX) / 2 + segmentOffset
-          const controlY = (startY + endY) / 2
-          const curvePath =
-            index === 2
-              ? `M ${startX} ${startY} C ${startX + 18} ${startY - 8} ${endX + 18} ${endY + 8} ${endX} ${endY}`
-              : `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`
-
-          const segmentKind = getPathSegmentClass(index)
-
-          return (
-            <g
-              key={index}
-              className={`path-segment path-segment--${segmentKind}`}
-            >
-              <title>{`Camp ${index + 1} → Camp ${index + 2}`}</title>
-              <path
-                className="path-line-rail"
-                d={curvePath}
-                fill="none"
-              />
-              <path
-                className={`path-line-main path-line-main--${segmentKind}`}
-                d={curvePath}
-                fill="none"
-              />
-            </g>
-          )
-        })}
-      </svg>
-
       {/* 🎯 TENTS */}
       {levels.map((level, index) => (
         <div
@@ -306,7 +221,7 @@ function MountainProgressGame() {
             <img
               src={tentImageByStatus[level.status]}
               alt={level.title}
-              className="tent-image"
+              className={`tent-image ${level.id === 1 ? 'tent-image-camp-1' : ''}`}
             />
           </button>
 
