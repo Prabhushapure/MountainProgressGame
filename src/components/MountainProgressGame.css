@@ -147,6 +147,157 @@
   letter-spacing: 0.5px;
 }
 
+.result-open-button {
+  position: absolute;
+  top: 2%;
+  right: 2%;
+  z-index: 14;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(180deg, #ff8a3d 0%, #f26a21 100%);
+  cursor: pointer;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+}
+
+.result-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.56);
+  padding: 16px;
+}
+
+.result-card {
+  width: min(95vw, 390px);
+  border-radius: 36px;
+  overflow: hidden;
+  color: #fff;
+  background: #1c2a59;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
+}
+
+.result-brand {
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 2.55rem;
+  line-height: 1;
+  font-weight: 900;
+  color: #f39b3d;
+}
+
+.result-brand span {
+  color: #fff;
+}
+
+.result-subtitle {
+  margin: 8px 16px 14px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #ebf0ff;
+}
+
+.result-status {
+  margin: 0 12px;
+  border-radius: 22px 22px 0 0;
+  text-align: center;
+  padding: 12px 10px 10px;
+}
+
+.result-status.pass {
+  background: linear-gradient(180deg, #213568 0%, #243c7a 100%);
+}
+
+.result-status.incomplete {
+  background: linear-gradient(180deg, #3e2b3f 0%, #4d3550 100%);
+}
+
+.result-status-text {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+}
+
+.result-status.pass .result-status-text {
+  color: #53f05a;
+}
+
+.result-status.incomplete .result-status-text {
+  color: #ffbe55;
+}
+
+.result-status-note {
+  margin-top: 3px;
+  font-size: 0.92rem;
+  color: #f2f5ff;
+}
+
+.result-score {
+  margin-top: 6px;
+  font-size: 0.86rem;
+  color: #f2f5ff;
+}
+
+.result-list {
+  border-top: 1px solid rgba(255, 255, 255, 0.8);
+  margin: 0 12px;
+  padding: 10px 10px 12px;
+  background: #1f2f60;
+}
+
+.result-list-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #f2962f;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.result-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.result-list-item:last-child {
+  margin-bottom: 0;
+}
+
+.result-item-pass {
+  color: #53f05a;
+}
+
+.result-item-incomplete {
+  color: #ffbe55;
+}
+
+.result-close-button {
+  display: block;
+  width: min(70%, 190px);
+  margin: 8px auto 12px;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #ff8d3d 0%, #f26a21 100%);
+  color: #1a140f;
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  cursor: pointer;
+}
+
 .path-lines {
   position: absolute;
   width: 100%;
@@ -255,6 +406,23 @@
     font-size: 0.72rem;
   }
 
+  .result-open-button {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+
+  .result-brand {
+    font-size: 2.1rem;
+  }
+
+  .result-status-text {
+    font-size: 1.6rem;
+  }
+
+  .result-list-item {
+    font-size: 0.75rem;
+  }
+
   .path-line-rail {
     stroke-width: 2.85;
   }
@@ -326,6 +494,64 @@
 
   .summit-text {
     font-size: 0.62rem;
+  }
+
+  .result-open-button {
+    top: max(8px, env(safe-area-inset-top));
+    right: max(8px, env(safe-area-inset-right));
+    padding: 6px 10px;
+    font-size: 0.68rem;
+  }
+
+  .result-overlay {
+    padding: 10px;
+  }
+
+  .result-card {
+    border-radius: 24px;
+  }
+
+  .result-brand {
+    margin-top: 12px;
+    font-size: 1.75rem;
+  }
+
+  .result-subtitle {
+    margin: 6px 10px 10px;
+    font-size: 0.68rem;
+  }
+
+  .result-status {
+    margin: 0 8px;
+    padding: 10px 8px 8px;
+  }
+
+  .result-status-text {
+    font-size: 1.28rem;
+  }
+
+  .result-status-note,
+  .result-score {
+    font-size: 0.72rem;
+  }
+
+  .result-list {
+    margin: 0 8px;
+    padding: 8px;
+  }
+
+  .result-list-title {
+    font-size: 0.68rem;
+  }
+
+  .result-list-item {
+    font-size: 0.67rem;
+    gap: 6px;
+  }
+
+  .result-close-button {
+    font-size: 1rem;
+    margin-bottom: 10px;
   }
 
   .path-line-rail {

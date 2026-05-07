@@ -5,23 +5,94 @@ import './MountainProgressGame.css'
 
 /** Old persisted progress — cleared once so it no longer drives the map. */
 const LEGACY_LEVELS_STORAGE_KEY = 'mountainProgressGameLevels'
-/** In-tab only; cleared when the tab closes (“fresh” next visit). */
-const SESSION_LEVELS_KEY = 'mountainProgressSessionLevels'
+const TOKEN_PROGRESS_STORAGE_KEY = 'mountainProgressByToken'
 const EXTERNAL_RETURN_TOKEN_KEY = 'mountainProgressExternalReturnToken'
+const ANON_SESSION_LEVELS_KEY = 'mountainProgressAnonSessionLevels'
+const ANON_PROGRESS_TOKEN = '__default__'
 
-const loadSessionLevels = () => {
+const getTokenFromParams = (params) => {
+  const token = params.get('token')?.trim()
+  return token || null
+}
+
+const getDefaultLevels = () => defaultLevels.map((level) => ({ ...level }))
+
+const loadProgressStore = () => {
   try {
-    const raw = sessionStorage.getItem(SESSION_LEVELS_KEY)
-    if (!raw) return null
+    const raw = localStorage.getItem(TOKEN_PROGRESS_STORAGE_KEY)
+    if (!raw) return {}
     const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed) || parsed.length !== defaultLevels.length) return null
+    if (!parsed || typeof parsed !== 'object') return {}
+    return parsed
+  } catch {
+    return {}
+  }
+}
+
+const loadLevelsByProgressToken = (progressToken) => {
+  const store = loadProgressStore()
+  const tokenData = store[progressToken]
+  const statuses = tokenData?.levels
+
+  if (!Array.isArray(statuses) || statuses.length !== defaultLevels.length) {
+    return getDefaultLevels()
+  }
+
+  return defaultLevels.map((def, i) => ({
+    ...def,
+    status: statuses[i]?.status ?? def.status,
+  }))
+}
+
+const loadAnonSessionLevels = () => {
+  try {
+    const raw = sessionStorage.getItem(ANON_SESSION_LEVELS_KEY)
+    if (!raw) return getDefaultLevels()
+    const statuses = JSON.parse(raw)
+    if (!Array.isArray(statuses) || statuses.length !== defaultLevels.length) {
+      return getDefaultLevels()
+    }
     return defaultLevels.map((def, i) => ({
       ...def,
-      status: parsed[i]?.status ?? def.status,
+      status: statuses[i]?.status ?? def.status,
     }))
   } catch {
-    return null
+    return getDefaultLevels()
   }
+}
+
+const saveLevelsByProgressToken = (progressToken, levels) => {
+  const store = loadProgressStore()
+  const allCompleted = levels.every((level) => level.status === 'completed')
+  if (allCompleted) {
+    delete store[progressToken]
+  } else {
+    store[progressToken] = {
+      levels: levels.map((l) => ({ status: l.status })),
+      updatedAt: new Date().toISOString(),
+    }
+  }
+  localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+}
+
+const saveAnonSessionLevels = (levels) => {
+  sessionStorage.setItem(
+    ANON_SESSION_LEVELS_KEY,
+    JSON.stringify(levels.map((l) => ({ status: l.status }))),
+  )
+}
+
+const applyOutcomeForContext = (progressToken, hasTokenInUrl, campId, passed) => {
+  const current = hasTokenInUrl
+    ? loadLevelsByProgressToken(progressToken)
+    : loadAnonSessionLevels()
+  const next = applyCampPassOutcome(current, campId, passed)
+  if (hasTokenInUrl) {
+    saveLevelsByProgressToken(progressToken, next)
+  } else {
+    saveAnonSessionLevels(next)
+  }
+  return next
 }
 
 const applyCampPassOutcome = (prevLevels, campId, passed) => {
@@ -63,6 +134,27 @@ const getExplicitReturnPassState = (params) => {
   const passed = parsed.every(Boolean)
   return { explicit: true, passed }
 }
+
+const getCleanSearchParams = (params) => {
+  const next = new URLSearchParams(params)
+  ;[
+    'campOutcome',
+    'camp',
+    'returnToken',
+    ...RETURN_OUTCOME_PARAM_KEYS,
+  ].forEach((key) => next.delete(key))
+  return next
+}
+
+const createReturnToken = () =>
+  `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+
+const queueLevelsUpdate = (setter, updater) => {
+  Promise.resolve().then(() => {
+    setter(updater)
+  })
+}
+
 const CAMP2_EXTERNAL_URL =
   'https://antiz-digital.com/snake/?topic=Fire%20Safety'
 const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
@@ -113,23 +205,38 @@ const tentImageByStatus = {
 function MountainProgressGame() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [isResultOpen, setIsResultOpen] = useState(false)
+  const tokenFromUrl = useMemo(() => getTokenFromParams(searchParams), [searchParams])
+  const hasTokenInUrl = Boolean(tokenFromUrl)
+  const progressToken = tokenFromUrl || ANON_PROGRESS_TOKEN
 
-  const [levels, setLevels] = useState(() => {
-    const fromSession = loadSessionLevels()
-    if (fromSession) return fromSession
-    return defaultLevels.map((level) => ({ ...level }))
-  })
+  const [levels, setLevels] = useState(() =>
+    hasTokenInUrl ? loadLevelsByProgressToken(progressToken) : loadAnonSessionLevels(),
+  )
 
   useEffect(() => {
     localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
+    const store = loadProgressStore()
+    if (store[ANON_PROGRESS_TOKEN]) {
+      delete store[ANON_PROGRESS_TOKEN]
+      localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+    }
   }, [])
 
   useEffect(() => {
-    sessionStorage.setItem(
-      SESSION_LEVELS_KEY,
-      JSON.stringify(levels.map((l) => ({ status: l.status }))),
-    )
-  }, [levels])
+    const nextLevels = hasTokenInUrl
+      ? loadLevelsByProgressToken(progressToken)
+      : loadAnonSessionLevels()
+    queueLevelsUpdate(setLevels, nextLevels)
+  }, [hasTokenInUrl, progressToken])
+
+  useEffect(() => {
+    if (hasTokenInUrl) {
+      saveLevelsByProgressToken(progressToken, levels)
+    } else {
+      saveAnonSessionLevels(levels)
+    }
+  }, [hasTokenInUrl, levels, progressToken])
 
   useEffect(() => {
     const campIdRaw = searchParams.get('campOutcome') ?? searchParams.get('camp')
@@ -144,21 +251,33 @@ function MountainProgressGame() {
     const { explicit, passed } = getExplicitReturnPassState(searchParams)
 
     if (explicit) {
-      setLevels((prev) => applyCampPassOutcome(prev, campId, passed))
-      setSearchParams({}, { replace: true })
+      const nextLevels = applyOutcomeForContext(
+        progressToken,
+        hasTokenInUrl,
+        campId,
+        passed,
+      )
+      queueLevelsUpdate(setLevels, nextLevels)
+      setSearchParams(getCleanSearchParams(searchParams), { replace: true })
       return
     }
 
     // Camp 1 is a learn-video step; returning from it implies completion.
     if (campId === 1 && returnToken && expectedReturnToken === returnToken) {
-      setLevels((prev) => applyCampPassOutcome(prev, campId, true))
+      const nextLevels = applyOutcomeForContext(
+        progressToken,
+        hasTokenInUrl,
+        campId,
+        true,
+      )
+      queueLevelsUpdate(setLevels, nextLevels)
       sessionStorage.removeItem(EXTERNAL_RETURN_TOKEN_KEY)
-      setSearchParams({}, { replace: true })
+      setSearchParams(getCleanSearchParams(searchParams), { replace: true })
       return
     }
 
-    setSearchParams({}, { replace: true })
-  }, [searchParams, setSearchParams])
+    setSearchParams(getCleanSearchParams(searchParams), { replace: true })
+  }, [hasTokenInUrl, progressToken, searchParams, setSearchParams])
 
   const mappedPositions = useMemo(
     () => positions.map(remapPointToMountain),
@@ -168,6 +287,12 @@ function MountainProgressGame() {
     () => remapPointToMountain(summitPosition),
     [],
   )
+  const completedCount = useMemo(
+    () => levels.filter((level) => level.status === 'completed').length,
+    [levels],
+  )
+  const totalCamps = levels.length
+  const isPassed = completedCount === totalCamps
 
   const handleTentClick = (level) => {
     if (level.status === 'locked') return
@@ -178,9 +303,15 @@ function MountainProgressGame() {
         window.location.origin,
       )
       const returnUrl = new URL(returnBase.href)
-      const returnToken = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+      const returnToken = createReturnToken()
       sessionStorage.setItem(EXTERNAL_RETURN_TOKEN_KEY, returnToken)
       returnUrl.search = ''
+      const tokenFromUrlFromParams = searchParams.get('token')
+      const playNoFromUrl = searchParams.get('play_no')
+      if (tokenFromUrlFromParams) returnUrl.searchParams.set('token', tokenFromUrlFromParams)
+      if (playNoFromUrl) returnUrl.searchParams.set('play_no', playNoFromUrl)
+      if (tokenFromUrlFromParams) gameUrl.searchParams.set('token', tokenFromUrlFromParams)
+      if (playNoFromUrl) gameUrl.searchParams.set('play_no', playNoFromUrl)
       returnUrl.searchParams.set('campOutcome', String(level.id))
       returnUrl.searchParams.set('returnToken', returnToken)
       gameUrl.searchParams.set('returnUrl', returnUrl.href)
@@ -201,6 +332,13 @@ function MountainProgressGame() {
         <h2>FIRE SHIELD 360</h2>
         <p>Fire Safety & Immediate Response</p>
       </div>
+      <button
+        type="button"
+        className="result-open-button"
+        onClick={() => setIsResultOpen(true)}
+      >
+        Close
+      </button>
 
       {/* 🎯 TENTS */}
       {levels.map((level, index) => (
@@ -245,6 +383,55 @@ function MountainProgressGame() {
         <span className="summit-flag">🏁</span>
         <span className="summit-text">Summit</span>
       </div>
+
+      {isResultOpen ? (
+        <div className="result-overlay" role="dialog" aria-modal="true">
+          <div className="result-card">
+            <h3 className="result-brand">
+              Fire <span>Shield</span>
+            </h3>
+            <p className="result-subtitle">Scenario-based fire extinguisher training</p>
+
+            <div className={`result-status ${isPassed ? 'pass' : 'incomplete'}`}>
+              <div className="result-status-text">{isPassed ? 'PASS' : 'INCOMPLETE'}</div>
+              <div className="result-status-note">
+                {isPassed
+                  ? 'Excellent work. Safety Champion.'
+                  : 'Complete all camps to become Safety Champion.'}
+              </div>
+              <div className="result-score">
+                Final Score {completedCount}/{totalCamps}
+              </div>
+            </div>
+
+            <div className="result-list">
+              <div className="result-list-title">Scenario Results</div>
+              {levels.map((level) => (
+                <div key={level.id} className="result-list-item">
+                  <span>{`${level.id}. ${campSubtitleById[level.id] ?? level.title}`}</span>
+                  <strong
+                    className={
+                      level.status === 'completed'
+                        ? 'result-item-pass'
+                        : 'result-item-incomplete'
+                    }
+                  >
+                    {level.status === 'completed' ? 'PASS' : 'INCOMPLETE'}
+                  </strong>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              className="result-close-button"
+              onClick={() => setIsResultOpen(false)}
+            >
+              CLOSE
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
