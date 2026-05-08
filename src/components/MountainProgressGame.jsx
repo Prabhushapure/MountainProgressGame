@@ -163,8 +163,8 @@ const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 
 const positions = [
   { top: '92%', left: '31%' },
-  { top: '79%', left: '48%' },
-  { top: '58%', left: '52%' },
+  { top: '80%', left: '48%' },
+  { top: '59%', left: '52%' },
   { top: '37%', left: '56%' },
 ]
 

@@ -385,6 +385,20 @@
 
 /* ——— Tablet ——— */
 @media (max-width: 900px) {
+  .mountain-map {
+    align-items: stretch;
+  }
+
+  .mountain-stage {
+    --stage-height: 100vh;
+    --stage-height: 100dvh;
+    height: var(--stage-height);
+    width: auto;
+    aspect-ratio: 16 / 9;
+    flex: 0 0 auto;
+    margin: 0 auto;
+  }
+
   .hud-title {
     padding: 8px 10px;
     max-width: min(92vw, 280px);
@@ -467,18 +481,23 @@
   }
 }
 
-/* ——— Phone ——— */
-@media (max-width: 600px) {
+/* ——— Tablet band hard override ——— */
+@media (min-width: 601px) and (max-width: 900px) {
   .mountain-map {
     align-items: stretch;
   }
 
   .mountain-stage {
-    --stage-height: 100dvh;
-    width: calc(100dvh * 16 / 9);
-    margin: 0 auto;
+    height: 100vh !important;
+    height: 100dvh !important;
+    width: calc(100dvh * 16 / 9) !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
   }
+}
 
+/* ——— Phone ——— */
+@media (max-width: 600px) {
   .hud-title {
     top: max(8px, env(safe-area-inset-top));
     left: max(8px, env(safe-area-inset-left));
