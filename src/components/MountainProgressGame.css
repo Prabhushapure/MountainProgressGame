@@ -59,15 +59,15 @@
 }
 
 .tent-image {
-  width: 105px;
-  height: 105px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
 
 .tent-image-camp-1 {
-  width: 125px;
-  height: 125px;
+  width: 104px;
+  height: 104px;
 }
 
 .tent-button:hover .tent-image {
@@ -77,10 +77,10 @@
 .camp-label {
   position: absolute;
   top: 50%;
-  left: 96px;
+  left: 82px;
   transform: translateY(-50%);
   z-index: 1;
-  min-width: 145px;
+  min-width: 128px;
   background: #f8f8f8;
   border: 2px solid #b01212;
   border-radius: 10px;
@@ -149,7 +149,7 @@
 
 .result-open-button {
   position: absolute;
-  top: 2%;
+  bottom: 2%;
   right: 2%;
   z-index: 14;
   border: none;
@@ -373,18 +373,18 @@
   }
 
   .tent-image {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
   }
 
   .tent-image-camp-1 {
-    width: 96px;
-    height: 96px;
+    width: 82px;
+    height: 82px;
   }
 
   .camp-label {
-    left: 74px;
-    min-width: 118px;
+    left: 66px;
+    min-width: 108px;
   }
 
   .camp-label-title {
@@ -459,17 +459,17 @@
   }
 
   .tent-image {
-    width: 56px;
-    height: 56px;
+    width: 50px;
+    height: 50px;
   }
 
   .tent-image-camp-1 {
-    width: 68px;
-    height: 68px;
+    width: 58px;
+    height: 58px;
   }
 
   .camp-label {
-    left: 52px;
+    left: 46px;
     min-width: 0;
     width: max-content;
     max-width: min(42vw, 140px);
@@ -497,7 +497,7 @@
   }
 
   .result-open-button {
-    top: max(8px, env(safe-area-inset-top));
+    bottom: max(8px, env(safe-area-inset-bottom));
     right: max(8px, env(safe-area-inset-right));
     padding: 6px 10px;
     font-size: 0.68rem;

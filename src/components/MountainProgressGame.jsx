@@ -163,9 +163,9 @@ const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 
 const positions = [
   { top: '100%', left: '31%' },
-  { top: '88%', left: '48%' },
-  { top: '66%', left: '52%' },
-  { top: '42%', left: '56%' },
+  { top: '90%', left: '48%' },
+  { top: '68%', left: '52%' },
+  { top: '44%', left: '56%' },
 ]
 
 const summitPosition = { top: '10%', left: '62%' }
@@ -425,7 +425,11 @@ function MountainProgressGame() {
             <button
               type="button"
               className="result-close-button"
-              onClick={() => setIsResultOpen(false)}
+              onClick={() => {
+                window.location.assign(
+                  'https://antiz-digital.com/GamifiedLearning/partner/license',
+                )
+              }}
             >
               CLOSE
             </button>
