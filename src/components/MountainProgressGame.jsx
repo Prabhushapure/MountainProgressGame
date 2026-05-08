@@ -160,6 +160,8 @@ const CAMP2_EXTERNAL_URL =
 const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
 const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
+const PASS_ICON_URL = publicUrl('assets/result-pass.png')
+const FAIL_ICON_URL = publicUrl('assets/result-fail.png')
 
 const positions = [
   { top: '92%', left: '31%' },
@@ -195,6 +197,13 @@ const campSubtitleById = {
   2: 'Snake & Ladder',
   3: 'Fire Shield',
   4: 'Building Evacuation',
+}
+
+const campPointsById = {
+  1: 100,
+  2: 440,
+  3: 500,
+  4: 740,
 }
 
 const tentImageByStatus = {
@@ -292,6 +301,19 @@ function MountainProgressGame() {
     () => levels.filter((level) => level.status === 'completed').length,
     [levels],
   )
+  const earnedPoints = useMemo(
+    () =>
+      levels.reduce(
+        (sum, level) =>
+          level.status === 'completed' ? sum + (campPointsById[level.id] ?? 0) : sum,
+        0,
+      ),
+    [levels],
+  )
+  const totalPossiblePoints = useMemo(
+    () => levels.reduce((sum, level) => sum + (campPointsById[level.id] ?? 0), 0),
+    [levels],
+  )
   const totalCamps = levels.length
   const isPassed = completedCount === totalCamps
 
@@ -372,7 +394,9 @@ function MountainProgressGame() {
               />
             </button>
 
-            <div className={`camp-label status-${level.status}`}>
+            <div
+              className={`camp-label status-${level.status} ${level.id === 1 ? 'camp-label-camp-1' : ''}`}
+            >
               <span className="camp-label-title">{level.title}</span>
               <span className="camp-label-subtitle">
                 {campSubtitleById[level.id] ?? 'Training Module'}
@@ -396,53 +420,70 @@ function MountainProgressGame() {
 
       {isResultOpen ? (
         <div className="result-overlay" role="dialog" aria-modal="true">
-          <div className="result-card">
-            <h3 className="result-brand">
-              Fire <span>Shield</span>
+          <div className="result-dialog">
+            <h3 className="instruction-title result-brand">
+              <span>FIRE</span>SHIELD 360
             </h3>
-            <p className="result-subtitle">Scenario-based fire extinguisher training</p>
+            <p className="instruction-tagline result-subtitle">
+              Gamified Fire Safety Training for Corporates &amp; Industry
+            </p>
+            <div className="result-card">
 
-            <div className={`result-status ${isPassed ? 'pass' : 'incomplete'}`}>
-              <div className="result-status-text">{isPassed ? 'PASS' : 'INCOMPLETE'}</div>
-              <div className="result-status-note">
-                {isPassed
-                  ? 'Excellent work. Safety Champion.'
-                  : 'Complete all camps to become Safety Champion.'}
-              </div>
-              <div className="result-score">
-                Final Score {completedCount}/{totalCamps}
-              </div>
-            </div>
-
-            <div className="result-list">
-              <div className="result-list-title">Scenario Results</div>
-              {levels.map((level) => (
-                <div key={level.id} className="result-list-item">
-                  <span>{`${level.id}. ${campSubtitleById[level.id] ?? level.title}`}</span>
-                  <strong
-                    className={
-                      level.status === 'completed'
-                        ? 'result-item-pass'
-                        : 'result-item-incomplete'
-                    }
-                  >
-                    {level.status === 'completed' ? 'PASS' : 'INCOMPLETE'}
-                  </strong>
+              <div className="result-status">
+                <div className={`result-status-text ${isPassed ? 'pass' : 'incomplete'}`}>
+                  {isPassed ? 'PASS' : 'INCOMPLETE'}
                 </div>
-              ))}
-            </div>
+                <div className="result-congrats-row">
+                  <div>
+                    <div className="result-congrats-title">
+                      {isPassed ? 'CONGRATS!' : 'KEEP GOING!'}
+                    </div>
+                    <div className="result-congrats-note">
+                      {isPassed
+                        ? 'You have completed all activities at the four Camps and have reached the Summit.'
+                        : 'Complete all activities at the four Camps to reach the Summit.'}
+                    </div>
+                  </div>
+                  <img
+                    className="result-emoji"
+                    src={isPassed ? PASS_ICON_URL : FAIL_ICON_URL}
+                    alt={isPassed ? 'Pass icon' : 'Incomplete icon'}
+                  />
+                </div>
+              </div>
 
-            <button
-              type="button"
-              className="result-close-button"
-              onClick={() => {
-                window.location.assign(
-                  'https://antiz-digital.com/GamifiedLearning/partner/license',
-                )
-              }}
-            >
-              CLOSE
-            </button>
+              <div className="result-list">
+                <div className="result-list-title">Activity Scores</div>
+                {levels.map((level) => (
+                  <div key={level.id} className="result-list-item">
+                    <span>{`Camp ${level.id}: ${campSubtitleById[level.id] ?? level.title}`}</span>
+                    <strong>{`${level.status === 'completed' ? campPointsById[level.id] ?? 0 : 0} points`}</strong>
+                  </div>
+                ))}
+                <div className="result-totals">
+                  <div className="result-total-row">
+                    <span>Total Camps Completed:</span>
+                    <strong>{`${completedCount}/${totalCamps}`}</strong>
+                  </div>
+                  <div className="result-total-row">
+                    <span>Total Score:</span>
+                    <strong>{`${earnedPoints}/${totalPossiblePoints} points`}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="result-close-button"
+                onClick={() => {
+                  window.location.assign(
+                    'https://antiz-digital.com/GamifiedLearning/partner/license',
+                  )
+                }}
+              >
+                CLOSE
+              </button>
+            </div>
           </div>
         </div>
       ) : null}

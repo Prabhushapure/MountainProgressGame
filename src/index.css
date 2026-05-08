@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: Aptos, 'Segoe UI', Arial, sans-serif;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -18,7 +18,7 @@ body {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
-  padding: 28px 16px;
+  padding: 12px 0;
   background: radial-gradient(circle at 50% 15%, #102c74 0%, #06123a 50%, #020718 100%);
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 
 .splash-title {
@@ -43,18 +43,19 @@ body {
 
 .splash-frame {
   width: min(980px, 100%);
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: #000;
+  box-shadow: none;
+  border: none;
+  background: transparent;
 }
 
 .splash-video {
   width: 100%;
   max-height: min(68vh, 720px);
   display: block;
-  object-fit: contain;
+  object-fit: cover;
+  aspect-ratio: 16 / 9;
   background: #000;
 }
 
@@ -96,7 +97,155 @@ body {
   justify-content: center;
 }
 
+.instruction-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: linear-gradient(180deg, #051332 0%, #04102a 100%);
+}
+
+.instruction-frame {
+  width: min(980px, 100%);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 24px 28px 12px;
+  color: #fff;
+}
+
+.instruction-title {
+  margin: 0;
+  text-align: center;
+  line-height: 1;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  font-size: clamp(2rem, 5vw, 4rem);
+}
+
+.instruction-title span {
+  color: #ffca1c;
+  margin-right: 2px;
+}
+
+.instruction-tagline {
+  margin: 4px 0 10px;
+  text-align: center;
+  font-size: clamp(1rem, 1.6vw, 1.9rem);
+  font-weight: 600;
+  color: #eef4ff;
+}
+
+.instruction-card {
+  width: fit-content;
+  max-width: min(800px, 100%);
+  margin: 0 auto;
+  border-radius: 36px;
+  border: 2px solid rgba(60, 116, 191, 0.75);
+  background: linear-gradient(180deg, rgba(28, 67, 120, 0.88) 0%, rgba(17, 45, 90, 0.9) 100%);
+  padding: 26px 26px 16px;
+}
+
+.instruction-section-title {
+  margin: 0 0 8px;
+  color: #ffca1c;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 700;
+}
+
+.instruction-card p {
+  margin: 0 0 18px;
+  line-height: 1.5;
+  font-size: clamp(1rem, 1.25vw, 1.5rem);
+  font-weight: 400;
+  color: #fff;
+}
+
+.instruction-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.instruction-list li {
+  position: relative;
+  padding-left: 20px;
+  line-height: 1.35;
+  font-size: clamp(1rem, 1.18vw, 1.4rem);
+  font-weight: 500;
+}
+
+.instruction-list li::before {
+  content: '\25B6';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #fff;
+}
+
+.instruction-play-button {
+  display: block;
+  margin: 12px auto 0;
+  border: none;
+  border-radius: 12px;
+  min-width: 180px;
+  min-height: 56px;
+  padding: 8px 22px;
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+  font-weight: 700;
+  color: #001430;
+  background: linear-gradient(180deg, #ffd934 0%, #f6c70d 100%);
+  cursor: pointer;
+}
+
+.instruction-play-button:hover {
+  filter: brightness(1.04);
+}
+
+.instruction-play-button:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
 @media (max-width: 480px) {
+  .instruction-screen {
+    padding: 12px 10px;
+  }
+
+  .instruction-frame {
+    padding: 14px 12px 10px;
+  }
+
+  .instruction-tagline {
+    margin-top: 6px;
+  }
+
+  .instruction-card {
+    border-radius: 20px;
+    padding: 14px 12px 10px;
+  }
+
+  .instruction-card p {
+    line-height: 1.35;
+  }
+
+  .instruction-list li {
+    line-height: 1.25;
+    padding-left: 16px;
+  }
+
+  .instruction-play-button {
+    min-width: 142px;
+    min-height: 46px;
+    border-radius: 10px;
+    font-size: 1.85rem;
+  }
+
   .splash-screen {
     padding: 20px 10px;
   }
