@@ -421,12 +421,14 @@ function MountainProgressGame() {
       {isResultOpen ? (
         <div className="result-overlay" role="dialog" aria-modal="true">
           <div className="result-dialog">
-            <h3 className="instruction-title result-brand">
-              <span>FIRE</span>SHIELD 360
-            </h3>
-            <p className="instruction-tagline result-subtitle">
-              Gamified Fire Safety Training for Corporates &amp; Industry
-            </p>
+            <div className="result-header">
+              <h3 className="instruction-title">
+                <span>FIRE</span>SHIELD 360
+              </h3>
+              <p className="instruction-tagline">
+                Gamified Fire Safety Training for Corporates &amp; Industry
+              </p>
+            </div>
             <div className="result-card">
 
               <div className="result-status">

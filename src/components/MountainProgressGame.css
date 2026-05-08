@@ -207,12 +207,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.56);
+  background: linear-gradient(180deg, #051332 0%, #04102a 100%);
   padding: 16px;
 }
 
 .result-dialog {
   width: min(95vw, 520px);
+}
+
+.result-header {
+  margin: 0 0 12px;
+}
+
+.result-header .instruction-title {
+  font-size: clamp(1.75rem, 4.2vw, 3.2rem);
+  font-weight: 600;
+}
+
+.result-header .instruction-tagline {
+  font-size: clamp(0.9rem, 1.35vw, 1.45rem);
+  font-weight: 500;
 }
 
 .result-card {
@@ -223,14 +237,6 @@
   background: #1f2e59;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(107, 137, 194, 0.35);
-}
-
-.result-brand {
-  margin: 0;
-}
-
-.result-subtitle {
-  margin: 6px 0 12px;
 }
 
 .result-status {
@@ -254,7 +260,9 @@
 }
 
 .result-status-text.incomplete {
-  color: #ffbe55;
+  color: #ffca1c;
+  font-size: 2.2rem;
+  font-weight: 700;
 }
 
 .result-congrats-row {
@@ -269,6 +277,11 @@
   font-size: 1.95rem;
   font-weight: 800;
   line-height: 1.05;
+}
+
+.result-status-text.incomplete + .result-congrats-row .result-congrats-title {
+  font-size: 1.35rem;
+  font-weight: 700;
 }
 
 .result-congrats-note {
@@ -293,9 +306,9 @@
 }
 
 .result-list-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #f2962f;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffca1c;
   margin-bottom: 10px;
 }
 
@@ -337,8 +350,8 @@
   padding: 9px 12px;
   background: linear-gradient(180deg, #ffda35 0%, #f5c80d 100%);
   color: #08121f;
-  font-size: 2.15rem;
-  font-weight: 900;
+  font-size: 1.75rem;
+  font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: capitalize;
   cursor: pointer;
@@ -471,10 +484,6 @@
     font-size: 0.75rem;
   }
 
-  .result-brand {
-    margin-top: 0;
-  }
-
   .result-status-text {
     font-size: 2.35rem;
   }
@@ -590,12 +599,16 @@
     border-radius: 24px;
   }
 
-  .result-brand {
-    margin-top: 0;
+  .result-header {
+    margin-bottom: 8px;
   }
 
-  .result-subtitle {
-    margin: 6px 10px 8px;
+  .result-header .instruction-title {
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+  }
+
+  .result-header .instruction-tagline {
+    font-size: clamp(0.8rem, 1.25vw, 1.15rem);
   }
 
   .result-status {
@@ -607,8 +620,18 @@
     font-size: 1.7rem;
   }
 
+  .result-status-text.incomplete {
+    font-size: 1.35rem;
+    font-weight: 700;
+  }
+
   .result-congrats-title {
     font-size: 1rem;
+  }
+
+  .result-status-text.incomplete + .result-congrats-row .result-congrats-title {
+    font-size: 0.88rem;
+    font-weight: 700;
   }
 
   .result-congrats-note {
@@ -626,7 +649,8 @@
   }
 
   .result-list-title {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
   }
 
   .result-list-item {
@@ -640,7 +664,8 @@
 
   .result-close-button {
     width: min(62%, 180px);
-    font-size: 1.55rem;
+    font-size: 1.2rem;
+    font-weight: 700;
     margin-bottom: 10px;
   }
 
