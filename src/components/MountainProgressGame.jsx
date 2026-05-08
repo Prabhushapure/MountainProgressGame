@@ -162,15 +162,16 @@ const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 
 const positions = [
-  { top: '100%', left: '31%' },
-  { top: '90%', left: '48%' },
-  { top: '68%', left: '52%' },
-  { top: '44%', left: '56%' },
+  { top: '92%', left: '31%' },
+  { top: '79%', left: '48%' },
+  { top: '58%', left: '52%' },
+  { top: '37%', left: '56%' },
 ]
 
 const summitPosition = { top: '10%', left: '62%' }
 const MAP_SCALE_X = 0.95
-const MAP_SCALE_Y = 0.95
+const MAP_SCALE_Y = 0.9
+const MAP_OFFSET_Y = 2
 
 const remapPointToMountain = (point) => {
   const left = parseFloat(point.left)
@@ -178,7 +179,7 @@ const remapPointToMountain = (point) => {
 
   return {
     left: `${50 + (left - 50) * MAP_SCALE_X}%`,
-    top: `${top * MAP_SCALE_Y}%`,
+    top: `${MAP_OFFSET_Y + top * MAP_SCALE_Y}%`,
   }
 }
 
@@ -325,7 +326,7 @@ function MountainProgressGame() {
     <div
       className="mountain-map"
       style={{
-        backgroundImage: `url(${publicUrl('assets/mountain.png')})`,
+        '--mountain-bg-url': `url(${publicUrl('assets/mountain.png')})`,
       }}
     >
       <div className="hud-title">
@@ -340,48 +341,57 @@ function MountainProgressGame() {
         Close
       </button>
 
-      {/* 🎯 TENTS */}
-      {levels.map((level, index) => (
+      <div className="mountain-stage">
+        <img
+          src={publicUrl('assets/mountain.png')}
+          alt="Mountain route"
+          className="mountain-image"
+          draggable={false}
+        />
+
+        {/* 🎯 TENTS */}
+        {levels.map((level, index) => (
+          <div
+            key={level.id}
+            className="tent-node"
+            style={{
+              top: mappedPositions[index].top,
+              left: mappedPositions[index].left,
+            }}
+          >
+            <button
+              type="button"
+              className={`tent-button status-${level.status}`}
+              onClick={() => handleTentClick(level)}
+              disabled={level.status === 'locked'}
+            >
+              <img
+                src={tentImageByStatus[level.status]}
+                alt={level.title}
+                className={`tent-image ${level.id === 1 ? 'tent-image-camp-1' : ''}`}
+              />
+            </button>
+
+            <div className={`camp-label status-${level.status}`}>
+              <span className="camp-label-title">{level.title}</span>
+              <span className="camp-label-subtitle">
+                {campSubtitleById[level.id] ?? 'Training Module'}
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* 🏁 SUMMIT */}
         <div
-          key={level.id}
-          className="tent-node"
+          className="summit-node"
           style={{
-            top: mappedPositions[index].top,
-            left: mappedPositions[index].left,
+            top: mappedSummitPosition.top,
+            left: mappedSummitPosition.left,
           }}
         >
-          <button
-            type="button"
-            className={`tent-button status-${level.status}`}
-            onClick={() => handleTentClick(level)}
-            disabled={level.status === 'locked'}
-          >
-            <img
-              src={tentImageByStatus[level.status]}
-              alt={level.title}
-              className={`tent-image ${level.id === 1 ? 'tent-image-camp-1' : ''}`}
-            />
-          </button>
-
-          <div className={`camp-label status-${level.status}`}>
-            <span className="camp-label-title">{level.title}</span>
-            <span className="camp-label-subtitle">
-              {campSubtitleById[level.id] ?? 'Training Module'}
-            </span>
-          </div>
+          <span className="summit-flag">🏁</span>
+          <span className="summit-text">Summit</span>
         </div>
-      ))}
-
-      {/* 🏁 SUMMIT */}
-      <div
-        className="summit-node"
-        style={{
-          top: mappedSummitPosition.top,
-          left: mappedSummitPosition.left,
-        }}
-      >
-        <span className="summit-flag">🏁</span>
-        <span className="summit-text">Summit</span>
       </div>
 
       {isResultOpen ? (

@@ -5,11 +5,42 @@
   min-height: 100dvh;
   position: relative;
   overflow: hidden;
-  background-size: 96% auto;
-  background-position: center top;
-  background-repeat: no-repeat;
   background-color: #0b1f3a;
   font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.mountain-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--mountain-bg-url);
+  background-size: cover;
+  background-position: center;
+  filter: blur(14px) saturate(1.05);
+  transform: scale(1.08);
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mountain-stage {
+  --stage-height: min(100dvh, calc(100vw * 9 / 16));
+  position: relative;
+  height: var(--stage-height);
+  width: calc(var(--stage-height) * 16 / 9);
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.mountain-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
 }
 
 .hud-title {
@@ -354,10 +385,6 @@
 
 /* ——— Tablet ——— */
 @media (max-width: 900px) {
-  .mountain-map {
-    background-size: 96% auto;
-  }
-
   .hud-title {
     padding: 8px 10px;
     max-width: min(92vw, 280px);
@@ -442,6 +469,16 @@
 
 /* ——— Phone ——— */
 @media (max-width: 600px) {
+  .mountain-map {
+    align-items: stretch;
+  }
+
+  .mountain-stage {
+    --stage-height: 100dvh;
+    width: calc(100dvh * 16 / 9);
+    margin: 0 auto;
+  }
+
   .hud-title {
     top: max(8px, env(safe-area-inset-top));
     left: max(8px, env(safe-area-inset-left));
