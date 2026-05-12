@@ -94,7 +94,7 @@ function App() {
           <div className="splash-frame">
             <video
               className="splash-video"
-              src={publicUrl('assets/mp_.mp4')}
+              src={publicUrl('assets/video.mp4')}
               autoPlay
               muted
               playsInline

@@ -42,20 +42,24 @@ body {
 }
 
 .splash-frame {
-  width: min(980px, 100%);
+  width: fit-content;
+  max-width: 100%;
   border-radius: 0;
   overflow: hidden;
   box-shadow: none;
   border: none;
   background: transparent;
+  margin: 0 auto;
 }
 
 .splash-video {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   max-height: min(68vh, 720px);
+  height: auto;
   display: block;
-  object-fit: cover;
-  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  aspect-ratio: auto;
   background: #000;
 }
 
