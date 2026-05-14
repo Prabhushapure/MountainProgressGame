@@ -278,6 +278,14 @@
   margin-top: 3px;
 }
 
+.result-status-text.incomplete + .result-congrats-row {
+  justify-content: flex-start;
+}
+
+.result-status-text.incomplete + .result-congrats-row .result-congrats-note {
+  max-width: none;
+}
+
 .result-congrats-title {
   font-size: 1.72rem;
   font-weight: 800;

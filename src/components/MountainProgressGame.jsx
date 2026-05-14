@@ -175,7 +175,6 @@ const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 const PARTNER_LICENSE_URL = 'https://antiz-digital.com/GamifiedLearning/partner/license'
 const PASS_ICON_URL = publicUrl('assets/result-pass.png')
-const FAIL_ICON_URL = publicUrl('assets/result-fail.png')
 
 const positions = [
   { top: '92%', left: '31%' },
@@ -482,11 +481,13 @@ function MountainProgressGame() {
                         : 'Complete all activities at the four Camps to reach the Summit.'}
                     </div>
                   </div>
-                  <img
-                    className="result-emoji"
-                    src={isPassed ? PASS_ICON_URL : FAIL_ICON_URL}
-                    alt={isPassed ? 'Pass icon' : 'Incomplete icon'}
-                  />
+                  {isPassed ? (
+                    <img
+                      className="result-emoji"
+                      src={PASS_ICON_URL}
+                      alt="Pass icon"
+                    />
+                  ) : null}
                 </div>
               </div>
 
