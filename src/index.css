@@ -127,7 +127,7 @@ body {
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.5px;
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(1.65rem, 4.5vw, 3.35rem);
 }
 
 .instruction-title span {
@@ -136,9 +136,9 @@ body {
 }
 
 .instruction-tagline {
-  margin: 4px 0 10px;
+  margin: 2px 0 8px;
   text-align: center;
-  font-size: clamp(1rem, 1.6vw, 1.9rem);
+  font-size: clamp(0.92rem, 1.45vw, 1.65rem);
   font-weight: 600;
   color: #eef4ff;
 }
@@ -156,14 +156,14 @@ body {
 .instruction-section-title {
   margin: 0 0 8px;
   color: #ffca1c;
-  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-size: clamp(1rem, 1.65vw, 1.45rem);
   font-weight: 700;
 }
 
 .instruction-card p {
   margin: 0 0 18px;
   line-height: 1.5;
-  font-size: clamp(1rem, 1.25vw, 1.5rem);
+  font-size: clamp(0.92rem, 1.12vw, 1.35rem);
   font-weight: 400;
   color: #fff;
 }
@@ -180,7 +180,7 @@ body {
   position: relative;
   padding-left: 20px;
   line-height: 1.35;
-  font-size: clamp(1rem, 1.18vw, 1.4rem);
+  font-size: clamp(0.92rem, 1.08vw, 1.28rem);
   font-weight: 500;
 }
 
@@ -226,7 +226,7 @@ body {
   }
 
   .instruction-tagline {
-    margin-top: 6px;
+    margin-top: 4px;
   }
 
   .instruction-card {

@@ -1,0 +1,41 @@
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+.brand-header-text {
+  width: 100%;
+}
+
+.brand-header-logo {
+  width: clamp(56px, 14vw, 88px);
+  height: clamp(56px, 14vw, 88px);
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 0 14px rgba(255, 220, 100, 0.55));
+}
+
+.brand-header--result {
+  gap: 0;
+}
+
+.brand-header--result .brand-header-logo {
+  width: clamp(44px, 11vw, 68px);
+  height: clamp(44px, 11vw, 68px);
+}
+
+.brand-header--splash {
+  gap: 0;
+}
+
+/* Map HUD — compact mark inside title panel */
+.hud-title .brand-header-logo {
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 0 12px rgba(255, 220, 100, 0.65));
+}

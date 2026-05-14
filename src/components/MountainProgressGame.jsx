@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
 
@@ -352,6 +353,7 @@ function MountainProgressGame() {
       }}
     >
       <div className="hud-title">
+        <FireShieldLogoMark />
         <h2>FIRE SHIELD 360</h2>
         <p>Fire Safety & Immediate Response</p>
       </div>
@@ -422,12 +424,14 @@ function MountainProgressGame() {
         <div className="result-overlay" role="dialog" aria-modal="true">
           <div className="result-dialog">
             <div className="result-header">
-              <h3 className="instruction-title">
-                <span>FIRE</span>SHIELD 360
-              </h3>
-              <p className="instruction-tagline">
-                Gamified Fire Safety Training for Corporates &amp; Industry
-              </p>
+              <FireShieldBrandHeader className="brand-header--result">
+                <h3 className="instruction-title">
+                  <span>FIRE</span>SHIELD 360
+                </h3>
+                <p className="instruction-tagline">
+                  Gamified Fire Safety Training for Corporates &amp; Industry
+                </p>
+              </FireShieldBrandHeader>
             </div>
             <div className="result-card">
 

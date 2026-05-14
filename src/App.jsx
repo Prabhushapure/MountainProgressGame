@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import FireShieldBrandHeader from './components/FireShieldBrandHeader'
 import MountainProgressGame from './components/MountainProgressGame'
 import { publicUrl } from './utils/publicUrl'
 
@@ -19,10 +20,12 @@ function InstructionScreen({ onPlay }) {
   return (
     <div className="instruction-screen">
       <div className="instruction-frame">
-        <h1 className="instruction-title">
-          <span>FIRE</span>SHIELD 360
-        </h1>
-        <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
+        <FireShieldBrandHeader>
+          <h1 className="instruction-title">
+            <span>FIRE</span>SHIELD 360
+          </h1>
+          <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
+        </FireShieldBrandHeader>
 
         <div className="instruction-card">
           <h2 className="instruction-section-title">INSTRUCTIONS</h2>
@@ -87,10 +90,12 @@ function App() {
     return (
       <div className="splash-screen">
         <div className="splash-content">
-          <h1 className="instruction-title">
-            <span>FIRE</span>SHIELD 360
-          </h1>
-          <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
+          <FireShieldBrandHeader className="brand-header--splash">
+            <h1 className="instruction-title">
+              <span>FIRE</span>SHIELD 360
+            </h1>
+            <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
+          </FireShieldBrandHeader>
           <div className="splash-frame">
             <video
               className="splash-video"
