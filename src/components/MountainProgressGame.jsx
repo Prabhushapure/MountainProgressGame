@@ -199,18 +199,35 @@ const remapPointToMountain = (point) => {
 }
 
 const defaultLevels = [
-  { id: 1, title: 'Camp 1', status: 'active', url: CAMP1_EXTERNAL_URL },
-  { id: 2, title: 'Camp 2', status: 'locked', url: CAMP2_EXTERNAL_URL },
-  { id: 3, title: 'Camp 3', status: 'locked', url: CAMP3_EXTERNAL_URL },
-  { id: 4, title: 'Camp 4', status: 'locked', url: CAMP4_EXTERNAL_URL },
+  {
+    id: 1,
+    title: 'Camp 1',
+    activityLabel: 'Fire Safety Video',
+    status: 'active',
+    url: CAMP1_EXTERNAL_URL,
+  },
+  {
+    id: 2,
+    title: 'Camp 2',
+    activityLabel: 'Fire Safety Quiz',
+    status: 'locked',
+    url: CAMP2_EXTERNAL_URL,
+  },
+  {
+    id: 3,
+    title: 'Camp 3',
+    activityLabel: 'Fire Extinguisher Training',
+    status: 'locked',
+    url: CAMP3_EXTERNAL_URL,
+  },
+  {
+    id: 4,
+    title: 'Camp 4',
+    activityLabel: 'Emergency Evacuation Training',
+    status: 'locked',
+    url: CAMP4_EXTERNAL_URL,
+  },
 ]
-
-const campSubtitleById = {
-  1: 'Learn Video',
-  2: 'Snake & Ladder',
-  3: 'Fire Shield',
-  4: 'Building Evacuation',
-}
 
 const campPointsById = {
   1: 100,
@@ -432,7 +449,7 @@ function MountainProgressGame() {
             >
               <span className="camp-label-title">{level.title}</span>
               <span className="camp-label-subtitle">
-                {campSubtitleById[level.id] ?? 'Training Module'}
+                {level.activityLabel ?? 'Training Module'}
               </span>
             </div>
           </div>
@@ -464,7 +481,7 @@ function MountainProgressGame() {
                 </p>
               </FireShieldBrandHeader>
             </div>
-            <div className="result-card">
+            <div className={`result-card${isPassed ? '' : ' result-card--incomplete'}`}>
 
               <div className="result-status">
                 <div className={`result-status-text ${isPassed ? 'pass' : 'incomplete'}`}>
@@ -495,15 +512,11 @@ function MountainProgressGame() {
                 <div className="result-list-title">Activity Scores</div>
                 {levels.map((level) => (
                   <div key={level.id} className="result-list-item">
-                    <span>{`Camp ${level.id}: ${campSubtitleById[level.id] ?? level.title}`}</span>
+                    <span>{`Camp ${level.id}: ${level.activityLabel ?? level.title}`}</span>
                     <strong>{`${level.status === 'completed' ? campPointsById[level.id] ?? 0 : 0} points`}</strong>
                   </div>
                 ))}
                 <div className="result-totals">
-                  <div className="result-total-row">
-                    <span>Total Camps Completed:</span>
-                    <strong>{`${completedCount}/${totalCamps}`}</strong>
-                  </div>
                   <div className="result-total-row">
                     <span>Total Score:</span>
                     <strong>{`${earnedPoints}/${totalPossiblePoints} points`}</strong>
