@@ -66,6 +66,7 @@ function App() {
   const shouldAutoStart = useMemo(() => {
     const params = new URLSearchParams(location.search)
     return (
+      Boolean(params.get('token')?.trim()) ||
       params.has('campOutcome') ||
       params.has('camp') ||
       params.has('returnToken') ||

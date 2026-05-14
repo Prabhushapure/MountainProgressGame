@@ -18,6 +18,14 @@ const getTokenFromParams = (params) => {
 
 const getDefaultLevels = () => defaultLevels.map((level) => ({ ...level }))
 
+const levelsMatchDefault = (levels) => {
+  const expected = getDefaultLevels()
+  return (
+    levels.length === expected.length &&
+    levels.every((l, i) => l.status === expected[i].status)
+  )
+}
+
 const loadProgressStore = () => {
   try {
     const raw = localStorage.getItem(TOKEN_PROGRESS_STORAGE_KEY)
@@ -65,7 +73,7 @@ const loadAnonSessionLevels = () => {
 const saveLevelsByProgressToken = (progressToken, levels) => {
   const store = loadProgressStore()
   const allCompleted = levels.every((level) => level.status === 'completed')
-  if (allCompleted) {
+  if (allCompleted || levelsMatchDefault(levels)) {
     delete store[progressToken]
   } else {
     store[progressToken] = {
@@ -77,6 +85,10 @@ const saveLevelsByProgressToken = (progressToken, levels) => {
 }
 
 const saveAnonSessionLevels = (levels) => {
+  if (levelsMatchDefault(levels)) {
+    sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
+    return
+  }
   sessionStorage.setItem(
     ANON_SESSION_LEVELS_KEY,
     JSON.stringify(levels.map((l) => ({ status: l.status }))),
@@ -161,6 +173,7 @@ const CAMP2_EXTERNAL_URL =
 const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
 const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
+const PARTNER_LICENSE_URL = 'https://antiz-digital.com/GamifiedLearning/partner/license'
 const PASS_ICON_URL = publicUrl('assets/result-pass.png')
 const FAIL_ICON_URL = publicUrl('assets/result-fail.png')
 
@@ -345,6 +358,25 @@ function MountainProgressGame() {
     navigate(level.url)
   }
 
+  const handleDiscardProgress = () => {
+    if (hasTokenInUrl) {
+      const store = loadProgressStore()
+      delete store[progressToken]
+      localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+    } else {
+      sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
+    }
+    window.location.assign(PARTNER_LICENSE_URL)
+  }
+
+  const handleIncompleteResultClose = () => {
+    window.location.assign(PARTNER_LICENSE_URL)
+  }
+
+  const handlePassResultClose = () => {
+    window.location.assign(PARTNER_LICENSE_URL)
+  }
+
   return (
     <div
       className="mountain-map"
@@ -362,7 +394,7 @@ function MountainProgressGame() {
         className="result-open-button"
         onClick={() => setIsResultOpen(true)}
       >
-        Close
+        Exit
       </button>
 
       <div className="mountain-stage">
@@ -478,17 +510,20 @@ function MountainProgressGame() {
                 </div>
               </div>
 
-              <button
-                type="button"
-                className="result-close-button"
-                onClick={() => {
-                  window.location.assign(
-                    'https://antiz-digital.com/GamifiedLearning/partner/license',
-                  )
-                }}
-              >
-                CLOSE
-              </button>
+              {isPassed ? (
+                <button type="button" className="result-close-button" onClick={handlePassResultClose}>
+                  CLOSE
+                </button>
+              ) : (
+                <div className="result-incomplete-actions">
+                  <button type="button" className="result-close-button" onClick={handleDiscardProgress}>
+                    Discard
+                  </button>
+                  <button type="button" className="result-close-button" onClick={handleIncompleteResultClose}>
+                    Close
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
