@@ -148,11 +148,22 @@ const getFinalScoreFromParams = (params, campId) => {
   return null
 }
 
+/** Camps 2–4: keep the highest score when a camp is replayed. */
+const applyCampScoreWithMax = (existing, campId, newScore) => {
+  if (campId == null || campId === 1 || newScore == null) {
+    return normalizeCampScoresRecord(existing)
+  }
+  const next = { ...normalizeCampScoresRecord(existing) }
+  const prev = next[campId]
+  next[campId] = prev == null ? newScore : Math.max(prev, newScore)
+  return next
+}
+
 const mergeFinalScoreIntoCampScores = (existing, params, campId) => {
   if (campId == null || campId === 1) return normalizeCampScoresRecord(existing)
   const score = getFinalScoreFromParams(params, campId)
   if (score == null) return normalizeCampScoresRecord(existing)
-  return { ...normalizeCampScoresRecord(existing), [campId]: score }
+  return applyCampScoreWithMax(existing, campId, score)
 }
 
 const saveLevelsByProgressToken = (progressToken, levels, campScores) => {
