@@ -9,6 +9,8 @@ const LEGACY_LEVELS_STORAGE_KEY = 'mountainProgressGameLevels'
 const TOKEN_PROGRESS_STORAGE_KEY = 'mountainProgressByToken'
 const EXTERNAL_RETURN_TOKEN_KEY = 'mountainProgressExternalReturnToken'
 const ANON_SESSION_LEVELS_KEY = 'mountainProgressAnonSessionLevels'
+const ANON_CAMP_SCORES_SESSION_KEY = 'mountainProgressAnonCampScores'
+const FINAL_SCORE_PARAM_KEY = 'final_score'
 const ANON_PROGRESS_TOKEN = '__default__'
 
 const getTokenFromParams = (params) => {
@@ -70,14 +72,103 @@ const loadAnonSessionLevels = () => {
   }
 }
 
-const saveLevelsByProgressToken = (progressToken, levels) => {
+const normalizeCampScoresRecord = (scores) => {
+  if (!scores || typeof scores !== 'object') return {}
+  const next = {}
+  for (const [key, value] of Object.entries(scores)) {
+    const id = Number(String(key).replace(/^camp/i, ''))
+    const points = Number(value)
+    if (id >= 1 && id <= 4 && Number.isFinite(points)) {
+      next[id] = points
+    }
+  }
+  return next
+}
+
+const loadCampScoresByProgressToken = (progressToken) => {
+  const tokenData = loadProgressStore()[progressToken]
+  return normalizeCampScoresRecord(tokenData?.campScores)
+}
+
+const loadAnonCampScores = () => {
+  try {
+    const raw = sessionStorage.getItem(ANON_CAMP_SCORES_SESSION_KEY)
+    if (!raw) return {}
+    return normalizeCampScoresRecord(JSON.parse(raw))
+  } catch {
+    return {}
+  }
+}
+
+const saveAnonCampScores = (campScores) => {
+  const normalized = normalizeCampScoresRecord(campScores)
+  if (!Object.keys(normalized).length) {
+    sessionStorage.removeItem(ANON_CAMP_SCORES_SESSION_KEY)
+    return
+  }
+  sessionStorage.setItem(ANON_CAMP_SCORES_SESSION_KEY, JSON.stringify(normalized))
+}
+
+/** Camp 1 = 100 when completed; camps 2–4 use scores from URL `final_score` only. */
+const finalizeCampScores = (scores, levels) => {
+  const next = { ...normalizeCampScoresRecord(scores) }
+  const camp1 = levels.find((l) => l.id === 1)
+  if (camp1?.status === 'completed') {
+    next[1] = campPointsById[1] ?? 100
+  } else {
+    delete next[1]
+  }
+  return next
+}
+
+/** Reads `final_score` from return URL only (same pattern as `status` / `play_result`). */
+const getFinalScoreFromParams = (params, campId) => {
+  const raw = params.get(FINAL_SCORE_PARAM_KEY)
+  if (raw == null || raw === '') return null
+  if (campId === 1) return null
+
+  const asNumber = Number(raw)
+  if (Number.isFinite(asNumber)) return asNumber
+
+  try {
+    const parsed = JSON.parse(raw)
+    if (typeof parsed === 'number' && Number.isFinite(parsed)) return parsed
+    if (parsed && typeof parsed === 'object' && campId != null) {
+      const fromCamp =
+        parsed[campId] ??
+        parsed[`camp${campId}`] ??
+        parsed[String(campId)]
+      const n = Number(fromCamp)
+      if (Number.isFinite(n)) return n
+    }
+  } catch {
+    /* plain number already handled */
+  }
+
+  return null
+}
+
+const mergeFinalScoreIntoCampScores = (existing, params, campId) => {
+  if (campId == null || campId === 1) return normalizeCampScoresRecord(existing)
+  const score = getFinalScoreFromParams(params, campId)
+  if (score == null) return normalizeCampScoresRecord(existing)
+  return { ...normalizeCampScoresRecord(existing), [campId]: score }
+}
+
+const saveLevelsByProgressToken = (progressToken, levels, campScores) => {
   const store = loadProgressStore()
   const allCompleted = levels.every((level) => level.status === 'completed')
+  const preservedScores = normalizeCampScoresRecord({
+    ...store[progressToken]?.campScores,
+    ...campScores,
+  })
+
   if (allCompleted || levelsMatchDefault(levels)) {
     delete store[progressToken]
   } else {
     store[progressToken] = {
       levels: levels.map((l) => ({ status: l.status })),
+      ...(Object.keys(preservedScores).length ? { campScores: preservedScores } : {}),
       updatedAt: new Date().toISOString(),
     }
   }
@@ -95,17 +186,19 @@ const saveAnonSessionLevels = (levels) => {
   )
 }
 
-const applyOutcomeForContext = (progressToken, hasTokenInUrl, campId, passed) => {
+const applyOutcomeForContext = (progressToken, hasTokenInUrl, campId, passed, campScores) => {
   const current = hasTokenInUrl
     ? loadLevelsByProgressToken(progressToken)
     : loadAnonSessionLevels()
   const next = applyCampPassOutcome(current, campId, passed)
+  const finalized = finalizeCampScores(campScores ?? {}, next)
   if (hasTokenInUrl) {
-    saveLevelsByProgressToken(progressToken, next)
+    saveLevelsByProgressToken(progressToken, next, finalized)
   } else {
     saveAnonSessionLevels(next)
+    saveAnonCampScores(finalized)
   }
-  return next
+  return { levels: next, campScores: finalized }
 }
 
 const applyCampPassOutcome = (prevLevels, campId, passed) => {
@@ -155,6 +248,7 @@ const getCleanSearchParams = (params) => {
     'camp',
     'returnToken',
     ...RETURN_OUTCOME_PARAM_KEYS,
+    FINAL_SCORE_PARAM_KEY,
   ].forEach((key) => next.delete(key))
   return next
 }
@@ -253,6 +347,9 @@ function MountainProgressGame() {
   const [levels, setLevels] = useState(() =>
     hasTokenInUrl ? loadLevelsByProgressToken(progressToken) : loadAnonSessionLevels(),
   )
+  const [campScoresById, setCampScoresById] = useState(() =>
+    hasTokenInUrl ? loadCampScoresByProgressToken(progressToken) : loadAnonCampScores(),
+  )
 
   useEffect(() => {
     localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
@@ -267,16 +364,29 @@ function MountainProgressGame() {
     const nextLevels = hasTokenInUrl
       ? loadLevelsByProgressToken(progressToken)
       : loadAnonSessionLevels()
+    const nextScores = hasTokenInUrl
+      ? loadCampScoresByProgressToken(progressToken)
+      : loadAnonCampScores()
     queueLevelsUpdate(setLevels, nextLevels)
+    setCampScoresById(nextScores)
   }, [hasTokenInUrl, progressToken])
 
   useEffect(() => {
     if (hasTokenInUrl) {
-      saveLevelsByProgressToken(progressToken, levels)
+      saveLevelsByProgressToken(progressToken, levels, campScoresById)
     } else {
       saveAnonSessionLevels(levels)
+      saveAnonCampScores(campScoresById)
     }
-  }, [hasTokenInUrl, levels, progressToken])
+  }, [hasTokenInUrl, levels, progressToken, campScoresById])
+
+  useEffect(() => {
+    if (!isResultOpen) return
+    const stored = hasTokenInUrl
+      ? loadCampScoresByProgressToken(progressToken)
+      : loadAnonCampScores()
+    setCampScoresById(finalizeCampScores(stored, levels))
+  }, [isResultOpen, hasTokenInUrl, progressToken, levels])
 
   useEffect(() => {
     const campIdRaw = searchParams.get('campOutcome') ?? searchParams.get('camp')
@@ -289,31 +399,55 @@ function MountainProgressGame() {
     const expectedReturnToken = sessionStorage.getItem(EXTERNAL_RETURN_TOKEN_KEY)
 
     const { explicit, passed } = getExplicitReturnPassState(searchParams)
+    const currentLevels = hasTokenInUrl
+      ? loadLevelsByProgressToken(progressToken)
+      : loadAnonSessionLevels()
+    const storedScores = hasTokenInUrl
+      ? loadCampScoresByProgressToken(progressToken)
+      : loadAnonCampScores()
+    const baseScores =
+      campId === 1
+        ? storedScores
+        : mergeFinalScoreIntoCampScores(storedScores, searchParams, campId)
 
     if (explicit) {
-      const nextLevels = applyOutcomeForContext(
+      const { levels: nextLevels, campScores: nextScores } = applyOutcomeForContext(
         progressToken,
         hasTokenInUrl,
         campId,
         passed,
+        baseScores,
       )
       queueLevelsUpdate(setLevels, nextLevels)
+      setCampScoresById(nextScores)
       setSearchParams(getCleanSearchParams(searchParams), { replace: true })
       return
     }
 
-    // Camp 1 is a learn-video step; returning from it implies completion.
-    if (campId === 1 && returnToken && expectedReturnToken === returnToken) {
-      const nextLevels = applyOutcomeForContext(
+    // Valid return from an external camp (Camp 1 learn-video always passes).
+    if (returnToken && expectedReturnToken === returnToken) {
+      const { levels: nextLevels, campScores: nextScores } = applyOutcomeForContext(
         progressToken,
         hasTokenInUrl,
         campId,
         true,
+        baseScores,
       )
       queueLevelsUpdate(setLevels, nextLevels)
+      setCampScoresById(nextScores)
       sessionStorage.removeItem(EXTERNAL_RETURN_TOKEN_KEY)
       setSearchParams(getCleanSearchParams(searchParams), { replace: true })
       return
+    }
+
+    if (campId >= 2 && searchParams.has(FINAL_SCORE_PARAM_KEY)) {
+      const scoresForUi = finalizeCampScores(baseScores, currentLevels)
+      setCampScoresById(scoresForUi)
+      if (hasTokenInUrl) {
+        saveLevelsByProgressToken(progressToken, currentLevels, scoresForUi)
+      } else {
+        saveAnonCampScores(scoresForUi)
+      }
     }
 
     setSearchParams(getCleanSearchParams(searchParams), { replace: true })
@@ -331,14 +465,24 @@ function MountainProgressGame() {
     () => levels.filter((level) => level.status === 'completed').length,
     [levels],
   )
+  const getCampScoreDisplay = (campId) => {
+    if (campId === 1) {
+      return levels.find((l) => l.id === 1)?.status === 'completed'
+        ? (campPointsById[1] ?? 100)
+        : 0
+    }
+    return campScoresById[campId] ?? 0
+  }
+
   const earnedPoints = useMemo(
     () =>
-      levels.reduce(
-        (sum, level) =>
-          level.status === 'completed' ? sum + (campPointsById[level.id] ?? 0) : sum,
-        0,
-      ),
-    [levels],
+      levels.reduce((sum, level) => {
+        if (level.id === 1) {
+          return level.status === 'completed' ? sum + (campPointsById[1] ?? 100) : sum
+        }
+        return sum + (campScoresById[level.id] ?? 0)
+      }, 0),
+    [levels, campScoresById],
   )
   const totalPossiblePoints = useMemo(
     () => levels.reduce((sum, level) => sum + (campPointsById[level.id] ?? 0), 0),
@@ -381,6 +525,7 @@ function MountainProgressGame() {
       localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
     } else {
       sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
+      sessionStorage.removeItem(ANON_CAMP_SCORES_SESSION_KEY)
     }
     window.location.assign(PARTNER_LICENSE_URL)
   }
@@ -513,7 +658,7 @@ function MountainProgressGame() {
                 {levels.map((level) => (
                   <div key={level.id} className="result-list-item">
                     <span>{`Camp ${level.id}: ${level.activityLabel ?? level.title}`}</span>
-                    <strong>{`${level.status === 'completed' ? campPointsById[level.id] ?? 0 : 0} points`}</strong>
+                    <strong>{`${getCampScoreDisplay(level.id)} points`}</strong>
                   </div>
                 ))}
                 <div className="result-totals">
