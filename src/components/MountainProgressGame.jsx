@@ -341,6 +341,20 @@ const campPointsById = {
   4: 740,
 }
 
+/** Skip splash/instructions when camp 2, 3, or 4 is already unlocked (returning player). */
+export const shouldSkipIntroScreens = (searchParams) => {
+  const token = searchParams.get('token')?.trim()
+  const hasTokenInUrl = Boolean(token)
+  const progressToken = token || ANON_PROGRESS_TOKEN
+  const levels = hasTokenInUrl
+    ? loadLevelsByProgressToken(progressToken)
+    : loadAnonSessionLevels()
+  return [2, 3, 4].some((id) => {
+    const level = levels.find((l) => l.id === id)
+    return level?.status !== 'locked'
+  })
+}
+
 const tentImageByStatus = {
   active: publicUrl('assets/tent-yellow.png'),
   locked: publicUrl('assets/tent-red.png'),

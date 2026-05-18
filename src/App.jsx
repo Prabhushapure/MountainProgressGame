@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import FireShieldBrandHeader from './components/FireShieldBrandHeader'
-import MountainProgressGame from './components/MountainProgressGame'
+import MountainProgressGame, { shouldSkipIntroScreens } from './components/MountainProgressGame'
 import { publicUrl } from './utils/publicUrl'
 
 function GamePage({ title }) {
@@ -59,9 +59,15 @@ function InstructionScreen({ onPlay }) {
 }
 
 function App() {
-  const [isSplashDone, setIsSplashDone] = useState(false)
-  const [hasStarted, setHasStarted] = useState(false)
   const location = useLocation()
+
+  const skipIntro = useMemo(
+    () => shouldSkipIntroScreens(new URLSearchParams(location.search)),
+    [location.search],
+  )
+
+  const [isSplashDone, setIsSplashDone] = useState(skipIntro)
+  const [hasStarted, setHasStarted] = useState(skipIntro)
 
   const shouldAutoStart = useMemo(() => {
     const params = new URLSearchParams(location.search)
@@ -78,6 +84,15 @@ function App() {
   }, [location.search])
 
   useEffect(() => {
+    if (skipIntro) {
+      setIsSplashDone(true)
+      setHasStarted(true)
+    }
+  }, [skipIntro])
+
+  useEffect(() => {
+    if (skipIntro) return
+
     const timerId = window.setTimeout(() => {
       setIsSplashDone(true)
     }, 4000)
@@ -85,7 +100,7 @@ function App() {
     return () => {
       window.clearTimeout(timerId)
     }
-  }, [])
+  }, [skipIntro])
 
   if (!isSplashDone) {
     return (
@@ -111,7 +126,7 @@ function App() {
     )
   }
 
-  if (!hasStarted && !shouldAutoStart) {
+  if (!hasStarted && !shouldAutoStart && !skipIntro) {
     return <InstructionScreen onPlay={() => setHasStarted(true)} />
   }
 
