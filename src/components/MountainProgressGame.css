@@ -113,10 +113,10 @@
 .camp-label {
   position: absolute;
   top: 50%;
-  left: 82px;
+  left: 94px;
   transform: translateY(-50%);
   z-index: 1;
-  min-width: 128px;
+  min-width: 156px;
   background: #f8f8f8;
   border: 2px solid #b01212;
   border-radius: 10px;
@@ -125,7 +125,7 @@
 }
 
 .camp-label-camp-1 {
-  left: 92px;
+  left: 104px;
 }
 
 .camp-label-title {
@@ -592,12 +592,12 @@
   }
 
   .camp-label {
-    left: 66px;
-    min-width: 108px;
+    left: 76px;
+    min-width: 132px;
   }
 
   .camp-label-camp-1 {
-    left: 74px;
+    left: 84px;
   }
 
   .camp-label-title {
@@ -699,14 +699,14 @@
   }
 
   .camp-label {
-    left: 46px;
+    left: 54px;
     min-width: 0;
     width: max-content;
-    max-width: min(42vw, 140px);
+    max-width: min(44vw, 168px);
   }
 
   .camp-label-camp-1 {
-    left: 52px;
+    left: 60px;
   }
 
   .camp-label-title {
