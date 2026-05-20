@@ -18,6 +18,17 @@ const getTokenFromParams = (params) => {
   return token || null
 }
 
+const getReturnUrlFromParams = (params) => {
+  const raw = params.get('returnUrl') ?? params.get('return_url')
+  return raw?.trim() || null
+}
+
+const clearAnonSessionProgress = () => {
+  sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
+  sessionStorage.removeItem(ANON_CAMP_SCORES_SESSION_KEY)
+  sessionStorage.removeItem(EXTERNAL_RETURN_TOKEN_KEY)
+}
+
 const getDefaultLevels = () => defaultLevels.map((level) => ({ ...level }))
 
 const levelsMatchDefault = (levels) => {
@@ -623,8 +634,7 @@ function MountainProgressGame() {
       delete store[progressToken]
       localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
     } else {
-      sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
-      sessionStorage.removeItem(ANON_CAMP_SCORES_SESSION_KEY)
+      clearAnonSessionProgress()
     }
     window.location.assign(getResultExitUrl(tokenFromUrl))
   }
@@ -634,6 +644,10 @@ function MountainProgressGame() {
   }
 
   const handlePassResultClose = () => {
+    const returnUrlFromParams = getReturnUrlFromParams(searchParams)
+    if (!tokenFromUrl && !returnUrlFromParams) {
+      clearAnonSessionProgress()
+    }
     window.location.assign(getResultExitUrl(tokenFromUrl))
   }
 
