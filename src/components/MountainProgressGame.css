@@ -51,11 +51,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   background: rgba(32, 18, 10, 0.92);
   color: #f5f5f5;
-  padding: 10px 14px 10px;
-  border-radius: 12px;
+  padding: 7px 11px 8px;
+  border-radius: 10px;
   border: 2px solid rgba(255, 255, 255, 0.22);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
 }
@@ -63,13 +63,13 @@
 .hud-title h2 {
   margin: 0;
   line-height: 1.1;
-  font-size: 1.55rem;
-  letter-spacing: 1px;
+  font-size: 1.28rem;
+  letter-spacing: 0.75px;
 }
 
 .hud-title p {
   margin: 2px 0 0;
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
 }
 
@@ -116,12 +116,21 @@
   left: 94px;
   transform: translateY(-50%);
   z-index: 1;
-  min-width: 156px;
+  min-width: 132px;
   background: #f8f8f8;
   border: 2px solid #b01212;
-  border-radius: 10px;
+  border-radius: 9px;
   overflow: hidden;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease;
+}
+
+.camp-label:not([aria-disabled='true']) {
+  cursor: pointer;
+}
+
+.camp-label:not([aria-disabled='true']):hover {
+  transform: translateY(-50%) scale(1.08);
 }
 
 .camp-label-camp-1 {
@@ -132,21 +141,21 @@
   display: block;
   background: #b01212;
   color: #fff;
-  font-size: 0.85rem;
+  font-size: 0.74rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
-  padding: 5px 10px 4px;
+  letter-spacing: 0.5px;
+  padding: 3px 8px 2px;
   line-height: 1.1;
 }
 
 .camp-label-subtitle {
   display: block;
   color: #1e1e1e;
-  font-size: 0.82rem;
+  font-size: 0.7rem;
   font-weight: 700;
   line-height: 1.25;
-  padding: 7px 10px 9px;
+  padding: 5px 8px 6px;
 }
 
 .camp-label.status-active {
@@ -180,11 +189,25 @@
   padding: 4px 10px;
 }
 
+.summit-flag-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}
+
 .summit-text {
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.summit-flag-image {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  display: block;
 }
 
 .result-open-button {
@@ -562,22 +585,22 @@
   }
 
   .hud-title {
-    max-width: min(92vw, 280px);
-    padding: 8px 10px 8px;
-    gap: 2px;
+    max-width: min(92vw, 250px);
+    padding: 6px 9px 7px;
+    gap: 1px;
   }
 
   .hud-title .brand-header-logo {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
   }
 
   .hud-title h2 {
-    font-size: clamp(1.1rem, 4vw, 1.5rem);
+    font-size: clamp(0.98rem, 3.6vw, 1.28rem);
   }
 
   .hud-title p {
-    font-size: 0.72rem;
+    font-size: 0.64rem;
     line-height: 1.2;
   }
 
@@ -593,7 +616,7 @@
 
   .camp-label {
     left: 76px;
-    min-width: 132px;
+    min-width: 114px;
   }
 
   .camp-label-camp-1 {
@@ -601,13 +624,13 @@
   }
 
   .camp-label-title {
-    font-size: 0.75rem;
-    padding: 4px 8px 3px;
+    font-size: 0.66rem;
+    padding: 3px 6px 2px;
   }
 
   .camp-label-subtitle {
-    font-size: 0.72rem;
-    padding: 5px 8px 6px;
+    font-size: 0.62rem;
+    padding: 4px 6px 4px;
   }
 
   .summit-node {
@@ -617,6 +640,11 @@
 
   .summit-text {
     font-size: 0.72rem;
+  }
+
+  .summit-flag-image {
+    width: 30px;
+    height: 30px;
   }
 
   .result-open-button {
@@ -670,22 +698,22 @@
     top: max(8px, env(safe-area-inset-top));
     left: max(8px, env(safe-area-inset-left));
     max-width: calc(100vw - 16px - env(safe-area-inset-left) - env(safe-area-inset-right));
-    padding: 6px 8px 6px;
-    gap: 2px;
+    padding: 5px 7px 5px;
+    gap: 1px;
   }
 
   .hud-title .brand-header-logo {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
   }
 
   .hud-title h2 {
-    font-size: clamp(0.95rem, 4.2vw, 1.25rem);
-    letter-spacing: 0.5px;
+    font-size: clamp(0.82rem, 3.8vw, 1.08rem);
+    letter-spacing: 0.45px;
   }
 
   .hud-title p {
-    font-size: 0.62rem;
+    font-size: 0.56rem;
   }
 
   .tent-image {
@@ -702,7 +730,7 @@
     left: 54px;
     min-width: 0;
     width: max-content;
-    max-width: min(44vw, 168px);
+    max-width: min(40vw, 142px);
   }
 
   .camp-label-camp-1 {
@@ -710,14 +738,14 @@
   }
 
   .camp-label-title {
-    font-size: 0.62rem;
-    letter-spacing: 0.3px;
-    padding: 3px 6px 2px;
+    font-size: 0.52rem;
+    letter-spacing: 0.25px;
+    padding: 2px 5px 2px;
   }
 
   .camp-label-subtitle {
-    font-size: 0.58rem;
-    padding: 4px 6px 5px;
+    font-size: 0.5rem;
+    padding: 3px 5px 4px;
     line-height: 1.15;
   }
 
@@ -728,6 +756,11 @@
 
   .summit-text {
     font-size: 0.62rem;
+  }
+
+  .summit-flag-image {
+    width: 24px;
+    height: 24px;
   }
 
   .result-open-button {

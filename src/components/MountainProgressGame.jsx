@@ -280,6 +280,8 @@ const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 const PARTNER_LICENSE_URL = 'https://antiz-digital.com/GamifiedLearning/partner/license'
 const PLATFORM_PLAY_URL = 'https://antiz-digital.com/GamifiedLearning/play'
+const SUMMIT_FLAG_RED_URL = publicUrl('assets/summit-flag-red.png')
+const SUMMIT_FLAG_GREEN_URL = publicUrl('assets/summit-flag-green.png')
 
 const getResultExitUrl = (token) => {
   if (!token) return PARTNER_LICENSE_URL
@@ -316,13 +318,13 @@ const reportPlayComplete = async ({ token, playNo, score, playResult }) => {
 }
 
 const positions = [
-  { top: '92%', left: '31%' },
-  { top: '80%', left: '48%' },
-  { top: '59%', left: '52%' },
-  { top: '37%', left: '56%' },
+  { top: '98%', left: '38%' },
+  { top: '80%', left: '50%' },
+  { top: '59%', left: '54%' },
+  { top: '35%', left: '59%' },
 ]
 
-const summitPosition = { top: '10%', left: '62%' }
+const summitPosition = { top: '8%', left: '70%' }
 const MAP_SCALE_X = 0.95
 const MAP_SCALE_Y = 0.9
 const MAP_OFFSET_Y = 2
@@ -336,6 +338,11 @@ const remapPointToMountain = (point) => {
     top: `${MAP_OFFSET_Y + top * MAP_SCALE_Y}%`,
   }
 }
+
+const offsetPointByPercent = (point, leftOffset = 0, topOffset = 0) => ({
+  left: `${parseFloat(point.left) + leftOffset}%`,
+  top: `${parseFloat(point.top) + topOffset}%`,
+})
 
 const defaultLevels = [
   {
@@ -521,6 +528,10 @@ function MountainProgressGame() {
     () => remapPointToMountain(summitPosition),
     [],
   )
+  const mappedSummitFlagPosition = useMemo(
+    () => remapPointToMountain(offsetPointByPercent(summitPosition, -6.6, -3.8)),
+    [],
+  )
   const completedCount = useMemo(
     () => levels.filter((level) => level.status === 'completed').length,
     [levels],
@@ -679,6 +690,17 @@ function MountainProgressGame() {
 
             <div
               className={`camp-label status-${level.status} ${level.id === 1 ? 'camp-label-camp-1' : ''}`}
+              role="button"
+              tabIndex={level.status === 'locked' ? -1 : 0}
+              aria-disabled={level.status === 'locked'}
+              onClick={() => handleTentClick(level)}
+              onKeyDown={(event) => {
+                if (level.status === 'locked') return
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  handleTentClick(level)
+                }
+              }}
             >
               <span className="camp-label-title">{level.title}</span>
               <span className="camp-label-subtitle">
@@ -688,6 +710,22 @@ function MountainProgressGame() {
           </div>
         ))}
 
+        {/* 🏁 SUMMIT FLAG */}
+        <div
+          className="summit-flag-node"
+          style={{
+            top: mappedSummitFlagPosition.top,
+            left: mappedSummitFlagPosition.left,
+          }}
+        >
+          <img
+            src={isPassed ? SUMMIT_FLAG_GREEN_URL : SUMMIT_FLAG_RED_URL}
+            alt={isPassed ? 'Green summit flag' : 'Red summit flag'}
+            className="summit-flag-image"
+            draggable={false}
+          />
+        </div>
+
         {/* 🏁 SUMMIT */}
         <div
           className="summit-node"
@@ -696,7 +734,6 @@ function MountainProgressGame() {
             left: mappedSummitPosition.left,
           }}
         >
-          <span className="summit-flag">🏁</span>
           <span className="summit-text">Summit</span>
         </div>
       </div>

@@ -35,7 +35,7 @@
 
 /* Map HUD — compact mark inside title panel */
 .hud-title .brand-header-logo {
-  width: 56px;
-  height: 56px;
-  filter: drop-shadow(0 0 12px rgba(255, 220, 100, 0.65));
+  width: 46px;
+  height: 46px;
+  filter: drop-shadow(0 0 10px rgba(255, 220, 100, 0.55));
 }
