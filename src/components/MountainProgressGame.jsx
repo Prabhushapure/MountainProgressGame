@@ -279,7 +279,41 @@ const CAMP3_EXTERNAL_URL = 'https://antiz-digital.com/fire-shield/'
 const CAMP4_EXTERNAL_URL = 'https://antiz-digital.com/building-evacuation/'
 const CAMP1_EXTERNAL_URL = 'https://antiz-digital.com/fire-safety-learn/'
 const PARTNER_LICENSE_URL = 'https://antiz-digital.com/GamifiedLearning/partner/license'
+const PLATFORM_PLAY_URL = 'https://antiz-digital.com/GamifiedLearning/play'
+
+const getResultExitUrl = (token) => {
+  if (!token) return PARTNER_LICENSE_URL
+  const url = new URL(PLATFORM_PLAY_URL)
+  url.searchParams.set('token', token)
+  return url.href
+}
+const PLAY_COMPLETE_API_URL = 'https://antiz-digital.com/GamifiedLearning/api/play/complete'
+const PLAY_COMPLETE_SENT_KEY_PREFIX = 'mountainProgressPlayCompleteSent:'
 const PASS_ICON_URL = publicUrl('assets/result-pass.png')
+
+const getPlayNoFromParams = (params) => {
+  const playNo = params.get('play_no')?.trim()
+  return playNo || null
+}
+
+const getPlayCompleteSentKey = (token, playNo) =>
+  `${PLAY_COMPLETE_SENT_KEY_PREFIX}${token}:${playNo}`
+
+const reportPlayComplete = async ({ token, playNo, score, playResult }) => {
+  const response = await fetch(PLAY_COMPLETE_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token,
+      play_no: playNo,
+      score,
+      play_result: playResult,
+    }),
+  })
+  if (!response.ok) {
+    throw new Error(`Play complete API failed (${response.status})`)
+  }
+}
 
 const positions = [
   { top: '92%', left: '31%' },
@@ -366,6 +400,7 @@ function MountainProgressGame() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isResultOpen, setIsResultOpen] = useState(false)
   const tokenFromUrl = useMemo(() => getTokenFromParams(searchParams), [searchParams])
+  const playNoFromUrl = useMemo(() => getPlayNoFromParams(searchParams), [searchParams])
   const hasTokenInUrl = Boolean(tokenFromUrl)
   const progressToken = tokenFromUrl || ANON_PROGRESS_TOKEN
 
@@ -516,6 +551,34 @@ function MountainProgressGame() {
   const totalCamps = levels.length
   const isPassed = completedCount === totalCamps
 
+  useEffect(() => {
+    if (!isPassed || !tokenFromUrl || !playNoFromUrl) return
+
+    const sentKey = getPlayCompleteSentKey(tokenFromUrl, playNoFromUrl)
+    if (sessionStorage.getItem(sentKey)) return
+
+    let cancelled = false
+    ;(async () => {
+      try {
+        await reportPlayComplete({
+          token: tokenFromUrl,
+          playNo: playNoFromUrl,
+          score: earnedPoints,
+          playResult: 'Pass',
+        })
+        if (!cancelled) {
+          sessionStorage.setItem(sentKey, '1')
+        }
+      } catch (err) {
+        console.error('Failed to report play complete:', err)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [isPassed, tokenFromUrl, playNoFromUrl, earnedPoints])
+
   const handleTentClick = (level) => {
     if (level.status === 'locked') return
     if (/^https?:\/\//.test(level.url)) {
@@ -552,15 +615,15 @@ function MountainProgressGame() {
       sessionStorage.removeItem(ANON_SESSION_LEVELS_KEY)
       sessionStorage.removeItem(ANON_CAMP_SCORES_SESSION_KEY)
     }
-    window.location.assign(PARTNER_LICENSE_URL)
+    window.location.assign(getResultExitUrl(tokenFromUrl))
   }
 
   const handleIncompleteResultClose = () => {
-    window.location.assign(PARTNER_LICENSE_URL)
+    window.location.assign(getResultExitUrl(tokenFromUrl))
   }
 
   const handlePassResultClose = () => {
-    window.location.assign(PARTNER_LICENSE_URL)
+    window.location.assign(getResultExitUrl(tokenFromUrl))
   }
 
   return (
