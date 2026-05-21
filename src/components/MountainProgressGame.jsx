@@ -632,12 +632,9 @@ function MountainProgressGame() {
         returnUrl.searchParams.set('token', tokenFromUrlFromParams)
         gameUrl.searchParams.set('token', tokenFromUrlFromParams)
       }
+      // Keep play_no on return URL only — external camps must not receive it (they may call play/complete).
       if (playNoFromUrl) {
         returnUrl.searchParams.set('play_no', playNoFromUrl)
-        // Camp 1 learn-video must not get play_no — it may POST play/complete on its own.
-        if (level.id !== 1) {
-          gameUrl.searchParams.set('play_no', playNoFromUrl)
-        }
       }
       returnUrl.searchParams.set('campOutcome', String(level.id))
       returnUrl.searchParams.set('returnToken', returnToken)
