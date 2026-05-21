@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
 import { publicUrl } from '../utils/publicUrl'
@@ -393,6 +393,13 @@ const campPointsById = {
   4: 740,
 }
 
+const CAMP_IDS = [1, 2, 3, 4]
+
+/** True only when every camp (1–4) is marked completed. */
+const areAllCampsCompleted = (levels) =>
+  levels.length === CAMP_IDS.length &&
+  CAMP_IDS.every((id) => levels.find((l) => l.id === id)?.status === 'completed')
+
 /** Skip splash/instructions when camp 2, 3, or 4 is already unlocked (returning player). */
 export const shouldSkipIntroScreens = (searchParams) => {
   const token = searchParams.get('token')?.trim()
@@ -572,9 +579,15 @@ function MountainProgressGame() {
   )
   const totalCamps = levels.length
   const isPassed = completedCount === totalCamps
+  const allCampsComplete = useMemo(() => areAllCampsCompleted(levels), [levels])
+  const prevAllCampsCompleteRef = useRef(false)
 
   useEffect(() => {
-    if (!isPassed || !tokenFromUrl || !playNoFromUrl) return
+    const justFinishedAll =
+      allCampsComplete && !prevAllCampsCompleteRef.current
+    prevAllCampsCompleteRef.current = allCampsComplete
+
+    if (!justFinishedAll || !tokenFromUrl || !playNoFromUrl) return
 
     const sentKey = getPlayCompleteSentKey(tokenFromUrl, playNoFromUrl)
     if (sessionStorage.getItem(sentKey)) return
@@ -599,7 +612,7 @@ function MountainProgressGame() {
     return () => {
       cancelled = true
     }
-  }, [isPassed, tokenFromUrl, playNoFromUrl, earnedPoints])
+  }, [allCampsComplete, tokenFromUrl, playNoFromUrl, earnedPoints])
 
   const handleTentClick = (level) => {
     if (level.status === 'locked') return
@@ -615,10 +628,17 @@ function MountainProgressGame() {
       returnUrl.search = ''
       const tokenFromUrlFromParams = searchParams.get('token')
       const playNoFromUrl = searchParams.get('play_no')
-      if (tokenFromUrlFromParams) returnUrl.searchParams.set('token', tokenFromUrlFromParams)
-      if (playNoFromUrl) returnUrl.searchParams.set('play_no', playNoFromUrl)
-      if (tokenFromUrlFromParams) gameUrl.searchParams.set('token', tokenFromUrlFromParams)
-      if (playNoFromUrl) gameUrl.searchParams.set('play_no', playNoFromUrl)
+      if (tokenFromUrlFromParams) {
+        returnUrl.searchParams.set('token', tokenFromUrlFromParams)
+        gameUrl.searchParams.set('token', tokenFromUrlFromParams)
+      }
+      if (playNoFromUrl) {
+        returnUrl.searchParams.set('play_no', playNoFromUrl)
+        // Camp 1 learn-video must not get play_no — it may POST play/complete on its own.
+        if (level.id !== 1) {
+          gameUrl.searchParams.set('play_no', playNoFromUrl)
+        }
+      }
       returnUrl.searchParams.set('campOutcome', String(level.id))
       returnUrl.searchParams.set('returnToken', returnToken)
       gameUrl.searchParams.set('returnUrl', returnUrl.href)
