@@ -206,10 +206,37 @@
 }
 
 .summit-flag-image {
-  width: 36px;
-  height: 36px;
+  width: 42px;
+  height: 42px;
   object-fit: contain;
   display: block;
+  transform-origin: center center;
+}
+
+.summit-flag-image--passed {
+  animation: summit-flag-celebrate 2.2s ease-in-out infinite;
+}
+
+@keyframes summit-flag-celebrate {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.45));
+  }
+
+  50% {
+    transform: scale(1.34);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.95))
+      drop-shadow(0 0 22px rgba(255, 255, 255, 0.75))
+      drop-shadow(0 0 32px rgba(255, 255, 255, 0.45));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summit-flag-image--passed {
+    animation: none;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+  }
 }
 
 .result-open-button {
@@ -645,8 +672,8 @@
   }
 
   .summit-flag-image {
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
   }
 
   .result-open-button {
@@ -770,8 +797,8 @@
   }
 
   .summit-flag-image {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .result-open-button {

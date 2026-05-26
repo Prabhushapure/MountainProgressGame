@@ -752,7 +752,7 @@ function MountainProgressGame() {
           <img
             src={isPassed ? SUMMIT_FLAG_GREEN_URL : SUMMIT_FLAG_RED_URL}
             alt={isPassed ? 'Green summit flag' : 'Red summit flag'}
-            className="summit-flag-image"
+            className={`summit-flag-image${isPassed ? ' summit-flag-image--passed' : ''}`}
             draggable={false}
           />
         </div>
