@@ -116,7 +116,8 @@
   left: 94px;
   transform: translateY(-50%);
   z-index: 1;
-  min-width: 132px;
+  box-sizing: border-box;
+  width: 140px;
   background: #f8f8f8;
   border: 2px solid #b01212;
   border-radius: 9px;
@@ -151,6 +152,7 @@
 
 .camp-label-subtitle {
   display: block;
+  overflow-wrap: break-word;
   color: #1e1e1e;
   font-size: 0.7rem;
   font-weight: 700;
@@ -616,7 +618,7 @@
 
   .camp-label {
     left: 76px;
-    min-width: 114px;
+    width: 118px;
   }
 
   .camp-label-camp-1 {
@@ -728,13 +730,16 @@
 
   .camp-label {
     left: 54px;
-    min-width: 0;
-    width: max-content;
-    max-width: min(40vw, 142px);
+    width: 132px;
   }
 
   .camp-label-camp-1 {
     left: 60px;
+  }
+
+  .camp-label.camp-label-left {
+    left: auto;
+    right: 54px;
   }
 
   .camp-label-title {
@@ -747,6 +752,12 @@
     font-size: 0.5rem;
     padding: 3px 5px 4px;
     line-height: 1.15;
+  }
+
+  .camp-label-camp-3 .camp-label-subtitle,
+  .camp-label-camp-4 .camp-label-subtitle {
+    white-space: pre-line;
+    min-height: calc(2 * 1.15em);
   }
 
   .summit-node {

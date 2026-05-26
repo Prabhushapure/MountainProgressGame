@@ -373,14 +373,14 @@ const defaultLevels = [
   {
     id: 3,
     title: 'Camp 3',
-    activityLabel: 'Fire Extinguisher Training',
+    activityLabel: 'Fire Extinguisher\nTraining',
     status: 'locked',
     url: CAMP3_EXTERNAL_URL,
   },
   {
     id: 4,
     title: 'Camp 4',
-    activityLabel: 'Emergency Evacuation Training',
+    activityLabel: 'Emergency Evacuation\nTraining',
     status: 'locked',
     url: CAMP4_EXTERNAL_URL,
   },
@@ -720,7 +720,7 @@ function MountainProgressGame() {
             </button>
 
             <div
-              className={`camp-label status-${level.status} ${level.id === 1 ? 'camp-label-camp-1' : ''}`}
+              className={`camp-label status-${level.status} ${level.id === 1 ? 'camp-label-camp-1' : ''} ${level.id === 3 ? 'camp-label-camp-3' : ''} ${level.id === 4 ? 'camp-label-camp-4' : ''} ${level.id === 2 || level.id === 4 ? 'camp-label-left' : ''}`}
               role="button"
               tabIndex={level.status === 'locked' ? -1 : 0}
               aria-disabled={level.status === 'locked'}
