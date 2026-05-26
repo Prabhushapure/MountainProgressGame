@@ -400,18 +400,31 @@ const areAllCampsCompleted = (levels) =>
   levels.length === CAMP_IDS.length &&
   CAMP_IDS.every((id) => levels.find((l) => l.id === id)?.status === 'completed')
 
-/** Skip splash/instructions when camp 2, 3, or 4 is already unlocked (returning player). */
+const RETURN_SKIP_INTRO_PARAM_KEYS = [
+  'campOutcome',
+  'camp',
+  'returnToken',
+  'pass',
+  'result',
+  'status',
+  'play_result',
+  FINAL_SCORE_PARAM_KEY,
+]
+
+/** Skip splash/instructions for returning players or when arriving from an external camp. */
 export const shouldSkipIntroScreens = (searchParams) => {
+  if (RETURN_SKIP_INTRO_PARAM_KEYS.some((key) => searchParams.has(key))) {
+    return true
+  }
+
   const token = searchParams.get('token')?.trim()
   const hasTokenInUrl = Boolean(token)
   const progressToken = token || ANON_PROGRESS_TOKEN
   const levels = hasTokenInUrl
     ? loadLevelsByProgressToken(progressToken)
     : loadAnonSessionLevels()
-  return [2, 3, 4].some((id) => {
-    const level = levels.find((l) => l.id === id)
-    return level?.status !== 'locked'
-  })
+
+  return !levelsMatchDefault(levels)
 }
 
 const tentImageByStatus = {
