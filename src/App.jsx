@@ -95,7 +95,7 @@ function App() {
 
     const timerId = window.setTimeout(() => {
       setIsSplashDone(true)
-    }, 4000)
+    }, 2000)
 
     return () => {
       window.clearTimeout(timerId)
