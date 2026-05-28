@@ -756,7 +756,7 @@ function MountainProgressGame() {
 
         {/* 🏁 SUMMIT FLAG */}
         <div
-          className="summit-flag-node"
+          className={`summit-flag-node${isPassed ? ' summit-flag-node--passed' : ''}`}
           style={{
             top: mappedSummitFlagPosition.top,
             left: mappedSummitFlagPosition.left,
@@ -833,7 +833,7 @@ function MountainProgressGame() {
                 <div className="result-totals">
                   <div className="result-total-row">
                     <span>Total Score:</span>
-                    <strong>{`${earnedPoints}/${totalPossiblePoints} points`}</strong>
+                    <strong>{`${earnedPoints} points`}</strong>
                   </div>
                 </div>
               </div>
