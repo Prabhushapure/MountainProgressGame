@@ -69,10 +69,51 @@ const levelsFromSnapshot = (statuses) => {
   }))
 }
 
-const pickNewerSnapshot = (local, remote) => {
+const STATUS_RANK = { locked: 0, active: 1, completed: 2 }
+
+const mergeLevelStatuses = (localLevels, remoteLevels) => {
+  if (!Array.isArray(remoteLevels) || remoteLevels.length !== defaultLevels.length) {
+    return levelsFromSnapshot(localLevels)
+  }
+  if (!Array.isArray(localLevels) || localLevels.length !== defaultLevels.length) {
+    return levelsFromSnapshot(remoteLevels)
+  }
+
+  return defaultLevels.map((def, i) => {
+    const localStatus = localLevels[i]?.status ?? def.status
+    const remoteStatus = remoteLevels[i]?.status ?? def.status
+    const status =
+      STATUS_RANK[localStatus] >= STATUS_RANK[remoteStatus] ? localStatus : remoteStatus
+    return { status }
+  })
+}
+
+const mergeCampScoresSnapshots = (localScores, remoteScores) => {
+  const merged = normalizeCampScoresRecord(remoteScores)
+  const local = normalizeCampScoresRecord(localScores)
+  for (const [key, value] of Object.entries(local)) {
+    const id = Number(key)
+    const prev = merged[id]
+    merged[id] = prev == null ? value : Math.max(prev, value)
+  }
+  return merged
+}
+
+/** Combine local + remote so the furthest camp progress wins on every device. */
+const mergeProgressSnapshots = (local, remote) => {
   if (!remote) return local
-  if (!local?.updatedAt) return remote
-  return new Date(remote.updatedAt) > new Date(local.updatedAt) ? remote : local
+  if (!local) return remote
+
+  const levels = mergeLevelStatuses(local.levels, remote.levels)
+  const campScores = mergeCampScoresSnapshots(local.campScores, remote.campScores)
+  const localTime = local.updatedAt ? new Date(local.updatedAt).getTime() : 0
+  const remoteTime = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0
+
+  return {
+    levels,
+    ...(Object.keys(campScores).length ? { campScores } : {}),
+    updatedAt: new Date(Math.max(localTime, remoteTime)).toISOString(),
+  }
 }
 
 const loadLevelsByProgressToken = (progressToken) => {
@@ -502,6 +543,10 @@ function MountainProgressGame() {
   const [campScoresById, setCampScoresById] = useState(() =>
     hasTokenInUrl ? loadCampScoresByProgressToken(progressToken) : loadAnonCampScores(),
   )
+  const [remoteSyncReady, setRemoteSyncReady] = useState(
+    () => !getTokenFromParams(new URLSearchParams(window.location.search)) ||
+      !getPlayNoFromParams(new URLSearchParams(window.location.search)),
+  )
 
   useEffect(() => {
     localStorage.removeItem(LEGACY_LEVELS_STORAGE_KEY)
@@ -524,8 +569,12 @@ function MountainProgressGame() {
   }, [hasTokenInUrl, progressToken])
 
   useEffect(() => {
-    if (!tokenFromUrl || !playNoFromUrl) return
+    if (!tokenFromUrl || !playNoFromUrl) {
+      setRemoteSyncReady(true)
+      return
+    }
 
+    setRemoteSyncReady(false)
     let cancelled = false
     ;(async () => {
       try {
@@ -536,31 +585,26 @@ function MountainProgressGame() {
         if (cancelled) return
 
         const local = getLocalTokenSnapshot(tokenFromUrl)
-        const winner = pickNewerSnapshot(local, remote)
-        if (!winner) return
+        const merged = mergeProgressSnapshots(local, remote)
+        if (!merged) return
 
-        const nextLevels = levelsFromSnapshot(winner.levels)
+        const nextLevels = levelsFromSnapshot(merged.levels)
         const nextScores = finalizeCampScores(
-          normalizeCampScoresRecord(winner.campScores),
+          normalizeCampScoresRecord(merged.campScores),
           nextLevels,
         )
 
-        saveLevelsByProgressToken(tokenFromUrl, nextLevels, nextScores)
-        if (
-          local &&
-          remote &&
-          new Date(local.updatedAt) > new Date(remote.updatedAt)
-        ) {
-          syncTokenProgressToServer(tokenFromUrl, playNoFromUrl, {
-            deleted: false,
-            snapshot: local,
-          })
-        }
+        const persistResult = saveLevelsByProgressToken(tokenFromUrl, nextLevels, nextScores)
+        syncTokenProgressToServer(tokenFromUrl, playNoFromUrl, persistResult)
 
         queueLevelsUpdate(setLevels, nextLevels)
         setCampScoresById(nextScores)
       } catch (err) {
         console.error('Failed to load remote progress:', err)
+      } finally {
+        if (!cancelled) {
+          setRemoteSyncReady(true)
+        }
       }
     })()
 
@@ -570,13 +614,15 @@ function MountainProgressGame() {
   }, [tokenFromUrl, playNoFromUrl])
 
   useEffect(() => {
+    if (hasTokenInUrl && playNoFromUrl && !remoteSyncReady) return
+
     if (hasTokenInUrl) {
       persistTokenProgress(progressToken, levels, campScoresById, playNoFromUrl)
     } else {
       saveAnonSessionLevels(levels)
       saveAnonCampScores(campScoresById)
     }
-  }, [hasTokenInUrl, levels, progressToken, campScoresById, playNoFromUrl])
+  }, [hasTokenInUrl, levels, progressToken, campScoresById, playNoFromUrl, remoteSyncReady])
 
   useEffect(() => {
     if (!isResultOpen) return
