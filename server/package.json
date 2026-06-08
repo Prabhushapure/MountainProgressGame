@@ -4,7 +4,11 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "pm2:start": "pm2 start ecosystem.config.cjs",
+    "pm2:restart": "pm2 restart mountain-progress-api",
+    "pm2:stop": "pm2 stop mountain-progress-api",
+    "pm2:logs": "pm2 logs mountain-progress-api"
   },
   "dependencies": {
     "express": "^5.1.0"
