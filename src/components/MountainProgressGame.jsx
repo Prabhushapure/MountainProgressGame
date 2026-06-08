@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import {
+  deletePlayProgress,
+  fetchPlayProgress,
+  savePlayProgress,
+} from '../api/playProgress'
 import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
@@ -51,11 +56,9 @@ const loadProgressStore = () => {
   }
 }
 
-const loadLevelsByProgressToken = (progressToken) => {
-  const store = loadProgressStore()
-  const tokenData = store[progressToken]
-  const statuses = tokenData?.levels
+const getLocalTokenSnapshot = (progressToken) => loadProgressStore()[progressToken] ?? null
 
+const levelsFromSnapshot = (statuses) => {
   if (!Array.isArray(statuses) || statuses.length !== defaultLevels.length) {
     return getDefaultLevels()
   }
@@ -64,6 +67,17 @@ const loadLevelsByProgressToken = (progressToken) => {
     ...def,
     status: statuses[i]?.status ?? def.status,
   }))
+}
+
+const pickNewerSnapshot = (local, remote) => {
+  if (!remote) return local
+  if (!local?.updatedAt) return remote
+  return new Date(remote.updatedAt) > new Date(local.updatedAt) ? remote : local
+}
+
+const loadLevelsByProgressToken = (progressToken) => {
+  const statuses = getLocalTokenSnapshot(progressToken)?.levels
+  return levelsFromSnapshot(statuses)
 }
 
 const loadAnonSessionLevels = () => {
@@ -187,14 +201,47 @@ const saveLevelsByProgressToken = (progressToken, levels, campScores) => {
 
   if (allCompleted || levelsMatchDefault(levels)) {
     delete store[progressToken]
-  } else {
-    store[progressToken] = {
-      levels: levels.map((l) => ({ status: l.status })),
-      ...(Object.keys(preservedScores).length ? { campScores: preservedScores } : {}),
-      updatedAt: new Date().toISOString(),
-    }
+    localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+    return { deleted: true, snapshot: null }
   }
+
+  const snapshot = {
+    levels: levels.map((l) => ({ status: l.status })),
+    ...(Object.keys(preservedScores).length ? { campScores: preservedScores } : {}),
+    updatedAt: new Date().toISOString(),
+  }
+  store[progressToken] = snapshot
   localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+  return { deleted: false, snapshot }
+}
+
+const syncTokenProgressToServer = (progressToken, playNo, result) => {
+  if (!playNo) return
+
+  if (result.deleted) {
+    deletePlayProgress({ token: progressToken, playNo }).catch((err) => {
+      console.error('Failed to delete remote progress:', err)
+    })
+    return
+  }
+
+  if (!result.snapshot) return
+
+  savePlayProgress({
+    token: progressToken,
+    playNo,
+    levels: result.snapshot.levels,
+    campScores: result.snapshot.campScores,
+    updatedAt: result.snapshot.updatedAt,
+  }).catch((err) => {
+    console.error('Failed to save remote progress:', err)
+  })
+}
+
+const persistTokenProgress = (progressToken, levels, campScores, playNo) => {
+  const result = saveLevelsByProgressToken(progressToken, levels, campScores)
+  syncTokenProgressToServer(progressToken, playNo, result)
+  return result
 }
 
 const saveAnonSessionLevels = (levels) => {
@@ -208,14 +255,21 @@ const saveAnonSessionLevels = (levels) => {
   )
 }
 
-const applyOutcomeForContext = (progressToken, hasTokenInUrl, campId, passed, campScores) => {
+const applyOutcomeForContext = (
+  progressToken,
+  hasTokenInUrl,
+  campId,
+  passed,
+  campScores,
+  playNo,
+) => {
   const current = hasTokenInUrl
     ? loadLevelsByProgressToken(progressToken)
     : loadAnonSessionLevels()
   const next = applyCampPassOutcome(current, campId, passed)
   const finalized = finalizeCampScores(campScores ?? {}, next)
   if (hasTokenInUrl) {
-    saveLevelsByProgressToken(progressToken, next, finalized)
+    persistTokenProgress(progressToken, next, finalized, playNo)
   } else {
     saveAnonSessionLevels(next)
     saveAnonCampScores(finalized)
@@ -470,13 +524,59 @@ function MountainProgressGame() {
   }, [hasTokenInUrl, progressToken])
 
   useEffect(() => {
+    if (!tokenFromUrl || !playNoFromUrl) return
+
+    let cancelled = false
+    ;(async () => {
+      try {
+        const remote = await fetchPlayProgress({
+          token: tokenFromUrl,
+          playNo: playNoFromUrl,
+        })
+        if (cancelled) return
+
+        const local = getLocalTokenSnapshot(tokenFromUrl)
+        const winner = pickNewerSnapshot(local, remote)
+        if (!winner) return
+
+        const nextLevels = levelsFromSnapshot(winner.levels)
+        const nextScores = finalizeCampScores(
+          normalizeCampScoresRecord(winner.campScores),
+          nextLevels,
+        )
+
+        saveLevelsByProgressToken(tokenFromUrl, nextLevels, nextScores)
+        if (
+          local &&
+          remote &&
+          new Date(local.updatedAt) > new Date(remote.updatedAt)
+        ) {
+          syncTokenProgressToServer(tokenFromUrl, playNoFromUrl, {
+            deleted: false,
+            snapshot: local,
+          })
+        }
+
+        queueLevelsUpdate(setLevels, nextLevels)
+        setCampScoresById(nextScores)
+      } catch (err) {
+        console.error('Failed to load remote progress:', err)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [tokenFromUrl, playNoFromUrl])
+
+  useEffect(() => {
     if (hasTokenInUrl) {
-      saveLevelsByProgressToken(progressToken, levels, campScoresById)
+      persistTokenProgress(progressToken, levels, campScoresById, playNoFromUrl)
     } else {
       saveAnonSessionLevels(levels)
       saveAnonCampScores(campScoresById)
     }
-  }, [hasTokenInUrl, levels, progressToken, campScoresById])
+  }, [hasTokenInUrl, levels, progressToken, campScoresById, playNoFromUrl])
 
   useEffect(() => {
     if (!isResultOpen) return
@@ -515,6 +615,7 @@ function MountainProgressGame() {
         campId,
         passed,
         baseScores,
+        playNoFromUrl,
       )
       queueLevelsUpdate(setLevels, nextLevels)
       setCampScoresById(nextScores)
@@ -530,6 +631,7 @@ function MountainProgressGame() {
         campId,
         true,
         baseScores,
+        playNoFromUrl,
       )
       queueLevelsUpdate(setLevels, nextLevels)
       setCampScoresById(nextScores)
@@ -542,14 +644,14 @@ function MountainProgressGame() {
       const scoresForUi = finalizeCampScores(baseScores, currentLevels)
       setCampScoresById(scoresForUi)
       if (hasTokenInUrl) {
-        saveLevelsByProgressToken(progressToken, currentLevels, scoresForUi)
+        persistTokenProgress(progressToken, currentLevels, scoresForUi, playNoFromUrl)
       } else {
         saveAnonCampScores(scoresForUi)
       }
     }
 
     setSearchParams(getCleanSearchParams(searchParams), { replace: true })
-  }, [hasTokenInUrl, progressToken, searchParams, setSearchParams])
+  }, [hasTokenInUrl, progressToken, playNoFromUrl, searchParams, setSearchParams])
 
   const mappedPositions = useMemo(
     () => positions.map(remapPointToMountain),
@@ -663,6 +765,11 @@ function MountainProgressGame() {
       const store = loadProgressStore()
       delete store[progressToken]
       localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+      if (playNoFromUrl) {
+        deletePlayProgress({ token: progressToken, playNo: playNoFromUrl }).catch((err) => {
+          console.error('Failed to delete remote progress:', err)
+        })
+      }
     } else {
       clearAnonSessionProgress()
     }

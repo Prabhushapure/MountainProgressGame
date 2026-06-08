@@ -2,6 +2,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  base: '/fire-shield-combo/', 
+  base: '/fire-shield-combo/',
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': 'http://127.0.0.1:3001',
+    },
+  },
 })
