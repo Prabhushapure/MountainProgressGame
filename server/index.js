@@ -14,15 +14,21 @@ const ensureDataDir = async () => {
   await fs.mkdir(DATA_DIR, { recursive: true })
 }
 
-const getFilePath = (token, playNo) => {
-  const safeToken = String(token).replace(/[^a-zA-Z0-9._-]/g, '_')
-  const safePlayNo = String(playNo).replace(/[^a-zA-Z0-9._-]/g, '_')
-  return path.join(DATA_DIR, `${safeToken}__${safePlayNo}.json`)
+const sanitizeSegment = (value, fallback = 'default') => {
+  const safe = String(value ?? fallback).replace(/[^a-zA-Z0-9._-]/g, '_')
+  return safe || fallback
 }
 
-const readProgress = async (token, playNo) => {
+const getFilePath = (comboTheme, token, playNo) => {
+  const safeTheme = sanitizeSegment(comboTheme, 'fire-shield-combo')
+  const safeToken = sanitizeSegment(token)
+  const safePlayNo = sanitizeSegment(playNo)
+  return path.join(DATA_DIR, `${safeTheme}__${safeToken}__${safePlayNo}.json`)
+}
+
+const readProgress = async (comboTheme, token, playNo) => {
   try {
-    const raw = await fs.readFile(getFilePath(token, playNo), 'utf8')
+    const raw = await fs.readFile(getFilePath(comboTheme, token, playNo), 'utf8')
     return JSON.parse(raw)
   } catch (err) {
     if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
@@ -32,14 +38,18 @@ const readProgress = async (token, playNo) => {
   }
 }
 
-const writeProgress = async (token, playNo, payload) => {
+const writeProgress = async (comboTheme, token, playNo, payload) => {
   await ensureDataDir()
-  await fs.writeFile(getFilePath(token, playNo), JSON.stringify(payload, null, 2), 'utf8')
+  await fs.writeFile(
+    getFilePath(comboTheme, token, playNo),
+    JSON.stringify(payload, null, 2),
+    'utf8',
+  )
 }
 
-const deleteProgress = async (token, playNo) => {
+const deleteProgress = async (comboTheme, token, playNo) => {
   try {
-    await fs.unlink(getFilePath(token, playNo))
+    await fs.unlink(getFilePath(comboTheme, token, playNo))
   } catch (err) {
     if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
       return
@@ -50,18 +60,20 @@ const deleteProgress = async (token, playNo) => {
 
 const isValidLevels = (levels) =>
   Array.isArray(levels) &&
-  levels.length === 4 &&
+  levels.length >= 1 &&
+  levels.length <= 12 &&
   levels.every((entry) => entry && ['active', 'locked', 'completed'].includes(entry.status))
 
 app.get('/api/play/progress', async (req, res) => {
   try {
+    const comboTheme = req.query.combo_theme?.trim()
     const token = req.query.token?.trim()
     const playNo = req.query.play_no?.trim()
     if (!token || !playNo) {
       return res.status(400).json({ error: 'token and play_no are required' })
     }
 
-    const progress = await readProgress(token, playNo)
+    const progress = await readProgress(comboTheme, token, playNo)
     if (!progress) {
       return res.status(404).json({ error: 'not found' })
     }
@@ -75,6 +87,7 @@ app.get('/api/play/progress', async (req, res) => {
 
 app.post('/api/play/progress', async (req, res) => {
   try {
+    const comboTheme = req.body?.combo_theme?.trim()
     const token = req.body?.token?.trim()
     const playNo = req.body?.play_no?.trim()
     const levels = req.body?.levels
@@ -85,7 +98,7 @@ app.post('/api/play/progress', async (req, res) => {
       return res.status(400).json({ error: 'invalid payload' })
     }
 
-    const existing = await readProgress(token, playNo)
+    const existing = await readProgress(comboTheme, token, playNo)
     if (existing?.updatedAt && new Date(updatedAt) < new Date(existing.updatedAt)) {
       return res.status(409).json({ error: 'stale progress', progress: existing })
     }
@@ -96,7 +109,7 @@ app.post('/api/play/progress', async (req, res) => {
       updatedAt,
     }
 
-    await writeProgress(token, playNo, payload)
+    await writeProgress(comboTheme, token, playNo, payload)
     return res.json({ ok: true })
   } catch (err) {
     console.error('POST /api/play/progress failed:', err)
@@ -106,13 +119,14 @@ app.post('/api/play/progress', async (req, res) => {
 
 app.delete('/api/play/progress', async (req, res) => {
   try {
+    const comboTheme = req.query.combo_theme?.trim()
     const token = req.query.token?.trim()
     const playNo = req.query.play_no?.trim()
     if (!token || !playNo) {
       return res.status(400).json({ error: 'token and play_no are required' })
     }
 
-    await deleteProgress(token, playNo)
+    await deleteProgress(comboTheme, token, playNo)
     return res.json({ ok: true })
   } catch (err) {
     console.error('DELETE /api/play/progress failed:', err)

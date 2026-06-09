@@ -5,10 +5,13 @@ const buildProgressUrl = (suffix = '') => {
   return `${base}/play/progress${suffix}`
 }
 
-export async function fetchPlayProgress({ token, playNo }) {
+export async function fetchPlayProgress({ comboTheme, token, playNo }) {
   const url = new URL(buildProgressUrl(), window.location.origin)
   url.searchParams.set('token', token)
   url.searchParams.set('play_no', playNo)
+  if (comboTheme) {
+    url.searchParams.set('combo_theme', comboTheme)
+  }
 
   const response = await fetch(url)
   if (response.status === 404) return null
@@ -18,11 +21,19 @@ export async function fetchPlayProgress({ token, playNo }) {
   return response.json()
 }
 
-export async function savePlayProgress({ token, playNo, levels, campScores, updatedAt }) {
+export async function savePlayProgress({
+  comboTheme,
+  token,
+  playNo,
+  levels,
+  campScores,
+  updatedAt,
+}) {
   const response = await fetch(buildProgressUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
+      combo_theme: comboTheme,
       token,
       play_no: playNo,
       levels,
@@ -43,10 +54,13 @@ export async function savePlayProgress({ token, playNo, levels, campScores, upda
   return { stale: false, progress: null }
 }
 
-export async function deletePlayProgress({ token, playNo }) {
+export async function deletePlayProgress({ comboTheme, token, playNo }) {
   const url = new URL(buildProgressUrl(), window.location.origin)
   url.searchParams.set('token', token)
   url.searchParams.set('play_no', playNo)
+  if (comboTheme) {
+    url.searchParams.set('combo_theme', comboTheme)
+  }
 
   const response = await fetch(url, { method: 'DELETE' })
   if (!response.ok) {

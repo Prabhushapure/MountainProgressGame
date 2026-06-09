@@ -1,0 +1,233 @@
+.factory-safety-map {
+  width: 100%;
+  max-width: 100vw;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: clip;
+  overflow-y: visible;
+  background: #d8e0e8;
+  font-family: Aptos, 'Segoe UI', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100dvh;
+}
+
+.factory-safety-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--factory-bg-url);
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.factory-safety-exit-button {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 30;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2933;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.factory-safety-exit-button:hover {
+  background: #fff;
+}
+
+.factory-safety-title {
+  position: relative;
+  z-index: 3;
+  margin: 28px 0 8px;
+  font-family: Aptos, 'Segoe UI', Arial, sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #111;
+  text-align: center;
+}
+
+.factory-safety-stage {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  width: min(1200px, 96vw);
+  min-height: 0;
+  margin: 0 auto;
+}
+
+.factory-safety-mascot {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
+  display: block;
+  height: min(58dvh, 400px);
+  width: auto;
+  max-width: 13vw;
+  object-fit: contain;
+  object-position: left bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.factory-safety-path-curve {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.factory-safety-connector {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 14px solid rgba(255, 255, 255, 0.95);
+  z-index: 3;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+  pointer-events: none;
+}
+
+.factory-safety-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 150px;
+}
+
+.factory-safety-node-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: block;
+}
+
+.factory-safety-node-button:disabled {
+  cursor: not-allowed;
+}
+
+.factory-safety-node-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  border: 5px solid #d32f2f;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.factory-safety-node-ring.status-completed {
+  border-color: #2e9b4a;
+  box-shadow: 0 0 0 3px rgba(46, 155, 74, 0.2), 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.factory-safety-node-ring.status-active {
+  border-color: #f5c518;
+  box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.35), 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.factory-safety-node-ring.status-locked {
+  border-color: #d32f2f;
+  opacity: 0.85;
+}
+
+.factory-safety-node-button:not(:disabled):hover .factory-safety-node-ring {
+  transform: scale(1.05);
+}
+
+.factory-safety-node-icon {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.factory-safety-node-label {
+  margin: 10px 0 0;
+  width: 100%;
+  text-align: center;
+  font-family: Aptos, 'Segoe UI', Arial, sans-serif;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: #fff;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .factory-safety-node {
+    width: 120px;
+  }
+
+  .factory-safety-node-ring {
+    width: 88px;
+    height: 88px;
+    border-width: 4px;
+  }
+
+  .factory-safety-node-icon {
+    width: 72px;
+    height: 72px;
+  }
+
+  .factory-safety-node-label {
+    font-size: 0.68rem;
+  }
+
+  .factory-safety-connector {
+    border-top-width: 5px;
+    border-bottom-width: 5px;
+    border-left-width: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .factory-safety-title {
+    margin-top: 18px;
+    font-size: 1.35rem;
+  }
+
+  .factory-safety-stage {
+    width: 98vw;
+  }
+
+  .factory-safety-node {
+    width: 96px;
+  }
+
+  .factory-safety-node-ring {
+    width: 72px;
+    height: 72px;
+  }
+
+  .factory-safety-node-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .factory-safety-node-label {
+    font-size: 0.58rem;
+  }
+}

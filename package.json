@@ -4,9 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --mode fire-shield",
+    "dev:factory": "vite --mode factory",
     "dev:api": "npm --prefix server run dev",
-    "build": "vite build",
+    "build": "vite build --mode fire-shield",
+    "build:factory": "vite build --mode factory",
     "lint": "eslint .",
     "preview": "vite preview",
     "start:api": "npm --prefix server run start"

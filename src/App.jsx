@@ -2,51 +2,66 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import FireShieldBrandHeader from './components/FireShieldBrandHeader'
 import MountainProgressGame, { shouldSkipIntroScreens } from './components/MountainProgressGame'
+import { getActiveTheme } from './themes'
 import { publicUrl } from './utils/publicUrl'
 
 function GamePage({ title }) {
+  const theme = getActiveTheme()
   return (
     <div className="game-page">
       <h1>{title}</h1>
       <p>This is the game route for {title}.</p>
       <Link to="/" className="back-link">
-        Back to Mountain Map
+        {`Back to ${theme.copy.goalLabel === 'Summit' ? 'Mountain Map' : 'Safety Map'}`}
       </Link>
     </div>
   )
 }
 
-function InstructionScreen({ onPlay }) {
+function InstructionScreen({ theme, onPlay }) {
+  const instructionLines = theme.copy.instructionIntro.split('\n')
+
   return (
     <div className="instruction-screen">
       <div className="instruction-frame">
-        <FireShieldBrandHeader>
-          <h1 className="instruction-title">
-            <span>FIRE</span>SHIELD 360
-          </h1>
-          <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
-        </FireShieldBrandHeader>
+        {theme.brand.useFireShieldHeader ? (
+          <FireShieldBrandHeader>
+            <h1 className="instruction-title">
+              <span>{theme.brand.instructionTitleAccent}</span>
+              {theme.brand.instructionTitleRest}
+            </h1>
+            <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+          </FireShieldBrandHeader>
+        ) : (
+          <div className="brand-header">
+            <h1 className="instruction-title">
+              <span>{theme.brand.instructionTitleAccent}</span>
+              {theme.brand.instructionTitleRest}
+            </h1>
+            <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+          </div>
+        )}
 
         <div className="instruction-card">
           <h2 className="instruction-section-title">INSTRUCTIONS</h2>
           <p>
-            Complete &amp; PASS all Activities to reach the Summit.
-            <br />
-            Completing the Activity at a Camp will unlock the next Camp.
-            <br />
-            Play Activities as many times as you wish at unlocked Camps.
-            <br />
-            You will reach the Summit on Passing Activities at all four Camps.
-            <br />
-            You can complete the journey across multiple sittings.
+            {instructionLines.map((line, index) => (
+              <span key={line}>
+                {line}
+                {index < instructionLines.length - 1 ? (
+                  <>
+                    <br />
+                  </>
+                ) : null}
+              </span>
+            ))}
           </p>
 
-          <h2 className="instruction-section-title">CAMP ACTIVITIES</h2>
+          <h2 className="instruction-section-title">{`${theme.copy.stopLabel.toUpperCase()} ACTIVITIES`}</h2>
           <ul className="instruction-list">
-            <li>Camp 1: Learn about Fire Safety and the correct responses.</li>
-            <li>Camp 2: Answer a Quiz on Fire Safety</li>
-            <li>Camp 3: Learn to use the right Extinguisher for different Classes of Fire</li>
-            <li>Camp 4: Learn the right procedure for Emergency Building Evacuation</li>
+            {theme.copy.instructionActivities.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
 
@@ -59,6 +74,7 @@ function InstructionScreen({ onPlay }) {
 }
 
 function App() {
+  const theme = getActiveTheme()
   const location = useLocation()
 
   const skipIntro = useMemo(
@@ -106,16 +122,27 @@ function App() {
     return (
       <div className="splash-screen">
         <div className="splash-content">
-          <FireShieldBrandHeader className="brand-header--splash">
-            <h1 className="instruction-title">
-              <span>FIRE</span>SHIELD 360
-            </h1>
-            <p className="instruction-tagline">Gamified Fire Safety Training for Corporates &amp; Industry</p>
-          </FireShieldBrandHeader>
+          {theme.brand.useFireShieldHeader ? (
+            <FireShieldBrandHeader className="brand-header--splash">
+              <h1 className="instruction-title">
+                <span>{theme.brand.instructionTitleAccent}</span>
+                {theme.brand.instructionTitleRest}
+              </h1>
+              <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+            </FireShieldBrandHeader>
+          ) : (
+            <div className="brand-header brand-header--splash">
+              <h1 className="instruction-title">
+                <span>{theme.brand.instructionTitleAccent}</span>
+                {theme.brand.instructionTitleRest}
+              </h1>
+              <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+            </div>
+          )}
           <div className="splash-frame">
             <video
               className="splash-video"
-              src={publicUrl('assets/video.mp4')}
+              src={publicUrl(theme.assets.splashVideo)}
               autoPlay
               muted
               playsInline
@@ -127,7 +154,7 @@ function App() {
   }
 
   if (!hasStarted && !shouldAutoStart && !skipIntro) {
-    return <InstructionScreen onPlay={() => setHasStarted(true)} />
+    return <InstructionScreen theme={theme} onPlay={() => setHasStarted(true)} />
   }
 
   return (
