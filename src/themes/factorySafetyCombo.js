@@ -72,7 +72,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Introduction to Safety Induction',
       status: 'active',
       icon: FACTORY_ASSET('station-1-induction.png'),
-      url: 'https://antiz-digital.com/fire-safety-learn/',
+      url: 'https://antiz-digital.com/safety-basics-learn/?video=introduction-to-safety-induction',
       maxPoints: 100,
     },
     {
@@ -81,7 +81,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Safety Orientation',
       status: 'locked',
       icon: FACTORY_ASSET('station-2-orientation.png'),
-      url: 'https://antiz-digital.com/snake/?topic=Fire%20Safety',
+      url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-orientation',
       maxPoints: 200,
     },
     {
@@ -90,7 +90,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Safety Practices',
       status: 'locked',
       icon: FACTORY_ASSET('station-3-practices.png'),
-      url: 'https://antiz-digital.com/fire-shield/',
+      url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-practices',
       maxPoints: 200,
     },
     {
@@ -99,7 +99,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Safety Management System',
       status: 'locked',
       icon: FACTORY_ASSET('station-4-management.png'),
-      url: 'https://antiz-digital.com/building-evacuation/',
+      url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-management-system',
       maxPoints: 200,
     },
     {
@@ -108,7 +108,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Employee Responsibilities',
       status: 'locked',
       icon: FACTORY_ASSET('station-5-responsibilities.png'),
-      url: 'https://antiz-digital.com/fire-safety-learn/',
+      url: 'https://antiz-digital.com/safety-basics-learn/?video=employee-responsibilities',
       maxPoints: 200,
     },
     {
@@ -117,7 +117,7 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Assessment',
       status: 'locked',
       icon: FACTORY_ASSET('station-6-assessment.png'),
-      url: 'https://antiz-digital.com/snake/?topic=Fire%20Safety',
+      url: 'https://antiz-digital.com/hazard-hunt/',
       maxPoints: 300,
     },
   ],
