@@ -117,8 +117,8 @@ export const factorySafetyComboTheme = {
       activityLabel: 'Assessment',
       status: 'locked',
       icon: FACTORY_ASSET('station-6-assessment.png'),
-      url: 'https://antiz-digital.com/hazard-hunt/',
-      maxPoints: 300,
+      url: 'https://antiz-digital.com/hazard-hunt/?picture_quiz',
+      maxPoints: 200,
     },
   ],
   urls: {
