@@ -8,7 +8,7 @@
     "dev:factory": "vite --mode factory",
     "dev:api": "npm --prefix server run dev",
     "build": "vite build --mode fire-shield",
-    "build:factory": "vite build --mode factory",
+    "build:factory": "vite build --mode factory --outDir dist-factory",
     "lint": "eslint .",
     "preview": "vite preview",
     "start:api": "npm --prefix server run start"
