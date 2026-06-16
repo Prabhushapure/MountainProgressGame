@@ -46,11 +46,11 @@ export const fireShieldMountainTheme = {
   },
   layout: {
     positions: [
-      { top: '95%', left: '20%' },
-      { top: '97%', left: '42%' },
-      { top: '80%', left: '50%' },
-      { top: '59%', left: '54%' },
-      { top: '35%', left: '59%' },
+      { top: '96%', left: '38%' },
+      { top: '80%', left: '47%' },
+      { top: '67%', left: '56%' },
+      { top: '50%', left: '54%' },
+      { top: '32%', left: '60%' },
     ],
     goalPosition: { top: '8%', left: '70%' },
     goalFlagOffset: { left: -6.6, top: -3.8 },
