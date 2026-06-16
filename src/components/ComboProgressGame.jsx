@@ -179,6 +179,8 @@ function ComboProgressGame() {
   }, [engine, isResultOpen, hasTokenInUrl, progressToken, levels])
 
   useEffect(() => {
+    if (hasTokenInUrl && playNoFromUrl && !remoteSyncReady) return
+
     const campIdRaw = searchParams.get('campOutcome') ?? searchParams.get('camp')
 
     if (!campIdRaw) return
@@ -261,7 +263,15 @@ function ComboProgressGame() {
     }
 
     setSearchParams(engine.getCleanSearchParams(searchParams), { replace: true })
-  }, [engine, hasTokenInUrl, progressToken, playNoFromUrl, searchParams, setSearchParams])
+  }, [
+    engine,
+    hasTokenInUrl,
+    progressToken,
+    playNoFromUrl,
+    remoteSyncReady,
+    searchParams,
+    setSearchParams,
+  ])
 
   const mappedPositions = useMemo(
     () => theme.layout.positions.map((point) => remapPointToMap(point, theme.layout.mapScale)),
