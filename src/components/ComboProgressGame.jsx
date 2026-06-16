@@ -231,7 +231,27 @@ function ComboProgressGame() {
       return
     }
 
-    if (campId >= 2 && searchParams.has(engine.FINAL_SCORE_PARAM_KEY)) {
+    const hasFinalScoreParam = searchParams.has(engine.FINAL_SCORE_PARAM_KEY)
+    const isLastCamp = campId === currentLevels.length
+
+    // Some external games (notably final-camp quizzes) only return a final score.
+    // Treat that as a successful completion signal for the last camp.
+    if (isLastCamp && campId >= 2 && hasFinalScoreParam) {
+      const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
+        progressToken,
+        hasTokenInUrl,
+        campId,
+        true,
+        baseScores,
+        playNoFromUrl,
+      )
+      queueLevelsUpdate(setLevels, nextLevels)
+      setCampScoresById(nextScores)
+      setSearchParams(engine.getCleanSearchParams(searchParams), { replace: true })
+      return
+    }
+
+    if (campId >= 2 && hasFinalScoreParam) {
       const scoresForUi = engine.finalizeCampScores(baseScores, currentLevels)
       setCampScoresById(scoresForUi)
       if (hasTokenInUrl) {
