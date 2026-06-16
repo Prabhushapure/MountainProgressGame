@@ -53,7 +53,7 @@ export const fireShieldMountainTheme = {
       { top: '32%', left: '60%' },
     ],
     goalPosition: { top: '8%', left: '70%' },
-    goalFlagOffset: { left: -6.6, top: -3.8 },
+    goalFlagOffset: { left: -7, top: -1.4 },
     mapScale: { x: 0.95, y: 0.9, offsetY: 2 },
     firstMarkerLarge: true,
     labelLeftIds: [3, 5],

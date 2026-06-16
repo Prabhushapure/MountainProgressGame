@@ -95,15 +95,15 @@
 }
 
 .tent-image {
-  width: 88px;
-  height: 88px;
+  width: 76px;
+  height: 76px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
 
 .tent-image-camp-1 {
-  width: 104px;
-  height: 104px;
+  width: 92px;
+  height: 92px;
 }
 
 .tent-button:hover .tent-image {
@@ -113,11 +113,11 @@
 .camp-label {
   position: absolute;
   top: 50%;
-  left: 94px;
+  left: 82px;
   transform: translateY(-50%);
   z-index: 1;
   box-sizing: border-box;
-  width: 140px;
+  width: 130px;
   background: #f8f8f8;
   border: 2px solid #b01212;
   border-radius: 9px;
@@ -135,18 +135,18 @@
 }
 
 .camp-label-camp-1 {
-  left: 104px;
+  left: 90px;
 }
 
 .camp-label-title {
   display: block;
   background: #b01212;
   color: #fff;
-  font-size: 0.74rem;
+  font-size: 0.64rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: 3px 8px 2px;
+  padding: 3px 6px 2px;
   line-height: 1.1;
 }
 
@@ -154,10 +154,10 @@
   display: block;
   overflow-wrap: break-word;
   color: #1e1e1e;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 700;
   line-height: 1.25;
-  padding: 5px 8px 6px;
+  padding: 4px 6px 5px;
 }
 
 .camp-label.status-active {
