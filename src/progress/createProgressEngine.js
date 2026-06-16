@@ -4,7 +4,7 @@ import {
   savePlayProgress,
 } from '../api/playProgress'
 
-const FINAL_SCORE_PARAM_KEY = 'final_score'
+const FINAL_SCORE_PARAM_KEYS = ['final_score', 'finalScore', 'score', 'points']
 const ANON_PROGRESS_TOKEN = '__default__'
 const RETURN_OUTCOME_PARAM_KEYS = ['pass', 'result', 'status', 'play_result']
 
@@ -175,7 +175,9 @@ export function createProgressEngine(theme) {
   }
 
   const getFinalScoreFromParams = (params, campId) => {
-    const raw = params.get(FINAL_SCORE_PARAM_KEY)
+    const raw = FINAL_SCORE_PARAM_KEYS.map((key) => params.get(key)).find(
+      (value) => value != null && value !== '',
+    )
     if (raw == null || raw === '') return null
     if (campId === 1) return null
 
@@ -216,6 +218,12 @@ export function createProgressEngine(theme) {
     if (score == null) return normalizeCampScoresRecord(existing)
     return applyCampScoreWithMax(existing, campId, score)
   }
+
+  const hasFinalScoreInParams = (params) =>
+    FINAL_SCORE_PARAM_KEYS.some((key) => {
+      const value = params.get(key)
+      return value != null && value !== ''
+    })
 
   const saveLevelsByProgressToken = (progressToken, levels, campScores) => {
     const store = loadProgressStore()
@@ -344,7 +352,7 @@ export function createProgressEngine(theme) {
       'camp',
       'returnToken',
       ...RETURN_OUTCOME_PARAM_KEYS,
-      FINAL_SCORE_PARAM_KEY,
+      ...FINAL_SCORE_PARAM_KEYS,
     ].forEach((key) => next.delete(key))
     return next
   }
@@ -364,7 +372,7 @@ export function createProgressEngine(theme) {
     'camp',
     'returnToken',
     ...RETURN_OUTCOME_PARAM_KEYS,
-    FINAL_SCORE_PARAM_KEY,
+    ...FINAL_SCORE_PARAM_KEYS,
   ]
 
   const shouldSkipIntroScreens = (searchParams) => {
@@ -420,7 +428,8 @@ export function createProgressEngine(theme) {
   return {
     ANON_PROGRESS_TOKEN,
     EXTERNAL_RETURN_TOKEN_KEY,
-    FINAL_SCORE_PARAM_KEY,
+    FINAL_SCORE_PARAM_KEY: FINAL_SCORE_PARAM_KEYS[0],
+    FINAL_SCORE_PARAM_KEYS,
     campPointsById,
     cleanupLegacyStorage,
     clearAnonSessionProgress,
@@ -441,6 +450,7 @@ export function createProgressEngine(theme) {
     loadLevelsByProgressToken,
     loadProgressStore,
     mergeFinalScoreIntoCampScores,
+    hasFinalScoreInParams,
     mergeProgressSnapshots,
     persistTokenProgress,
     reportPlayComplete,

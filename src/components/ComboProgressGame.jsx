@@ -188,10 +188,12 @@ function ComboProgressGame() {
     const returnToken = searchParams.get('returnToken')
     const expectedReturnToken = sessionStorage.getItem(engine.EXTERNAL_RETURN_TOKEN_KEY)
 
+    const hasFinalScoreParam = engine.hasFinalScoreInParams(searchParams)
     const { explicit, passed } = engine.getExplicitReturnPassState(searchParams)
     const currentLevels = hasTokenInUrl
       ? engine.loadLevelsByProgressToken(progressToken)
       : engine.loadAnonSessionLevels()
+    const isLastCamp = campId === currentLevels.length
     const storedScores = hasTokenInUrl
       ? engine.loadCampScoresByProgressToken(progressToken)
       : engine.loadAnonCampScores()
@@ -199,6 +201,23 @@ function ComboProgressGame() {
       campId === 1
         ? storedScores
         : engine.mergeFinalScoreIntoCampScores(storedScores, searchParams, campId)
+
+    // Final-camp completion should win when a score/return signal exists.
+    // Some providers send additional outcome keys that can conflict.
+    if (isLastCamp && campId >= 2 && (hasFinalScoreParam || Boolean(returnToken))) {
+      const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
+        progressToken,
+        hasTokenInUrl,
+        campId,
+        true,
+        baseScores,
+        playNoFromUrl,
+      )
+      queueLevelsUpdate(setLevels, nextLevels)
+      setCampScoresById(nextScores)
+      setSearchParams(engine.getCleanSearchParams(searchParams), { replace: true })
+      return
+    }
 
     if (explicit) {
       const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
@@ -227,26 +246,6 @@ function ComboProgressGame() {
       queueLevelsUpdate(setLevels, nextLevels)
       setCampScoresById(nextScores)
       sessionStorage.removeItem(engine.EXTERNAL_RETURN_TOKEN_KEY)
-      setSearchParams(engine.getCleanSearchParams(searchParams), { replace: true })
-      return
-    }
-
-    const hasFinalScoreParam = searchParams.has(engine.FINAL_SCORE_PARAM_KEY)
-    const isLastCamp = campId === currentLevels.length
-
-    // Some external games (notably final-camp quizzes) only return a final score.
-    // Treat that as a successful completion signal for the last camp.
-    if (isLastCamp && campId >= 2 && hasFinalScoreParam) {
-      const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
-        progressToken,
-        hasTokenInUrl,
-        campId,
-        true,
-        baseScores,
-        playNoFromUrl,
-      )
-      queueLevelsUpdate(setLevels, nextLevels)
-      setCampScoresById(nextScores)
       setSearchParams(engine.getCleanSearchParams(searchParams), { replace: true })
       return
     }
