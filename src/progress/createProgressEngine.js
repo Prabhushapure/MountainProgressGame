@@ -21,6 +21,7 @@ export function createProgressEngine(theme) {
   const EXTERNAL_RETURN_TOKEN_KEY = `${theme.storagePrefix}ExternalReturnToken`
   const ANON_SESSION_LEVELS_KEY = `${theme.storagePrefix}AnonSessionLevels`
   const ANON_CAMP_SCORES_SESSION_KEY = `${theme.storagePrefix}AnonCampScores`
+  const COMPLETED_CAMP_SCORES_SESSION_KEY_PREFIX = `${theme.storagePrefix}CompletedCampScores:`
   const PLAY_COMPLETE_SENT_KEY_PREFIX = `${theme.storagePrefix}PlayCompleteSent:`
 
   const getDefaultLevels = () => defaultLevels.map((level) => ({ ...level }))
@@ -139,9 +140,34 @@ export function createProgressEngine(theme) {
     }
   }
 
+  const getCompletedCampScoresSessionKey = (progressToken) =>
+    `${COMPLETED_CAMP_SCORES_SESSION_KEY_PREFIX}${progressToken}`
+
+  const loadCompletedCampScoresFromSession = (progressToken) => {
+    try {
+      const raw = sessionStorage.getItem(getCompletedCampScoresSessionKey(progressToken))
+      if (!raw) return {}
+      return normalizeCampScoresRecord(JSON.parse(raw))
+    } catch {
+      return {}
+    }
+  }
+
+  const saveCompletedCampScoresToSession = (progressToken, campScores) => {
+    const normalized = normalizeCampScoresRecord(campScores)
+    const key = getCompletedCampScoresSessionKey(progressToken)
+    if (!Object.keys(normalized).length) {
+      sessionStorage.removeItem(key)
+      return
+    }
+    sessionStorage.setItem(key, JSON.stringify(normalized))
+  }
+
   const loadCampScoresByProgressToken = (progressToken) => {
     const tokenData = loadProgressStore()[progressToken]
-    return normalizeCampScoresRecord(tokenData?.campScores)
+    const fromLocal = normalizeCampScoresRecord(tokenData?.campScores)
+    const fromSession = loadCompletedCampScoresFromSession(progressToken)
+    return mergeCampScoresSnapshots(fromSession, fromLocal)
   }
 
   const loadAnonCampScores = () => {
@@ -233,7 +259,23 @@ export function createProgressEngine(theme) {
       ...campScores,
     })
 
-    if (allCompleted || levelsMatchDefault(levels)) {
+    if (allCompleted) {
+      saveCompletedCampScoresToSession(progressToken, preservedScores)
+      delete store[progressToken]
+      localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
+      return {
+        deleted: false,
+        allCompleted: true,
+        snapshot: {
+          levels: levels.map((l) => ({ status: l.status })),
+          ...(Object.keys(preservedScores).length ? { campScores: preservedScores } : {}),
+          updatedAt: new Date().toISOString(),
+          completed: true,
+        },
+      }
+    }
+
+    if (levelsMatchDefault(levels)) {
       delete store[progressToken]
       localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
       return { deleted: true, snapshot: null }
@@ -260,6 +302,10 @@ export function createProgressEngine(theme) {
     }
 
     if (!result.snapshot) return
+
+    if (result.allCompleted) {
+      saveCompletedCampScoresToSession(progressToken, result.snapshot.campScores)
+    }
 
     savePlayProgress({
       comboTheme: theme.id,

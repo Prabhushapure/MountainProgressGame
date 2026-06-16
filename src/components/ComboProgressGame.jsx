@@ -171,14 +171,6 @@ function ComboProgressGame() {
   ])
 
   useEffect(() => {
-    if (!isResultOpen) return
-    const stored = hasTokenInUrl
-      ? engine.loadCampScoresByProgressToken(progressToken)
-      : engine.loadAnonCampScores()
-    setCampScoresById(engine.finalizeCampScores(stored, levels))
-  }, [engine, isResultOpen, hasTokenInUrl, progressToken, levels])
-
-  useEffect(() => {
     if (hasTokenInUrl && playNoFromUrl && !remoteSyncReady) return
 
     const campIdRaw = searchParams.get('campOutcome') ?? searchParams.get('camp')
