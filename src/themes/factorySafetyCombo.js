@@ -46,7 +46,7 @@ export const factorySafetyComboTheme = {
     goalRed: FACTORY_ASSET('station-6-assessment.png'),
     goalGreen: FACTORY_ASSET('station-6-assessment.png'),
     passIcon: FACTORY_ASSET('station-6-assessment.png'),
-    splashVideo: 'assets/video.mp4',
+    splashVideo: FACTORY_ASSET('flash-screen-video.mp4'),
     mascot: FACTORY_ASSET('worker-mascot.png'),
   },
   layout: {
