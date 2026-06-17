@@ -57,6 +57,7 @@ export const fireShieldMountainTheme = {
     labelLeftIds: [3],
     labelClassById: {
       1: 'camp-label-camp-1',
+      2: 'camp-label-camp-2',
       4: 'camp-label-camp-3',
     },
   },
@@ -72,7 +73,7 @@ export const fireShieldMountainTheme = {
     {
       id: 2,
       title: 'Camp 2',
-      activityLabel: 'Fire Safety\nPicture Quiz',
+      activityLabel: 'Fire Hazard Identification',
       status: 'locked',
       url: 'https://antiz-digital.com/hazard-hunt/?topic=Fire%20Safety%20Office%20Scenario',
       maxPoints: 200,
@@ -80,7 +81,7 @@ export const fireShieldMountainTheme = {
     {
       id: 3,
       title: 'Camp 3',
-      activityLabel: 'Fire Buster',
+      activityLabel: 'Fire Extinguisher Usage',
       status: 'locked',
       url: 'https://antiz-digital.com/fire-shield/',
       maxPoints: 500,
