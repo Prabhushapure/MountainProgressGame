@@ -30,7 +30,7 @@
   --stage-height: min(100dvh, calc(100vw * 9 / 16));
   position: relative;
   height: var(--stage-height);
-  width: calc(var(--stage-height) * 16 / 9);
+  width: calc(var(--stage-height) * 16 / 9 * 1.19);
   margin: 0 auto;
   z-index: 1;
 }
@@ -95,25 +95,29 @@
 }
 
 .tent-image {
-  width: 76px;
-  height: 76px;
+  width: 82px;
+  height: 82px;
   object-fit: contain;
   transition: transform 0.2s ease;
 }
 
 .tent-image-camp-1 {
-  width: 92px;
-  height: 92px;
+  width: 100px;
+  height: 100px;
 }
 
 .tent-button:hover .tent-image {
   transform: scale(1.08);
 }
 
+.tent-button.status-active .tent-image {
+  animation: active-camp-glow 1.8s ease-in-out infinite;
+}
+
 .camp-label {
   position: absolute;
   top: 50%;
-  left: 82px;
+  left: 94px;
   transform: translateY(-50%);
   z-index: 1;
   box-sizing: border-box;
@@ -135,7 +139,7 @@
 }
 
 .camp-label-camp-1 {
-  left: 90px;
+  left: 102px;
 }
 
 .camp-label-title {
@@ -162,6 +166,7 @@
 
 .camp-label.status-active {
   border-color: #e0ac00;
+  animation: active-camp-card-glow 1.8s ease-in-out infinite;
 }
 
 .camp-label.status-active .camp-label-title {
@@ -285,7 +290,46 @@
   }
 }
 
+@keyframes active-camp-glow {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 210, 74, 0.45))
+      drop-shadow(0 0 10px rgba(255, 190, 40, 0.35));
+  }
+
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 10px rgba(255, 220, 90, 0.9))
+      drop-shadow(0 0 18px rgba(255, 190, 40, 0.65));
+  }
+}
+
+@keyframes active-camp-card-glow {
+  0%,
+  100% {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(255, 196, 46, 0.38);
+  }
+
+  50% {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), 0 0 14px 2px rgba(255, 196, 46, 0.62);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .tent-button.status-active .tent-image,
+  .camp-label.status-active {
+    animation: none;
+  }
+
+  .tent-button.status-active .tent-image {
+    filter: drop-shadow(0 0 8px rgba(255, 210, 74, 0.65));
+  }
+
+  .camp-label.status-active {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.28), 0 0 10px rgba(255, 196, 46, 0.5);
+  }
+
   .summit-flag-image--passed {
     animation: none;
     filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));

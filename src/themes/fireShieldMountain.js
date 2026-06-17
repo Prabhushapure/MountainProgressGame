@@ -22,16 +22,15 @@ export const fireShieldMountainTheme = {
     goalLabel: 'Summit',
     mapAlt: 'Mountain route',
     passCongrats:
-      'You have completed all activities at the five Camps and have reached the Summit.',
-    incompleteNote: 'Complete all activities at the five Camps to reach the Summit.',
+      'You have completed all activities at the four Camps and have reached the Summit.',
+    incompleteNote: 'Complete all activities at the four Camps to reach the Summit.',
     instructionIntro:
-      'Complete & PASS all Activities to reach the Summit.\nCompleting the Activity at a Camp will unlock the next Camp.\nPlay Activities as many times as you wish at unlocked Camps.\nYou will reach the Summit on Passing Activities at all five Camps.\nYou can complete the journey across multiple sittings.',
+      'Complete & PASS all Activities to reach the Summit.\nCompleting the Activity at a Camp will unlock the next Camp.\nPlay Activities as many times as you wish at unlocked Camps.\nYou will reach the Summit on Passing Activities at all four Camps.\nYou can complete the journey across multiple sittings.',
     instructionActivities: [
       'Camp 1: Learn about Fire Safety and the correct responses.',
       'Camp 2: Fire Safety Picture Quiz',
       'Camp 3: Fire Buster',
       'Camp 4: Emergency Evacuation',
-      'Camp 5: Fire Safety MCQ Quiz',
     ],
   },
   assets: {
@@ -46,21 +45,19 @@ export const fireShieldMountainTheme = {
   },
   layout: {
     positions: [
-      { top: '96%', left: '38%' },
-      { top: '80%', left: '47%' },
-      { top: '67%', left: '56%' },
-      { top: '50%', left: '54%' },
-      { top: '32%', left: '60%' },
+      { top: '96%', left: '40%' },
+      { top: '80%', left: '50%' },
+      { top: '62%', left: '56%' },
+      { top: '40%', left: '58%' },
     ],
     goalPosition: { top: '8%', left: '70%' },
     goalFlagOffset: { left: -7, top: -1.4 },
     mapScale: { x: 0.95, y: 0.9, offsetY: 2 },
     firstMarkerLarge: true,
-    labelLeftIds: [3, 5],
+    labelLeftIds: [3],
     labelClassById: {
       1: 'camp-label-camp-1',
       4: 'camp-label-camp-3',
-      5: 'camp-label-camp-4',
     },
   },
   levels: [
@@ -95,14 +92,6 @@ export const fireShieldMountainTheme = {
       status: 'locked',
       url: 'https://antiz-digital.com/building-evacuation/',
       maxPoints: 740,
-    },
-    {
-      id: 5,
-      title: 'Camp 5',
-      activityLabel: 'Fire Safety\nMCQ Quiz',
-      status: 'locked',
-      url: 'https://antiz-digital.com/snake/?topic=Fire%20Safety',
-      maxPoints: 440,
     },
   ],
   urls: {
