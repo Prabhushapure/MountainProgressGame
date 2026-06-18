@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --mode fire-shield",
+    "dev:fire-shield-5": "vite --mode fire-shield-5",
     "dev:factory": "vite --mode factory",
     "dev:api": "npm --prefix server run dev",
     "build": "vite build --mode fire-shield",
+    "build:fire-shield-5": "vite build --mode fire-shield-5 --outDir dist-fire-shield-5",
     "build:factory": "vite build --mode factory --outDir dist-factory",
     "lint": "eslint .",
     "preview": "vite preview",

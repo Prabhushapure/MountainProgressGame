@@ -1,4 +1,5 @@
 import { factorySafetyComboTheme } from './factorySafetyCombo'
+import { fireShieldMountain5CampTheme } from './fireShieldMountain5Camp'
 import { fireShieldMountainTheme } from './fireShieldMountain'
 
 /**
@@ -28,6 +29,7 @@ import { fireShieldMountainTheme } from './fireShieldMountain'
 
 const themes = {
   'fire-shield-combo': fireShieldMountainTheme,
+  'fire-shield-combo-5': fireShieldMountain5CampTheme,
   Factory_safety_combo: factorySafetyComboTheme,
 }
 
@@ -50,4 +52,4 @@ export function getActiveThemeId() {
   return import.meta.env.VITE_COMBO_THEME || DEFAULT_THEME_ID
 }
 
-export { factorySafetyComboTheme, fireShieldMountainTheme }
+export { factorySafetyComboTheme, fireShieldMountain5CampTheme, fireShieldMountainTheme }
