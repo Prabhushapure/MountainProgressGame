@@ -6,7 +6,7 @@
   position: relative;
   overflow-x: clip;
   overflow-y: visible;
-  background: #d8e0e8;
+  background: #1a1f26;
   font-family: Aptos, 'Segoe UI', Arial, sans-serif;
   display: flex;
   flex-direction: column;
@@ -20,42 +20,63 @@
   inset: 0;
   background-image: var(--factory-bg-url);
   background-size: cover;
-  background-position: center bottom;
+  background-position: center;
   background-repeat: no-repeat;
+  filter: brightness(0.52) saturate(0.82);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.factory-safety-map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.62) 100%),
+    rgba(0, 0, 0, 0.48);
   z-index: 0;
   pointer-events: none;
 }
 
 .factory-safety-exit-button {
   position: absolute;
-  top: 14px;
-  right: 18px;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 30;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: rgba(255, 255, 255, 0.92);
-  color: #1f2933;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: linear-gradient(180deg, #ffa726 0%, #f57c00 100%);
+  color: #111;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(245, 124, 0, 0.35);
   cursor: pointer;
 }
 
 .factory-safety-exit-button:hover {
-  background: #fff;
+  background: linear-gradient(180deg, #ffb74d 0%, #fb8c00 100%);
 }
 
 .factory-safety-title {
   position: relative;
   z-index: 3;
-  margin: 28px 0 8px;
+  margin: 28px 16px 8px;
   font-family: Aptos, 'Segoe UI', Arial, sans-serif;
-  font-size: clamp(1.6rem, 3vw, 2.35rem);
+  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  color: #111;
+  letter-spacing: 0.05em;
   text-align: center;
+  line-height: 1.15;
+}
+
+.factory-safety-title-accent {
+  color: #f5a623;
+}
+
+.factory-safety-title-rest {
+  color: #fff;
 }
 
 .factory-safety-stage {
@@ -65,21 +86,8 @@
   width: min(1200px, 96vw);
   min-height: 0;
   margin: 0 auto;
-}
-
-.factory-safety-mascot {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  z-index: 2;
-  display: block;
-  height: min(58dvh, 400px);
-  width: auto;
-  max-width: 13vw;
-  object-fit: contain;
-  object-position: left bottom;
-  pointer-events: none;
-  user-select: none;
+  padding-top: 6px;
+  overflow: visible;
 }
 
 .factory-safety-path-curve {
@@ -89,124 +97,426 @@
   height: 100%;
   z-index: 1;
   pointer-events: none;
-}
-
-.factory-safety-connector {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
-  border-left: 14px solid rgba(255, 255, 255, 0.95);
-  z-index: 3;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
-  pointer-events: none;
+  filter: drop-shadow(0 0 2px rgba(126, 207, 74, 0.35));
 }
 
 .factory-safety-node {
   position: absolute;
   transform: translate(-50%, -50%);
   z-index: 5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 150px;
+  width: min(225px, 27vw);
 }
 
-.factory-safety-node-button {
-  border: none;
-  background: transparent;
-  padding: 0;
-  cursor: pointer;
+.factory-safety-node--active {
+  z-index: 8;
+}
+
+.factory-safety-step-character {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
   display: block;
+  width: auto;
+  height: min(22dvh, 155px);
+  max-width: min(140px, 18vw);
+  object-fit: contain;
+  object-position: center bottom;
+  background: transparent;
+  pointer-events: none;
+  user-select: none;
 }
 
-.factory-safety-node-button:disabled {
+.factory-safety-step {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(14, 20, 30, 0.52);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.38);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.factory-safety-step::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0.1) 24%,
+    rgba(255, 255, 255, 0.02) 46%,
+    rgba(255, 255, 255, 0) 58%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.factory-safety-step::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.factory-safety-step > * {
+  position: relative;
+  z-index: 1;
+}
+
+.factory-safety-step:not(:disabled):active:not(.factory-safety-step--pending) {
+  transform: scale(0.97);
+  transition: transform 0.08s ease;
+}
+
+.factory-safety-step--pending {
+  transform: scale(0.97);
+  opacity: 0.82;
+  cursor: wait;
+  pointer-events: none;
+  animation: none !important;
+}
+
+.factory-safety-step:disabled {
   cursor: not-allowed;
 }
 
-.factory-safety-node-ring {
+.factory-safety-step:not(:disabled):hover {
+  transform: scale(1.03);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 10px 28px rgba(0, 0, 0, 0.44);
+}
+
+.factory-safety-step.status-active:not(:disabled):hover {
+  transform: none;
+}
+
+.factory-safety-step.status-locked {
+  border: 3px solid #e53935;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 24px rgba(0, 0, 0, 0.38),
+    0 0 10px rgba(229, 57, 53, 0.35);
+}
+
+.factory-safety-step.status-active {
+  border: 3px solid #f5c518;
+  background: rgba(22, 26, 36, 0.58);
+  animation: factory-active-step-glow 1.8s ease-in-out infinite;
+}
+
+.factory-safety-node--active .factory-safety-step-character {
+  animation: factory-active-character-float 1.8s ease-in-out infinite;
+}
+
+.factory-safety-step.status-completed {
+  border: 3px solid #43a047;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.38),
+    0 0 10px rgba(67, 160, 71, 0.32);
+}
+
+.factory-safety-step-badge {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 108px;
-  height: 108px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  border: 5px solid #d32f2f;
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.factory-safety-node-ring.status-completed {
-  border-color: #2e9b4a;
-  box-shadow: 0 0 0 3px rgba(46, 155, 74, 0.2), 0 4px 14px rgba(0, 0, 0, 0.12);
+.factory-safety-step.status-locked .factory-safety-step-badge--status {
+  background: #e53935;
 }
 
-.factory-safety-node-ring.status-active {
-  border-color: #f5c518;
-  box-shadow: 0 0 0 4px rgba(245, 197, 24, 0.35), 0 4px 14px rgba(0, 0, 0, 0.12);
+.factory-safety-step.status-active .factory-safety-step-badge--status {
+  background: #f5c518;
+  animation: factory-active-badge-pulse 1.8s ease-in-out infinite;
 }
 
-.factory-safety-node-ring.status-locked {
-  border-color: #d32f2f;
-  opacity: 0.85;
+.factory-safety-step.status-active .factory-safety-step-label {
+  color: #fff8dc;
 }
 
-.factory-safety-node-button:not(:disabled):hover .factory-safety-node-ring {
-  transform: scale(1.05);
+.factory-safety-step.status-completed .factory-safety-step-badge--status {
+  background: #43a047;
 }
 
-.factory-safety-node-icon {
-  width: 88px;
-  height: 88px;
+.factory-safety-step-badge--check {
+  background: #43a047;
+  color: #fff;
+}
+
+.factory-safety-step-lock-icon {
+  width: 16px;
+  height: 16px;
   object-fit: contain;
-  border-radius: 50%;
   pointer-events: none;
 }
 
-.factory-safety-node-label {
-  margin: 10px 0 0;
-  width: 100%;
-  text-align: center;
+.factory-safety-step-check-svg {
+  width: 16px;
+  height: 16px;
+}
+
+.factory-safety-step-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
   font-family: Aptos, 'Segoe UI', Arial, sans-serif;
   font-size: 0.78rem;
   line-height: 1.25;
   color: #fff;
-  font-weight: 900;
+  font-weight: 700;
+}
+
+@keyframes factory-active-step-glow {
+  0%,
+  100% {
+    border-color: #f5c518;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.38),
+      0 0 14px rgba(245, 197, 24, 0.45);
+    transform: scale(1);
+  }
+
+  50% {
+    border-color: #ffd54f;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.36),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+      0 10px 30px rgba(0, 0, 0, 0.44),
+      0 0 26px rgba(245, 197, 24, 0.65);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes factory-active-character-float {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+@keyframes factory-active-badge-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 197, 24, 0.45);
+  }
+
+  50% {
+    box-shadow: 0 0 0 7px rgba(245, 197, 24, 0);
+  }
+}
+
+.factory-safety-node--unlocking {
+  perspective: 900px;
+  z-index: 10;
+}
+
+.factory-safety-step-flip {
+  transform-style: preserve-3d;
+}
+
+.factory-safety-step--unlocking {
+  animation: factory-step-unlock-flip 0.65s cubic-bezier(0.34, 1.2, 0.48, 1) forwards;
+}
+
+.factory-safety-step-badge--unlocking {
+  background: #f5c518;
+}
+
+.factory-safety-lock-flip {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  transform-style: preserve-3d;
+}
+
+.factory-safety-lock-flip--animating {
+  animation: factory-lock-to-unlock 0.65s cubic-bezier(0.34, 1.2, 0.48, 1) forwards;
+}
+
+.factory-safety-lock-flip--active {
+  animation: factory-lock-unlock-cycle 2.6s ease-in-out infinite;
+}
+
+.factory-safety-lock-flip-front,
+.factory-safety-lock-flip-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+
+.factory-safety-lock-flip-back {
+  transform: rotateY(180deg);
+}
+
+.factory-safety-step-character--enter {
+  animation: factory-character-emerge 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes factory-step-unlock-flip {
+  0% {
+    transform: rotateY(0deg) scale(1);
+    border-color: #e53935;
+  }
+
+  45% {
+    transform: rotateY(92deg) scale(0.96);
+    border-color: #ef6c00;
+  }
+
+  55% {
+    transform: rotateY(92deg) scale(0.96);
+    border-color: #f5c518;
+  }
+
+  100% {
+    transform: rotateY(0deg) scale(1);
+    border-color: #f5c518;
+  }
+}
+
+@keyframes factory-lock-to-unlock {
+  0% {
+    transform: rotateY(0deg);
+  }
+
+  100% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes factory-lock-unlock-cycle {
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+
+  50% {
+    transform: rotateY(180deg);
+  }
+}
+
+@keyframes factory-character-emerge {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(36px) scale(0.35);
+    filter: blur(6px);
+  }
+
+  40% {
+    opacity: 0.9;
+    transform: translateX(-50%) translateY(6px) scale(0.9);
+    filter: blur(1px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .factory-safety-step.status-active,
+  .factory-safety-node--active .factory-safety-step-character,
+  .factory-safety-step.status-active .factory-safety-step-badge--status,
+  .factory-safety-step--unlocking,
+  .factory-safety-step-character--enter,
+  .factory-safety-lock-flip--animating,
+  .factory-safety-lock-flip--active {
+    animation: none;
+  }
+
+  .factory-safety-lock-flip--active {
+    transform: rotateY(180deg);
+  }
+
+  .factory-safety-step.status-active {
+    border-color: #f5c518;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 8px 24px rgba(0, 0, 0, 0.38),
+      0 0 20px rgba(245, 197, 24, 0.55);
+  }
 }
 
 @media (max-width: 900px) {
   .factory-safety-node {
-    width: 120px;
+    width: min(185px, 34vw);
   }
 
-  .factory-safety-node-ring {
-    width: 88px;
-    height: 88px;
-    border-width: 4px;
+  .factory-safety-step {
+    min-height: 42px;
+    gap: 8px;
+    padding: 6px 8px;
   }
 
-  .factory-safety-node-icon {
-    width: 72px;
-    height: 72px;
+  .factory-safety-step-badge {
+    width: 26px;
+    height: 26px;
   }
 
-  .factory-safety-node-label {
+  .factory-safety-step-lock-icon,
+  .factory-safety-step-check-svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .factory-safety-step-label {
     font-size: 0.68rem;
   }
 
-  .factory-safety-connector {
-    border-top-width: 5px;
-    border-bottom-width: 5px;
-    border-left-width: 10px;
+  .factory-safety-step-character {
+    height: min(14dvh, 95px);
+    max-width: min(90px, 20vw);
+    bottom: calc(100% + 4px);
   }
 }
 
 @media (max-width: 640px) {
   .factory-safety-title {
     margin-top: 18px;
-    font-size: 1.35rem;
+    font-size: 1.15rem;
   }
 
   .factory-safety-stage {
@@ -214,20 +524,35 @@
   }
 
   .factory-safety-node {
-    width: 96px;
+    width: min(155px, 44vw);
   }
 
-  .factory-safety-node-ring {
-    width: 72px;
-    height: 72px;
+  .factory-safety-step {
+    min-height: 38px;
+    gap: 6px;
+    padding: 5px 7px;
+    border-radius: 8px;
   }
 
-  .factory-safety-node-icon {
-    width: 58px;
-    height: 58px;
+  .factory-safety-step-badge {
+    width: 22px;
+    height: 22px;
   }
 
-  .factory-safety-node-label {
+  .factory-safety-step-lock-icon,
+  .factory-safety-step-check-svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .factory-safety-step-label {
     font-size: 0.58rem;
+    line-height: 1.2;
+  }
+
+  .factory-safety-step-character {
+    height: min(11dvh, 72px);
+    max-width: min(70px, 24vw);
+    bottom: calc(100% + 3px);
   }
 }

@@ -8,6 +8,8 @@ import { fireShieldMountainTheme } from './fireShieldMountain'
  * @property {string} title
  * @property {string} activityLabel
  * @property {'active' | 'locked' | 'completed'} status
+ * @property {string} [characterIcon]
+ * @property {string} [icon]
  * @property {string} url
  * @property {number} maxPoints
  */

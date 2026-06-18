@@ -52,6 +52,8 @@ function ComboProgressGame() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isResultOpen, setIsResultOpen] = useState(false)
+  const [pendingLevelId, setPendingLevelId] = useState(null)
+  const isNavigatingRef = useRef(false)
   const tokenFromUrl = useMemo(() => getTokenFromParams(searchParams), [searchParams])
   const playNoFromUrl = useMemo(() => getPlayNoFromParams(searchParams), [searchParams])
   const hasTokenInUrl = Boolean(tokenFromUrl)
@@ -265,8 +267,13 @@ function ComboProgressGame() {
     setSearchParams,
   ])
 
+  const isSafetyBasicsLayout = theme.layoutMode === 'safety-basics-path'
+
   const mappedPositions = useMemo(
-    () => theme.layout.positions.map((point) => remapPointToMap(point, theme.layout.mapScale)),
+    () =>
+      (theme.layout.positions ?? []).map((point) =>
+        remapPointToMap(point, theme.layout.mapScale),
+      ),
     [theme.id],
   )
   const mappedGoalPosition = useMemo(
@@ -348,6 +355,11 @@ function ComboProgressGame() {
 
   const handleTentClick = (level) => {
     if (level.status === 'locked') return
+    if (isNavigatingRef.current) return
+
+    isNavigatingRef.current = true
+    setPendingLevelId(level.id)
+
     if (/^https?:\/\//.test(level.url)) {
       const gameUrl = new URL(level.url)
       const returnBase = new URL(import.meta.env.BASE_URL || '/', window.location.origin)
@@ -406,7 +418,6 @@ function ComboProgressGame() {
 
   const mapImageUrl = publicUrl(theme.assets.map)
   const passIconUrl = publicUrl(theme.assets.passIcon)
-  const isSafetyBasicsLayout = theme.layoutMode === 'safety-basics-path'
 
   const resultOverlay = isResultOpen ? (
         <div className="result-overlay" role="dialog" aria-modal="true">
@@ -495,6 +506,7 @@ function ComboProgressGame() {
         <FactorySafetyMapView
           theme={theme}
           levels={levels}
+          pendingLevelId={pendingLevelId}
           onLevelClick={handleTentClick}
           onExitClick={() => setIsResultOpen(true)}
         />
@@ -542,9 +554,15 @@ function ComboProgressGame() {
           >
             <button
               type="button"
-              className={`tent-button status-${level.status}`}
+              className={[
+                'tent-button',
+                `status-${level.status}`,
+                pendingLevelId === level.id ? 'tent-button--pending' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               onClick={() => handleTentClick(level)}
-              disabled={level.status === 'locked'}
+              disabled={level.status === 'locked' || pendingLevelId !== null}
             >
               <img
                 src={markerImageByStatus[level.status]}
@@ -561,15 +579,16 @@ function ComboProgressGame() {
                 `status-${level.status}`,
                 theme.layout.labelClassById[level.id] ?? '',
                 theme.layout.labelLeftIds.includes(level.id) ? 'camp-label-left' : '',
+                pendingLevelId === level.id ? 'camp-label--pending' : '',
               ]
                 .filter(Boolean)
                 .join(' ')}
               role="button"
-              tabIndex={level.status === 'locked' ? -1 : 0}
-              aria-disabled={level.status === 'locked'}
+              tabIndex={level.status === 'locked' || pendingLevelId !== null ? -1 : 0}
+              aria-disabled={level.status === 'locked' || pendingLevelId !== null}
               onClick={() => handleTentClick(level)}
               onKeyDown={(event) => {
-                if (level.status === 'locked') return
+                if (level.status === 'locked' || pendingLevelId !== null) return
                 if (event.key === 'Enter' || event.key === ' ') {
                   event.preventDefault()
                   handleTentClick(level)

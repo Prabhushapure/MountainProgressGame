@@ -94,6 +94,21 @@
   cursor: not-allowed;
 }
 
+.tent-button:not(:disabled):active:not(.tent-button--pending) .tent-image {
+  transform: scale(0.94);
+  transition: transform 0.08s ease;
+}
+
+.tent-button--pending .tent-image {
+  transform: scale(0.94);
+  opacity: 0.75;
+  filter: brightness(0.92);
+}
+
+.tent-button--pending {
+  cursor: wait;
+}
+
 .tent-image {
   width: 82px;
   height: 82px;
@@ -136,6 +151,13 @@
 
 .camp-label:not([aria-disabled='true']):hover {
   transform: translateY(-50%) scale(1.08);
+}
+
+.camp-label--pending {
+  transform: translateY(-50%) scale(0.97);
+  opacity: 0.82;
+  cursor: wait;
+  pointer-events: none;
 }
 
 .camp-label-camp-1 {
