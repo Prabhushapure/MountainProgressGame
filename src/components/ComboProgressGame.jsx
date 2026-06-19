@@ -428,7 +428,7 @@ function ComboProgressGame() {
     const returnUrlFromParams = getReturnUrlFromParams(searchParams)
     if (!tokenFromUrl && !returnUrlFromParams) {
       engine.clearAnonSessionProgress()
-    } else if (tokenFromUrl && playNoFromUrl && allCampsComplete) {
+    } else if (tokenFromUrl && playNoFromUrl && isPassed && allCampsComplete) {
       engine.deletePlayProgress({ token: progressToken, playNo: playNoFromUrl }).catch((err) => {
         console.error('Failed to delete remote progress:', err)
       })

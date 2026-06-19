@@ -309,14 +309,7 @@ export function createProgressEngine(theme) {
   const syncTokenProgressToServer = (progressToken, playNo, result) => {
     if (!playNo) return
 
-    if (result.deleted) {
-      deletePlayProgress({ comboTheme: theme.id, token: progressToken, playNo }).catch((err) => {
-        console.error('Failed to delete remote progress:', err)
-      })
-      return
-    }
-
-    if (!result.snapshot) return
+    if (result.deleted || !result.snapshot) return
 
     if (result.allCompleted) {
       saveCompletedCampScoresToSession(progressToken, result.snapshot.campScores, playNo)
