@@ -1,86 +1,130 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { publicUrl } from '../utils/publicUrl'
 import { playUnlockSound } from '../utils/unlockSound'
 import './FactorySafetyProgress.css'
 
-const DEFAULT_PATH_CURVE = {
-  start: { x: 15, y: 84 },
-  control: { x: 50, y: 80 },
-  end: { x: 94, y: 17 },
+const DEFAULT_STEP_LADDER = {
+  marginTop: 32,
+  marginBottom: 36,
+  marginRight: 24,
 }
 
+const MAN_LEFT_OFFSET = 36
+const MAN_TOP_OFFSET = 56
+const MAN_STEP_GAP = 36
+const MAN_HEIGHT_SCALE = 1.2
+const MAN_WIDTH_RATIO = 0.62
 const UNLOCK_ANIMATION_MS = 750
 
-function quadraticPoint(p0, p1, p2, t) {
-  const mt = 1 - t
-  return {
-    x: mt * mt * p0.x + 2 * mt * t * p1.x + t * t * p2.x,
-    y: mt * mt * p0.y + 2 * mt * t * p1.y + t * t * p2.y,
-  }
-}
-
-function pathCurveToD(curve) {
-  const { start, control, end } = curve
-  return `M ${start.x} ${start.y} Q ${control.x} ${control.y} ${end.x} ${end.y}`
-}
-
-function sampleCurvePoint(curve, t) {
-  return quadraticPoint(curve.start, curve.control, curve.end, t)
-}
-
-function getCurveSamples(curve, steps = 200) {
-  const samples = []
-  for (let index = 0; index <= steps; index += 1) {
-    const t = index / steps
-    samples.push({ t, point: sampleCurvePoint(curve, t) })
-  }
-  return samples
-}
-
-function getTAtArcLength(curve, targetLength) {
-  const samples = getCurveSamples(curve)
-  let accumulated = 0
-
-  for (let index = 1; index < samples.length; index += 1) {
-    const prev = samples[index - 1]
-    const current = samples[index]
-    const segment = Math.hypot(
-      current.point.x - prev.point.x,
-      current.point.y - prev.point.y,
-    )
-
-    if (accumulated + segment >= targetLength) {
-      const ratio = segment > 0 ? (targetLength - accumulated) / segment : 0
-      return prev.t + (current.t - prev.t) * ratio
-    }
-
-    accumulated += segment
-  }
-
-  return 1
-}
-
-function getEvenArcLengthPathPositions(count, curve) {
+function getRightColumnPositionsPercent(count) {
   if (count <= 0) return []
   if (count === 1) {
-    return [{ top: `${curve.start.y}%`, left: `${curve.start.x}%` }]
+    return [{ top: '50%' }]
   }
 
-  const samples = getCurveSamples(curve)
-  let totalLength = 0
-  for (let index = 1; index < samples.length; index += 1) {
-    const prev = samples[index - 1].point
-    const current = samples[index].point
-    totalLength += Math.hypot(current.x - prev.x, current.y - prev.y)
+  const marginTop = 14
+  const marginBottom = 12
+  const segments = count - 1
+  const pitchY = (100 - marginTop - marginBottom) / segments
+  const bottomTop = 100 - marginBottom
+
+  return Array.from({ length: count }, (_, index) => ({
+    top: `${bottomTop - index * pitchY}%`,
+  }))
+}
+
+function getRightColumnPositions(count, stageHeight, cardHeightPx, ladder = DEFAULT_STEP_LADDER) {
+  if (count <= 0) return []
+  if (count === 1) {
+    return [{ top: '50%' }]
   }
+
+  if (stageHeight < 1) {
+    return getRightColumnPositionsPercent(count)
+  }
+
+  const marginTop = ladder.marginTop ?? DEFAULT_STEP_LADDER.marginTop
+  const marginBottom = ladder.marginBottom ?? DEFAULT_STEP_LADDER.marginBottom
+  const usableH = Math.max(0, stageHeight - marginTop - marginBottom)
+  const segments = count - 1
+  const edgeGap = (usableH - count * cardHeightPx) / segments
+
+  if (edgeGap < 0) {
+    return getRightColumnPositionsPercent(count)
+  }
+
+  const centerPitch = edgeGap + cardHeightPx
+  const bottomCenterY = stageHeight - marginBottom - cardHeightPx / 2
 
   return Array.from({ length: count }, (_, index) => {
-    const targetLength = (totalLength * index) / (count - 1)
-    const t =
-      index === 0 ? 0 : index === count - 1 ? 1 : getTAtArcLength(curve, targetLength)
-    const point = sampleCurvePoint(curve, t)
-    return { top: `${point.y}%`, left: `${point.x}%` }
+    const centerY = bottomCenterY - index * centerPitch
+    return { top: `${(centerY / stageHeight) * 100}%` }
   })
+}
+
+function measureStepsColumn(stageElement) {
+  const nodes = stageElement.querySelectorAll('.factory-safety-node')
+  if (!nodes.length) {
+    return { top: 0, height: 0 }
+  }
+
+  const stageRect = stageElement.getBoundingClientRect()
+  const firstRect = nodes[0].getBoundingClientRect()
+  const lastRect = nodes[nodes.length - 1].getBoundingClientRect()
+  const top = lastRect.top - stageRect.top
+  const bottom = firstRect.bottom - stageRect.top
+
+  return {
+    top: Math.max(0, top),
+    height: Math.max(0, bottom - top),
+  }
+}
+
+function measureCenteredLayout(stageElement) {
+  const column = measureStepsColumn(stageElement)
+  const stageWidth = stageElement.clientWidth
+  const cardWidth =
+    stageElement.querySelector('.factory-safety-step-flip')?.getBoundingClientRect().width ?? 225
+
+  const characterEl = stageElement.querySelector('.factory-safety-column-character')
+  const measuredManWidth = characterEl?.getBoundingClientRect().width ?? 0
+  const manWidth =
+    measuredManWidth > 0
+      ? measuredManWidth
+      : column.height > 0
+        ? column.height * MAN_HEIGHT_SCALE * MAN_WIDTH_RATIO
+        : 0
+  const gap = manWidth > 0 ? MAN_STEP_GAP : 0
+  const totalGroupWidth = MAN_LEFT_OFFSET + manWidth + gap + cardWidth
+  const groupLeft = Math.max(0, (stageWidth - totalGroupWidth) / 2)
+  const manHeight = column.height * MAN_HEIGHT_SCALE
+  const manTop = column.top - column.height * (MAN_HEIGHT_SCALE - 1) + MAN_TOP_OFFSET
+  const manLeft = groupLeft
+  const cardLeft = groupLeft + manWidth + gap
+
+  return {
+    ...column,
+    cardLeft,
+    manLeft,
+    manHeight,
+    manTop,
+  }
+}
+
+function measureStepPositions(count, stageElement, ladder = DEFAULT_STEP_LADDER) {
+  if (!stageElement || count === 0) {
+    return getRightColumnPositionsPercent(count)
+  }
+
+  const cardHeightPx =
+    stageElement.querySelector('.factory-safety-step')?.getBoundingClientRect().height ?? 46
+
+  return getRightColumnPositions(
+    count,
+    stageElement.clientHeight,
+    cardHeightPx,
+    ladder,
+  )
 }
 
 function StepCheckIcon() {
@@ -111,8 +155,6 @@ function FactorySafetyStepCard({
   const isPending = pendingLevelId === level.id
   const isClickBlocked = pendingLevelId !== null
   const showLockFlip = isUnlocking || isActive
-  const showCharacter =
-    level.characterIcon && (isActive || isUnlocking)
 
   return (
     <div
@@ -123,24 +165,8 @@ function FactorySafetyStepCard({
       ]
         .filter(Boolean)
         .join(' ')}
-      style={{ top: position.top, left: position.left }}
+      style={{ top: position.top }}
     >
-      {showCharacter ? (
-        <img
-          src={`${publicUrl(level.characterIcon)}?v=2`}
-          alt=""
-          decoding="async"
-          fetchPriority={isUnlocking || isActive ? 'high' : 'auto'}
-          className={[
-            'factory-safety-step-character',
-            isUnlocking ? 'factory-safety-step-character--enter' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          draggable={false}
-        />
-      ) : null}
-
       <div className="factory-safety-step-flip">
         <button
           type="button"
@@ -214,16 +240,38 @@ function FactorySafetyStepCard({
 }
 
 function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onExitClick }) {
-  const pathCurve = theme.layout.pathCurve ?? DEFAULT_PATH_CURVE
-  const positions = useMemo(
-    () => getEvenArcLengthPathPositions(levels.length, pathCurve),
-    [levels.length, theme.id],
+  const stepLadder = useMemo(
+    () => theme.layout.stepLadder ?? DEFAULT_STEP_LADDER,
+    [theme.id],
   )
   const stageRef = useRef(null)
+  const [positions, setPositions] = useState(() =>
+    getRightColumnPositionsPercent(levels.length),
+  )
+  const [columnMetrics, setColumnMetrics] = useState({
+    top: 0,
+    height: 0,
+    cardLeft: 0,
+    manLeft: 0,
+    manHeight: 0,
+    manTop: 0,
+  })
   const prevStatusRef = useRef({})
   const initializedRef = useRef(false)
   const unlockTimersRef = useRef([])
   const [unlockingIds, setUnlockingIds] = useState(() => new Set())
+
+  const remeasureLayout = useCallback(() => {
+    const stage = stageRef.current
+    if (!stage) return
+
+    requestAnimationFrame(() => {
+      setColumnMetrics(measureCenteredLayout(stage))
+      requestAnimationFrame(() => {
+        setColumnMetrics(measureCenteredLayout(stage))
+      })
+    })
+  }, [])
 
   useEffect(() => {
     levels.forEach((level) => {
@@ -232,6 +280,71 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
       img.src = `${publicUrl(level.characterIcon)}?v=2`
     })
   }, [levels])
+
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return undefined
+
+    const updatePositions = () => {
+      setPositions(measureStepPositions(levels.length, stage, stepLadder))
+      requestAnimationFrame(() => {
+        setColumnMetrics(measureCenteredLayout(stage))
+        requestAnimationFrame(() => {
+          setColumnMetrics(measureCenteredLayout(stage))
+        })
+      })
+    }
+
+    updatePositions()
+
+    const observer = new ResizeObserver(updatePositions)
+    observer.observe(stage)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [levels.length, stepLadder, theme.id])
+
+  const characterLevel = useMemo(
+    () =>
+      levels.find(
+        (level) =>
+          level.characterIcon &&
+          (level.status === 'active' || unlockingIds.has(level.id)),
+      ),
+    [levels, unlockingIds],
+  )
+  const isCharacterUnlocking = characterLevel
+    ? unlockingIds.has(characterLevel.id)
+    : false
+
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return undefined
+
+    const frameId = requestAnimationFrame(() => {
+      remeasureLayout()
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [positions, levels.length, characterLevel?.id, columnMetrics.manHeight, remeasureLayout])
+
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage || !characterLevel?.characterIcon) return undefined
+
+    const characterEl = stage.querySelector('.factory-safety-column-character')
+    if (!characterEl) return undefined
+
+    const observer = new ResizeObserver(remeasureLayout)
+    observer.observe(characterEl)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [characterLevel?.id, columnMetrics.manHeight, remeasureLayout])
 
   useEffect(() => {
     if (!initializedRef.current) {
@@ -287,6 +400,15 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
     ? { '--factory-bg-url': `url(${publicUrl(theme.assets.map)})` }
     : undefined
 
+  const stageStyle = {
+    '--factory-steps-column-height': `${columnMetrics.height}px`,
+    '--factory-steps-column-top': `${columnMetrics.top}px`,
+    '--factory-card-left': `${columnMetrics.cardLeft}px`,
+    '--factory-man-left': `${columnMetrics.manLeft}px`,
+    '--factory-man-height': `${columnMetrics.manHeight}px`,
+    '--factory-man-top': `${columnMetrics.manTop}px`,
+  }
+
   return (
     <div
       className={`factory-safety-map ${theme.themeClass}`}
@@ -301,22 +423,29 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
         <span className="factory-safety-title-rest">{theme.brand.instructionTitleRest}</span>
       </h1>
 
-      <div className="factory-safety-stage" ref={stageRef}>
-        <svg
-          className="factory-safety-path-curve"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            d={pathCurveToD(pathCurve)}
-            fill="none"
-            stroke="#7ecf4a"
-            strokeWidth="1.1"
-            strokeLinecap="round"
-            strokeDasharray="3.5 3"
+      <div className="factory-safety-stage" ref={stageRef} style={stageStyle}>
+        {characterLevel?.characterIcon ? (
+          <img
+            src={`${publicUrl(characterLevel.characterIcon)}?v=2`}
+            alt=""
+            decoding="async"
+            fetchPriority="high"
+            style={
+              columnMetrics.manHeight > 0
+                ? { height: `${columnMetrics.manHeight}px` }
+                : undefined
+            }
+            className={[
+              'factory-safety-column-character',
+              isCharacterUnlocking ? 'factory-safety-column-character--enter' : '',
+              'factory-safety-column-character--active',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+            onLoad={remeasureLayout}
+            draggable={false}
           />
-        </svg>
+        ) : null}
 
         {levels.map((level, index) => {
           const position = positions[index]

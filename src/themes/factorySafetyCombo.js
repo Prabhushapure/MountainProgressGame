@@ -52,12 +52,12 @@ export const factorySafetyComboTheme = {
     mascot: FACTORY_ASSET('worker-mascot.png'),
   },
   layout: {
-    pathCurve: {
-      start: { x: 15, y: 84 },
-      control: { x: 50, y: 80 },
-      end: { x: 94, y: 17 },
+    stepLadder: {
+      marginTop: 32,
+      marginBottom: 36,
+      marginRight: 24,
     },
-    goalPosition: { top: '17%', left: '94%' },
+    goalPosition: { top: '17%', left: '50%' },
     goalFlagOffset: { left: 0, top: 0 },
     mapScale: { x: 1, y: 1, offsetY: 0 },
     firstMarkerLarge: false,
