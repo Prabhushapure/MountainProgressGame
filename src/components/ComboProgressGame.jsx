@@ -78,12 +78,14 @@ function ComboProgressGame() {
 
   const [levels, setLevels] = useState(() =>
     hasTokenInUrl
-      ? engine.loadLevelsByProgressToken(progressToken)
+      ? playNoFromUrl
+        ? engine.levelsFromSnapshot(undefined)
+        : engine.loadLevelsByProgressToken(progressToken)
       : engine.loadAnonSessionLevels(),
   )
   const [campScoresById, setCampScoresById] = useState(() =>
     hasTokenInUrl
-      ? engine.loadCampScoresByProgressToken(progressToken)
+      ? engine.loadCampScoresByProgressToken(progressToken, playNoFromUrl)
       : engine.loadAnonCampScores(),
   )
   const [remoteSyncReady, setRemoteSyncReady] = useState(
@@ -97,15 +99,17 @@ function ComboProgressGame() {
   }, [engine])
 
   useEffect(() => {
+    if (playNoFromUrl) return
+
     const nextLevels = hasTokenInUrl
       ? engine.loadLevelsByProgressToken(progressToken)
       : engine.loadAnonSessionLevels()
     const nextScores = hasTokenInUrl
-      ? engine.loadCampScoresByProgressToken(progressToken)
+      ? engine.loadCampScoresByProgressToken(progressToken, playNoFromUrl)
       : engine.loadAnonCampScores()
     queueLevelsUpdate(setLevels, nextLevels)
     setCampScoresById(nextScores)
-  }, [engine, hasTokenInUrl, progressToken])
+  }, [engine, hasTokenInUrl, progressToken, playNoFromUrl])
 
   useEffect(() => {
     if (!tokenFromUrl || !playNoFromUrl) {
@@ -123,22 +127,33 @@ function ComboProgressGame() {
         })
         if (cancelled) return
 
-        const local = engine.getLocalTokenSnapshot(tokenFromUrl)
-        const merged = engine.mergeProgressSnapshots(local, remote)
-        if (!merged) return
+        const local = playNoFromUrl ? null : engine.getLocalTokenSnapshot(tokenFromUrl)
+        let merged = null
+        if (remote) {
+          merged = engine.mergeProgressSnapshots(local, remote)
+        } else if (!playNoFromUrl && local) {
+          merged = local
+        }
 
-        const nextLevels = engine.levelsFromSnapshot(merged.levels)
-        const nextScores = engine.finalizeCampScores(merged.campScores, nextLevels)
+        if (merged) {
+          const nextLevels = engine.levelsFromSnapshot(merged.levels)
+          const nextScores = engine.finalizeCampScores(merged.campScores, nextLevels)
 
-        const persistResult = engine.saveLevelsByProgressToken(
-          tokenFromUrl,
-          nextLevels,
-          nextScores,
-        )
-        engine.syncTokenProgressToServer(tokenFromUrl, playNoFromUrl, persistResult)
+          const persistResult = engine.saveLevelsByProgressToken(
+            tokenFromUrl,
+            nextLevels,
+            nextScores,
+            playNoFromUrl,
+          )
+          engine.syncTokenProgressToServer(tokenFromUrl, playNoFromUrl, persistResult)
 
-        queueLevelsUpdate(setLevels, nextLevels)
-        setCampScoresById(nextScores)
+          queueLevelsUpdate(setLevels, nextLevels)
+          setCampScoresById(nextScores)
+        } else if (playNoFromUrl) {
+          const nextLevels = engine.levelsFromSnapshot(undefined)
+          queueLevelsUpdate(setLevels, nextLevels)
+          setCampScoresById({})
+        }
       } catch (err) {
         console.error('Failed to load remote progress:', err)
       } finally {
@@ -191,7 +206,7 @@ function ComboProgressGame() {
       : engine.loadAnonSessionLevels()
     const isLastCamp = campId === currentLevels.length
     const storedScores = hasTokenInUrl
-      ? engine.loadCampScoresByProgressToken(progressToken)
+      ? engine.loadCampScoresByProgressToken(progressToken, playNoFromUrl)
       : engine.loadAnonCampScores()
     const baseScores =
       campId === 1
@@ -397,6 +412,7 @@ function ComboProgressGame() {
         engine.deletePlayProgress({ token: progressToken, playNo: playNoFromUrl }).catch((err) => {
           console.error('Failed to delete remote progress:', err)
         })
+        engine.clearCompletedCampScoresFromSession(progressToken, playNoFromUrl)
       }
     } else {
       engine.clearAnonSessionProgress()
@@ -416,6 +432,7 @@ function ComboProgressGame() {
       engine.deletePlayProgress({ token: progressToken, playNo: playNoFromUrl }).catch((err) => {
         console.error('Failed to delete remote progress:', err)
       })
+      engine.clearCompletedCampScoresFromSession(progressToken, playNoFromUrl)
     }
     window.location.assign(engine.getResultExitUrl(tokenFromUrl))
   }

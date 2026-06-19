@@ -140,12 +140,16 @@ export function createProgressEngine(theme) {
     }
   }
 
-  const getCompletedCampScoresSessionKey = (progressToken) =>
-    `${COMPLETED_CAMP_SCORES_SESSION_KEY_PREFIX}${progressToken}`
+  const getCompletedCampScoresSessionKey = (progressToken, playNo) => {
+    if (playNo) {
+      return `${COMPLETED_CAMP_SCORES_SESSION_KEY_PREFIX}${progressToken}:${playNo}`
+    }
+    return `${COMPLETED_CAMP_SCORES_SESSION_KEY_PREFIX}${progressToken}`
+  }
 
-  const loadCompletedCampScoresFromSession = (progressToken) => {
+  const loadCompletedCampScoresFromSession = (progressToken, playNo) => {
     try {
-      const raw = sessionStorage.getItem(getCompletedCampScoresSessionKey(progressToken))
+      const raw = sessionStorage.getItem(getCompletedCampScoresSessionKey(progressToken, playNo))
       if (!raw) return {}
       return normalizeCampScoresRecord(JSON.parse(raw))
     } catch {
@@ -153,9 +157,9 @@ export function createProgressEngine(theme) {
     }
   }
 
-  const saveCompletedCampScoresToSession = (progressToken, campScores) => {
+  const saveCompletedCampScoresToSession = (progressToken, campScores, playNo) => {
     const normalized = normalizeCampScoresRecord(campScores)
-    const key = getCompletedCampScoresSessionKey(progressToken)
+    const key = getCompletedCampScoresSessionKey(progressToken, playNo)
     if (!Object.keys(normalized).length) {
       sessionStorage.removeItem(key)
       return
@@ -163,10 +167,21 @@ export function createProgressEngine(theme) {
     sessionStorage.setItem(key, JSON.stringify(normalized))
   }
 
-  const loadCampScoresByProgressToken = (progressToken) => {
+  const clearCompletedCampScoresFromSession = (progressToken, playNo) => {
+    if (playNo) {
+      sessionStorage.removeItem(getCompletedCampScoresSessionKey(progressToken, playNo))
+    }
+    sessionStorage.removeItem(getCompletedCampScoresSessionKey(progressToken))
+  }
+
+  const loadCampScoresByProgressToken = (progressToken, playNo) => {
+    const fromSession = loadCompletedCampScoresFromSession(progressToken, playNo)
+    if (playNo) {
+      return fromSession
+    }
+
     const tokenData = loadProgressStore()[progressToken]
     const fromLocal = normalizeCampScoresRecord(tokenData?.campScores)
-    const fromSession = loadCompletedCampScoresFromSession(progressToken)
     return mergeCampScoresSnapshots(fromSession, fromLocal)
   }
 
@@ -251,7 +266,7 @@ export function createProgressEngine(theme) {
       return value != null && value !== ''
     })
 
-  const saveLevelsByProgressToken = (progressToken, levels, campScores) => {
+  const saveLevelsByProgressToken = (progressToken, levels, campScores, playNo) => {
     const store = loadProgressStore()
     const allCompleted = levels.every((level) => level.status === 'completed')
     const preservedScores = normalizeCampScoresRecord({
@@ -260,7 +275,7 @@ export function createProgressEngine(theme) {
     })
 
     if (allCompleted) {
-      saveCompletedCampScoresToSession(progressToken, preservedScores)
+      saveCompletedCampScoresToSession(progressToken, preservedScores, playNo)
       delete store[progressToken]
       localStorage.setItem(TOKEN_PROGRESS_STORAGE_KEY, JSON.stringify(store))
       return {
@@ -304,7 +319,7 @@ export function createProgressEngine(theme) {
     if (!result.snapshot) return
 
     if (result.allCompleted) {
-      saveCompletedCampScoresToSession(progressToken, result.snapshot.campScores)
+      saveCompletedCampScoresToSession(progressToken, result.snapshot.campScores, playNo)
     }
 
     savePlayProgress({
@@ -320,7 +335,7 @@ export function createProgressEngine(theme) {
   }
 
   const persistTokenProgress = (progressToken, levels, campScores, playNo) => {
-    const result = saveLevelsByProgressToken(progressToken, levels, campScores)
+    const result = saveLevelsByProgressToken(progressToken, levels, campScores, playNo)
     syncTokenProgressToServer(progressToken, playNo, result)
     return result
   }
@@ -479,6 +494,7 @@ export function createProgressEngine(theme) {
     campPointsById,
     cleanupLegacyStorage,
     clearAnonSessionProgress,
+    clearCompletedCampScoresFromSession,
     areAllCampsCompleted,
     applyOutcomeForContext,
     fetchPlayProgress: (args) => fetchPlayProgress({ comboTheme: theme.id, ...args }),
