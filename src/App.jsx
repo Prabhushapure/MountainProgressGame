@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, Route, Routes, useLocation } from 'react-router-dom'
 import FireShieldBrandHeader from './components/FireShieldBrandHeader'
 import MountainProgressGame, { shouldSkipIntroScreens } from './components/MountainProgressGame'
@@ -99,6 +99,10 @@ function App() {
     )
   }, [location.search])
 
+  const finishSplash = useCallback(() => {
+    setIsSplashDone(true)
+  }, [])
+
   useEffect(() => {
     if (skipIntro) {
       setIsSplashDone(true)
@@ -107,16 +111,14 @@ function App() {
   }, [skipIntro])
 
   useEffect(() => {
-    if (skipIntro) return
+    if (skipIntro) return undefined
 
-    const timerId = window.setTimeout(() => {
-      setIsSplashDone(true)
-    }, 2000)
+    const fallbackId = window.setTimeout(finishSplash, 12000)
 
     return () => {
-      window.clearTimeout(timerId)
+      window.clearTimeout(fallbackId)
     }
-  }, [skipIntro])
+  }, [skipIntro, finishSplash])
 
   if (!isSplashDone) {
     return (
@@ -142,10 +144,12 @@ function App() {
           <div className="splash-frame">
             <video
               className="splash-video"
-              src={publicUrl(theme.assets.splashVideo)}
+              src={`${publicUrl(theme.assets.splashVideo)}?v=2`}
               autoPlay
               muted
               playsInline
+              onEnded={finishSplash}
+              onError={finishSplash}
             />
           </div>
         </div>
