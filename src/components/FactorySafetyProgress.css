@@ -1,17 +1,22 @@
+.factory-safety-root {
+  position: relative;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
 .factory-safety-map {
   width: 100%;
   max-width: 100vw;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  max-height: 100%;
   position: relative;
-  overflow-x: clip;
-  overflow-y: visible;
+  overflow: hidden;
   background: #1a1f26;
   font-family: Aptos, 'Segoe UI', Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100dvh;
 }
 
 .factory-safety-map::before,
@@ -19,11 +24,17 @@
   content: none;
 }
 
-.factory-safety-exit-button {
+.factory-safety-map-actions {
   position: absolute;
   right: max(18px, env(safe-area-inset-right));
   bottom: max(18px, env(safe-area-inset-bottom));
   z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.factory-safety-exit-button {
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: linear-gradient(180deg, #ffa726 0%, #f57c00 100%);
   color: #111;
@@ -43,13 +54,13 @@
 .factory-safety-title {
   position: relative;
   z-index: 3;
-  margin: 28px 16px 8px;
+  margin: 16px 16px 6px;
   font-family: Aptos, 'Segoe UI', Arial, sans-serif;
-  font-size: clamp(1.45rem, 2.8vw, 2.2rem);
+  font-size: clamp(1.05rem, 2.1vw, 1.55rem);
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-align: center;
-  line-height: 1.15;
+  line-height: 1.12;
 }
 
 .factory-safety-title-accent {
@@ -66,17 +77,18 @@
   flex: 1 1 auto;
   width: min(1200px, 96vw);
   min-height: 0;
+  max-height: 100%;
   margin: 0 auto;
   padding: 6px 12px 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .factory-safety-stage-backdrop {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
-  height: 100%;
-  min-height: 100dvh;
+  height: auto;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
@@ -526,8 +538,8 @@
 
 @media (max-width: 640px) {
   .factory-safety-title {
-    margin-top: 18px;
-    font-size: 1.15rem;
+    margin-top: 10px;
+    font-size: 0.95rem;
   }
 
   .factory-safety-stage {

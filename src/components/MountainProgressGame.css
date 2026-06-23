@@ -373,11 +373,18 @@
   }
 }
 
-.result-open-button {
+.map-action-buttons {
   position: absolute;
   bottom: 2%;
   right: 2%;
   z-index: 14;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-open-button {
+  position: static;
   border: none;
   border-radius: 8px;
   padding: 10px 18px;

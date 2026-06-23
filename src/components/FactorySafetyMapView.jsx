@@ -254,7 +254,14 @@ function FactorySafetyStepCard({
   )
 }
 
-function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onExitClick }) {
+function FactorySafetyMapView({
+  theme,
+  levels,
+  pendingLevelId,
+  onLevelClick,
+  onExitClick,
+  onHelpClick,
+}) {
   const stepLadder = useMemo(
     () => theme.layout.stepLadder ?? DEFAULT_STEP_LADDER,
     [theme.id],
@@ -477,9 +484,14 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
           aria-hidden="true"
         />
       ) : null}
-      <button type="button" className="factory-safety-exit-button" onClick={onExitClick}>
-        Exit
-      </button>
+      <div className="factory-safety-map-actions">
+        <button type="button" className="factory-safety-exit-button" onClick={onHelpClick}>
+          Help
+        </button>
+        <button type="button" className="factory-safety-exit-button" onClick={onExitClick}>
+          Exit
+        </button>
+      </div>
 
       <h1 className="factory-safety-title">
         <span className="factory-safety-title-accent">{theme.brand.instructionTitleAccent}</span>{' '}

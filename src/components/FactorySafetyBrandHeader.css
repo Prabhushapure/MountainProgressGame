@@ -1,0 +1,37 @@
+.factory-brand-header-logo {
+  width: clamp(40px, 9vw, 58px);
+  height: clamp(40px, 9vw, 58px);
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.42));
+}
+
+.factory-brand-header.brand-header--result .factory-brand-header-logo {
+  width: clamp(32px, 7vw, 46px);
+  height: clamp(32px, 7vw, 46px);
+  filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.38));
+}
+
+.factory-brand-header .instruction-title {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  letter-spacing: 0.04em;
+}
+
+.factory-brand-header .instruction-tagline {
+  margin: 2px 0 6px;
+  font-size: clamp(0.78rem, 1.15vw, 1.2rem);
+}
+
+.factory-brand-header.brand-header--result .instruction-title {
+  font-size: clamp(1.05rem, 2.5vw, 1.65rem);
+}
+
+.factory-brand-header.brand-header--result .instruction-tagline {
+  font-size: clamp(0.72rem, 1vw, 1.05rem);
+}
+
+.factory-brand-header.brand-header--splash .instruction-title {
+  font-size: clamp(1.15rem, 2.8vw, 1.85rem);
+}
+
+.factory-brand-header.brand-header--splash .instruction-tagline {
+  font-size: clamp(0.75rem, 1.1vw, 1.15rem);
+}

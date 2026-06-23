@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import FireShieldBrandHeader from './components/FireShieldBrandHeader'
+import FactorySafetyBrandHeader from './components/FactorySafetyBrandHeader'
 import MountainProgressGame, { shouldSkipIntroScreens } from './components/MountainProgressGame'
 import { getActiveTheme } from './themes'
 import { publicUrl } from './utils/publicUrl'
@@ -32,6 +33,14 @@ function InstructionScreen({ theme, onPlay }) {
             </h1>
             <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
           </FireShieldBrandHeader>
+        ) : theme.assets.headerIcon ? (
+          <FactorySafetyBrandHeader iconSrc={theme.assets.headerIcon}>
+            <h1 className="instruction-title">
+              <span>{theme.brand.instructionTitleAccent}</span>
+              {theme.brand.instructionTitleRest}
+            </h1>
+            <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+          </FactorySafetyBrandHeader>
         ) : (
           <div className="brand-header">
             <h1 className="instruction-title">
@@ -76,10 +85,17 @@ function InstructionScreen({ theme, onPlay }) {
 function App() {
   const theme = getActiveTheme()
   const location = useLocation()
+  const navigate = useNavigate()
+
+  const searchParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search],
+  )
+  const showInstructionsScreen = searchParams.get('instructions') === '1'
 
   const skipIntro = useMemo(
-    () => shouldSkipIntroScreens(new URLSearchParams(location.search)),
-    [location.search],
+    () => shouldSkipIntroScreens(searchParams),
+    [searchParams],
   )
 
   const [isSplashDone, setIsSplashDone] = useState(skipIntro)
@@ -98,6 +114,14 @@ function App() {
       params.has('play_result')
     )
   }, [location.search])
+
+  const returnToGame = useCallback(() => {
+    const next = new URLSearchParams(location.search)
+    next.delete('instructions')
+    const search = next.toString()
+    navigate({ pathname: location.pathname, search: search ? `?${search}` : '' }, { replace: true })
+    setHasStarted(true)
+  }, [location.pathname, location.search, navigate])
 
   const finishSplash = useCallback(() => {
     setIsSplashDone(true)
@@ -132,6 +156,17 @@ function App() {
               </h1>
               <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
             </FireShieldBrandHeader>
+          ) : theme.assets.headerIcon ? (
+            <FactorySafetyBrandHeader
+              iconSrc={theme.assets.headerIcon}
+              className="brand-header--splash"
+            >
+              <h1 className="instruction-title">
+                <span>{theme.brand.instructionTitleAccent}</span>
+                {theme.brand.instructionTitleRest}
+              </h1>
+              <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+            </FactorySafetyBrandHeader>
           ) : (
             <div className="brand-header brand-header--splash">
               <h1 className="instruction-title">
@@ -155,6 +190,10 @@ function App() {
         </div>
       </div>
     )
+  }
+
+  if (showInstructionsScreen) {
+    return <InstructionScreen theme={theme} onPlay={returnToGame} />
   }
 
   if (!hasStarted && !shouldAutoStart && !skipIntro) {

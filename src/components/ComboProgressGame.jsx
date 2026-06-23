@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { createProgressEngine } from '../progress/createProgressEngine'
 import { getActiveTheme } from '../themes'
 import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
+import FactorySafetyBrandHeader from './FactorySafetyBrandHeader'
 import FactorySafetyMapView from './FactorySafetyMapView'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
@@ -400,6 +401,12 @@ function ComboProgressGame() {
     navigate(level.url)
   }
 
+  const handleShowInstructions = useCallback(() => {
+    const next = new URLSearchParams(searchParams)
+    next.set('instructions', '1')
+    setSearchParams(next)
+  }, [searchParams, setSearchParams])
+
   const handleDiscardProgress = () => {
     if (hasTokenInUrl) {
       const store = engine.loadProgressStore()
@@ -452,6 +459,17 @@ function ComboProgressGame() {
                   </h3>
                   <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
                 </FireShieldBrandHeader>
+              ) : theme.assets.headerIcon ? (
+                <FactorySafetyBrandHeader
+                  iconSrc={theme.assets.headerIcon}
+                  className="brand-header--result"
+                >
+                  <h3 className="instruction-title">
+                    <span>{theme.brand.instructionTitleAccent}</span>
+                    {theme.brand.instructionTitleRest}
+                  </h3>
+                  <p className="instruction-tagline">{theme.brand.instructionTagline}</p>
+                </FactorySafetyBrandHeader>
               ) : (
                 <div className="brand-header brand-header--result">
                   <h3 className="instruction-title">
@@ -523,16 +541,17 @@ function ComboProgressGame() {
 
   if (isSafetyBasicsLayout) {
     return (
-      <>
+      <div className="factory-safety-root">
         <FactorySafetyMapView
           theme={theme}
           levels={levels}
           pendingLevelId={pendingLevelId}
           onLevelClick={handleTentClick}
           onExitClick={() => setIsResultOpen(true)}
+          onHelpClick={handleShowInstructions}
         />
         {resultOverlay}
-      </>
+      </div>
     )
   }
 
@@ -548,13 +567,18 @@ function ComboProgressGame() {
         <h2>{theme.brand.hudTitle}</h2>
         <p>{theme.brand.hudSubtitle}</p>
       </div>
-      <button
-        type="button"
-        className="result-open-button"
-        onClick={() => setIsResultOpen(true)}
-      >
-        Exit
-      </button>
+      <div className="map-action-buttons">
+        <button type="button" className="result-open-button" onClick={handleShowInstructions}>
+          Help
+        </button>
+        <button
+          type="button"
+          className="result-open-button"
+          onClick={() => setIsResultOpen(true)}
+        >
+          Exit
+        </button>
+      </div>
 
       <div className="mountain-stage">
         <img
