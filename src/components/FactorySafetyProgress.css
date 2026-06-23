@@ -14,28 +14,9 @@
   height: 100dvh;
 }
 
-.factory-safety-map::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: var(--factory-bg-url);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  filter: brightness(0.52) saturate(0.82);
-  z-index: 0;
-  pointer-events: none;
-}
-
+.factory-safety-map::before,
 .factory-safety-map::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.62) 100%),
-    rgba(0, 0, 0, 0.48);
-  z-index: 0;
-  pointer-events: none;
+  content: none;
 }
 
 .factory-safety-exit-button {
@@ -81,13 +62,45 @@
 
 .factory-safety-stage {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   flex: 1 1 auto;
   width: min(1200px, 96vw);
   min-height: 0;
   margin: 0 auto;
   padding: 6px 12px 0;
   overflow: visible;
+}
+
+.factory-safety-stage-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  min-height: 100dvh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: 0 0 48px rgba(0, 0, 0, 0.35);
+}
+
+.factory-safety-stage-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--factory-stage-bg-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.58) saturate(0.88);
+}
+
+.factory-safety-stage-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.42) 100%),
+    rgba(0, 0, 0, 0.22);
 }
 
 .factory-safety-node {

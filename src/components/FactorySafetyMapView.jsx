@@ -15,6 +15,7 @@ const MAN_STEP_GAP = 36
 const MAN_HEIGHT_SCALE = 1.2
 const MAN_WIDTH_RATIO = 0.62
 const UNLOCK_ANIMATION_MS = 750
+const STAGE_BACKDROP_PADDING_X = 32
 
 function getRightColumnPositionsPercent(count) {
   if (count <= 0) return []
@@ -105,9 +106,23 @@ function measureCenteredLayout(stageElement) {
   return {
     ...column,
     cardLeft,
+    cardWidth,
     manLeft,
     manHeight,
     manTop,
+    groupWidth: cardLeft - manLeft + cardWidth,
+  }
+}
+
+function measureLayoutWithBackdrop(stageElement) {
+  const layout = measureCenteredLayout(stageElement)
+  const mapEl = stageElement.parentElement
+  const stageRect = stageElement.getBoundingClientRect()
+  const mapRect = mapEl?.getBoundingClientRect() ?? stageRect
+
+  return {
+    ...layout,
+    stageOffsetLeft: stageRect.left - mapRect.left,
   }
 }
 
@@ -252,9 +267,12 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
     top: 0,
     height: 0,
     cardLeft: 0,
+    cardWidth: 0,
     manLeft: 0,
     manHeight: 0,
     manTop: 0,
+    groupWidth: 0,
+    stageOffsetLeft: 0,
   })
   const prevStatusRef = useRef({})
   const initializedRef = useRef(false)
@@ -266,9 +284,9 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
     if (!stage) return
 
     requestAnimationFrame(() => {
-      setColumnMetrics(measureCenteredLayout(stage))
+      setColumnMetrics(measureLayoutWithBackdrop(stage))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureCenteredLayout(stage))
+        setColumnMetrics(measureLayoutWithBackdrop(stage))
       })
     })
   }, [])
@@ -288,9 +306,9 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
     const updatePositions = () => {
       setPositions(measureStepPositions(levels.length, stage, stepLadder))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureCenteredLayout(stage))
+        setColumnMetrics(measureLayoutWithBackdrop(stage))
         requestAnimationFrame(() => {
-          setColumnMetrics(measureCenteredLayout(stage))
+          setColumnMetrics(measureLayoutWithBackdrop(stage))
         })
       })
     }
@@ -396,9 +414,50 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
     [],
   )
 
-  const backgroundStyle = theme.assets.map
-    ? { '--factory-bg-url': `url(${publicUrl(theme.assets.map)})` }
-    : undefined
+  const backgroundLevel = useMemo(
+    () =>
+      levels.find(
+        (level) =>
+          level.stepBackground &&
+          (level.status === 'active' || unlockingIds.has(level.id)),
+      ),
+    [levels, unlockingIds],
+  )
+
+  const backgroundAsset = backgroundLevel?.stepBackground ?? theme.assets.map
+
+  const backdropStyle = useMemo(() => {
+    if (!backgroundAsset) return undefined
+
+    const hasMeasuredGroup =
+      columnMetrics.groupWidth > 0 && columnMetrics.manLeft >= 0
+
+    if (!hasMeasuredGroup) {
+      return {
+        '--factory-stage-bg-url': `url(${publicUrl(backgroundAsset)})`,
+        left: '50%',
+        width: 'min(520px, 92vw)',
+        transform: 'translateX(-50%)',
+      }
+    }
+
+    const left =
+      columnMetrics.stageOffsetLeft +
+      Math.max(0, columnMetrics.manLeft - STAGE_BACKDROP_PADDING_X)
+    const width = columnMetrics.groupWidth + STAGE_BACKDROP_PADDING_X * 2
+
+    return {
+      '--factory-stage-bg-url': `url(${publicUrl(backgroundAsset)})`,
+      left: `${left}px`,
+      width: `${width}px`,
+      transform: 'none',
+    }
+  }, [
+    backgroundAsset,
+    columnMetrics.groupWidth,
+    columnMetrics.manLeft,
+    columnMetrics.stageOffsetLeft,
+  ])
 
   const stageStyle = {
     '--factory-steps-column-height': `${columnMetrics.height}px`,
@@ -410,10 +469,14 @@ function FactorySafetyMapView({ theme, levels, pendingLevelId, onLevelClick, onE
   }
 
   return (
-    <div
-      className={`factory-safety-map ${theme.themeClass}`}
-      style={backgroundStyle}
-    >
+    <div className={`factory-safety-map ${theme.themeClass}`}>
+      {backdropStyle ? (
+        <div
+          className="factory-safety-stage-backdrop"
+          style={backdropStyle}
+          aria-hidden="true"
+        />
+      ) : null}
       <button type="button" className="factory-safety-exit-button" onClick={onExitClick}>
         Exit
       </button>
