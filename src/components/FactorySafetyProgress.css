@@ -130,29 +130,44 @@
   justify-content: flex-end;
 }
 
-.factory-safety-column-character {
+.factory-safety-character-slot {
   position: absolute;
   top: var(--factory-man-top, var(--factory-steps-column-top, 0));
-  height: var(--factory-man-height, var(--factory-steps-column-height, 0));
-  min-height: var(--factory-man-height, var(--factory-steps-column-height, 0));
-  max-height: var(--factory-man-height, var(--factory-steps-column-height, 0));
   left: var(--factory-man-left, auto);
-  right: auto;
-  width: auto;
-  max-width: calc(var(--factory-man-height, var(--factory-steps-column-height, 0px)) * 0.62);
-  object-fit: contain;
-  object-position: left bottom;
+  width: var(--factory-man-width, calc(var(--factory-man-height, 220px) * 0.62));
+  height: var(--factory-man-height, 220px);
+  overflow: visible;
   pointer-events: none;
   user-select: none;
   z-index: 6;
 }
 
-.factory-safety-column-character--active:not(.factory-safety-column-character--enter) {
+.factory-safety-column-character {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: left bottom;
+  transform: scale(var(--factory-man-figure-scale, 1.2));
+  transform-origin: left bottom;
+  pointer-events: none;
+  user-select: none;
+}
+
+.factory-safety-character-slot--active:not(.factory-safety-character-slot--enter) {
   animation: factory-active-character-float 1.8s ease-in-out infinite;
 }
 
-.factory-safety-column-character--enter {
+.factory-safety-character-slot--enter {
   animation: factory-column-character-emerge 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.factory-safety-column-character--active:not(.factory-safety-column-character--enter) {
+  animation: none;
+}
+
+.factory-safety-column-character--enter {
+  animation: none;
 }
 
 .factory-safety-node--active {
@@ -482,10 +497,10 @@
 
 @media (prefers-reduced-motion: reduce) {
   .factory-safety-step.status-active,
-  .factory-safety-column-character--active,
+  .factory-safety-character-slot--active,
   .factory-safety-step.status-active .factory-safety-step-badge--status,
   .factory-safety-step--unlocking,
-  .factory-safety-column-character--enter,
+  .factory-safety-character-slot--enter,
   .factory-safety-lock-flip--animating,
   .factory-safety-lock-flip--active {
     animation: none;
@@ -506,10 +521,6 @@
 }
 
 @media (max-width: 900px) {
-  .factory-safety-column-character {
-    max-width: calc(var(--factory-man-height, var(--factory-steps-column-height, 0px)) * 0.58);
-  }
-
   .factory-safety-step {
     min-height: 42px;
     gap: 8px;
@@ -544,10 +555,6 @@
 
   .factory-safety-stage {
     width: 98vw;
-  }
-
-  .factory-safety-column-character {
-    max-width: calc(var(--factory-man-height, var(--factory-steps-column-height, 0px)) * 0.55);
   }
 
   .factory-safety-step-flip {

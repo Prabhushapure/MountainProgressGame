@@ -9,11 +9,12 @@ const DEFAULT_STEP_LADDER = {
   marginRight: 24,
 }
 
-const MAN_LEFT_OFFSET = 36
-const MAN_TOP_OFFSET = 56
-const MAN_STEP_GAP = 36
-const MAN_HEIGHT_SCALE = 1.2
+const MAN_STEP_GAP = 32
 const MAN_WIDTH_RATIO = 0.62
+const MAN_MIN_HEIGHT = 120
+const MAN_FIGURE_SCALE = 1.2
+const MAN_VISUAL_COLUMN_RATIO = 1
+const MAN_HEIGHT_STAGE_RATIO = 0.42
 const UNLOCK_ANIMATION_MS = 750
 const STAGE_BACKDROP_PADDING_X = 32
 
@@ -81,27 +82,44 @@ function measureStepsColumn(stageElement) {
   }
 }
 
+function getManSlotHeight(stageHeight) {
+  if (stageHeight < 1) return MAN_MIN_HEIGHT
+  return Math.max(MAN_MIN_HEIGHT, stageHeight * MAN_HEIGHT_STAGE_RATIO)
+}
+
+function getManDimensions(columnHeight, stageHeight) {
+  if (columnHeight > 0) {
+    const visualHeight = columnHeight * MAN_VISUAL_COLUMN_RATIO
+    const manSlotHeight = Math.max(MAN_MIN_HEIGHT, visualHeight / MAN_FIGURE_SCALE)
+    const manWidth = visualHeight * MAN_WIDTH_RATIO
+    return { manSlotHeight, manWidth }
+  }
+
+  const manSlotHeight = getManSlotHeight(stageHeight)
+  return {
+    manSlotHeight,
+    manWidth: manSlotHeight * MAN_FIGURE_SCALE * MAN_WIDTH_RATIO,
+  }
+}
+
 function measureCenteredLayout(stageElement) {
   const column = measureStepsColumn(stageElement)
+  const stageHeight = stageElement.clientHeight
   const stageWidth = stageElement.clientWidth
   const cardWidth =
     stageElement.querySelector('.factory-safety-step-flip')?.getBoundingClientRect().width ?? 225
 
-  const characterEl = stageElement.querySelector('.factory-safety-column-character')
-  const measuredManWidth = characterEl?.getBoundingClientRect().width ?? 0
-  const manWidth =
-    measuredManWidth > 0
-      ? measuredManWidth
-      : column.height > 0
-        ? column.height * MAN_HEIGHT_SCALE * MAN_WIDTH_RATIO
-        : 0
-  const gap = manWidth > 0 ? MAN_STEP_GAP : 0
-  const totalGroupWidth = MAN_LEFT_OFFSET + manWidth + gap + cardWidth
+  const { manSlotHeight, manWidth } = getManDimensions(column.height, stageHeight)
+  const manHeight = manSlotHeight
+  const gap = MAN_STEP_GAP
+  const totalGroupWidth = manWidth + gap + cardWidth
   const groupLeft = Math.max(0, (stageWidth - totalGroupWidth) / 2)
-  const manHeight = column.height * MAN_HEIGHT_SCALE
-  const manTop = column.top - column.height * (MAN_HEIGHT_SCALE - 1) + MAN_TOP_OFFSET
   const manLeft = groupLeft
   const cardLeft = groupLeft + manWidth + gap
+  const manTop =
+    column.height > 0
+      ? column.top + column.height - manSlotHeight
+      : Math.max(0, stageHeight - manSlotHeight)
 
   return {
     ...column,
@@ -109,6 +127,7 @@ function measureCenteredLayout(stageElement) {
     cardWidth,
     manLeft,
     manHeight,
+    manWidth,
     manTop,
     groupWidth: cardLeft - manLeft + cardWidth,
   }
@@ -277,6 +296,7 @@ function FactorySafetyMapView({
     cardWidth: 0,
     manLeft: 0,
     manHeight: 0,
+    manWidth: 0,
     manTop: 0,
     groupWidth: 0,
     stageOffsetLeft: 0,
@@ -354,22 +374,7 @@ function FactorySafetyMapView({
     return () => {
       window.cancelAnimationFrame(frameId)
     }
-  }, [positions, levels.length, characterLevel?.id, columnMetrics.manHeight, remeasureLayout])
-
-  useEffect(() => {
-    const stage = stageRef.current
-    if (!stage || !characterLevel?.characterIcon) return undefined
-
-    const characterEl = stage.querySelector('.factory-safety-column-character')
-    if (!characterEl) return undefined
-
-    const observer = new ResizeObserver(remeasureLayout)
-    observer.observe(characterEl)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [characterLevel?.id, columnMetrics.manHeight, remeasureLayout])
+  }, [positions, levels.length, characterLevel?.id, remeasureLayout])
 
   useEffect(() => {
     if (!initializedRef.current) {
@@ -472,7 +477,9 @@ function FactorySafetyMapView({
     '--factory-card-left': `${columnMetrics.cardLeft}px`,
     '--factory-man-left': `${columnMetrics.manLeft}px`,
     '--factory-man-height': `${columnMetrics.manHeight}px`,
+    '--factory-man-width': `${columnMetrics.manWidth ?? 0}px`,
     '--factory-man-top': `${columnMetrics.manTop}px`,
+    '--factory-man-figure-scale': String(MAN_FIGURE_SCALE),
   }
 
   return (
@@ -500,26 +507,25 @@ function FactorySafetyMapView({
 
       <div className="factory-safety-stage" ref={stageRef} style={stageStyle}>
         {characterLevel?.characterIcon ? (
-          <img
-            src={`${publicUrl(characterLevel.characterIcon)}?v=2`}
-            alt=""
-            decoding="async"
-            fetchPriority="high"
-            style={
-              columnMetrics.manHeight > 0
-                ? { height: `${columnMetrics.manHeight}px` }
-                : undefined
-            }
+          <div
             className={[
-              'factory-safety-column-character',
-              isCharacterUnlocking ? 'factory-safety-column-character--enter' : '',
-              'factory-safety-column-character--active',
+              'factory-safety-character-slot',
+              isCharacterUnlocking ? 'factory-safety-character-slot--enter' : '',
+              'factory-safety-character-slot--active',
             ]
               .filter(Boolean)
               .join(' ')}
-            onLoad={remeasureLayout}
-            draggable={false}
-          />
+          >
+            <img
+              src={`${publicUrl(characterLevel.characterIcon)}?v=2`}
+              alt=""
+              decoding="async"
+              fetchPriority="high"
+              className="factory-safety-column-character"
+              onLoad={remeasureLayout}
+              draggable={false}
+            />
+          </div>
         ) : null}
 
         {levels.map((level, index) => {
