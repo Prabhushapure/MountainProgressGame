@@ -51,6 +51,7 @@ export const factorySafetyComboTheme = {
     splashVideo: FACTORY_ASSET('flash-screen-video.mp4'),
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: FACTORY_ASSET('header-hard-hat.png'),
+    helpPdf: FACTORY_ASSET('safety-basics-help.pdf'),
   },
   layout: {
     stepLadder: {

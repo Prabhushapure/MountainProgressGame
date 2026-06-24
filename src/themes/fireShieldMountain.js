@@ -42,6 +42,7 @@ export const fireShieldMountainTheme = {
     goalGreen: 'assets/summit-flag-green.png',
     passIcon: 'assets/result-pass.png',
     splashVideo: 'assets/video.mp4',
+    helpPdf: 'assets/fireshield-4c-help.pdf',
   },
   layout: {
     positions: [

@@ -43,6 +43,7 @@ export const fireShieldMountain5CampTheme = {
     goalGreen: 'assets/summit-flag-green.png',
     passIcon: 'assets/result-pass.png',
     splashVideo: 'assets/flash-screen-final-2.mp4',
+    helpPdf: 'assets/fireshield-5c-help.pdf',
   },
   layout: {
     positions: [

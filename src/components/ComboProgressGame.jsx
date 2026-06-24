@@ -5,6 +5,7 @@ import { getActiveTheme } from '../themes'
 import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
 import FactorySafetyBrandHeader from './FactorySafetyBrandHeader'
 import FactorySafetyMapView from './FactorySafetyMapView'
+import HelpPdfViewer from './HelpPdfViewer'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
 
@@ -53,6 +54,7 @@ function ComboProgressGame() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isResultOpen, setIsResultOpen] = useState(false)
+  const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [pendingLevelId, setPendingLevelId] = useState(null)
   const isNavigatingRef = useRef(false)
   const tokenFromUrl = useMemo(() => getTokenFromParams(searchParams), [searchParams])
@@ -407,6 +409,14 @@ function ComboProgressGame() {
     setSearchParams(next)
   }, [searchParams, setSearchParams])
 
+  const handleHelpClick = useCallback(() => {
+    if (theme.assets.helpPdf) {
+      setIsHelpOpen(true)
+      return
+    }
+    handleShowInstructions()
+  }, [theme.assets.helpPdf, handleShowInstructions])
+
   const handleDiscardProgress = () => {
     if (hasTokenInUrl) {
       const store = engine.loadProgressStore()
@@ -446,6 +456,27 @@ function ComboProgressGame() {
 
   const mapImageUrl = publicUrl(theme.assets.map)
   const passIconUrl = publicUrl(theme.assets.passIcon)
+  const helpPdfUrl = theme.assets.helpPdf ? publicUrl(theme.assets.helpPdf) : null
+
+  const helpOverlay = isHelpOpen && helpPdfUrl ? (
+    <div className="help-overlay" role="dialog" aria-modal="true" aria-label="Help">
+      <div className="help-dialog">
+        <div className="help-pdf-frame">
+          <button
+            type="button"
+            className="help-close-icon"
+            onClick={() => setIsHelpOpen(false)}
+            aria-label="Close help"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+          <HelpPdfViewer src={helpPdfUrl} />
+        </div>
+      </div>
+    </div>
+  ) : null
 
   const resultOverlay = isResultOpen ? (
         <div className="result-overlay" role="dialog" aria-modal="true">
@@ -548,8 +579,9 @@ function ComboProgressGame() {
           pendingLevelId={pendingLevelId}
           onLevelClick={handleTentClick}
           onExitClick={() => setIsResultOpen(true)}
-          onHelpClick={handleShowInstructions}
+          onHelpClick={handleHelpClick}
         />
+        {helpOverlay}
         {resultOverlay}
       </div>
     )
@@ -568,7 +600,7 @@ function ComboProgressGame() {
         <p>{theme.brand.hudSubtitle}</p>
       </div>
       <div className="map-action-buttons">
-        <button type="button" className="result-open-button" onClick={handleShowInstructions}>
+        <button type="button" className="result-open-button" onClick={handleHelpClick}>
           Help
         </button>
         <button
@@ -674,6 +706,7 @@ function ComboProgressGame() {
         </div>
       </div>
 
+      {helpOverlay}
       {resultOverlay}
     </div>
   )
