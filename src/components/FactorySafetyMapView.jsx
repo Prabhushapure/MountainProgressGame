@@ -10,13 +10,23 @@ const DEFAULT_STEP_LADDER = {
 }
 
 const MAN_STEP_GAP = 32
+const MAN_STEP_GAP_NARROW = 10
 const MAN_WIDTH_RATIO = 0.62
 const MAN_MIN_HEIGHT = 120
+const MAN_MIN_HEIGHT_NARROW = 100
 const MAN_FIGURE_SCALE = 1.2
 const MAN_VISUAL_COLUMN_RATIO = 1
+const MAN_VISUAL_COLUMN_RATIO_NARROW = 0.96
 const MAN_HEIGHT_STAGE_RATIO = 0.42
+const NARROW_STAGE_WIDTH = 480
+const STAGE_EDGE_PADDING = 6
 const UNLOCK_ANIMATION_MS = 750
 const STAGE_BACKDROP_PADDING_X = 32
+const NARROW_LADDER = {
+  marginTop: 18,
+  marginBottom: 22,
+  marginRight: 12,
+}
 
 function getRightColumnPositionsPercent(count) {
   if (count <= 0) return []
@@ -87,35 +97,80 @@ function getManSlotHeight(stageHeight) {
   return Math.max(MAN_MIN_HEIGHT, stageHeight * MAN_HEIGHT_STAGE_RATIO)
 }
 
-function getManDimensions(columnHeight, stageHeight) {
+function getMaxManWidth(stageWidth, cardWidth, isNarrow) {
+  if (!isNarrow || stageWidth <= 0) {
+    return stageWidth > 0 ? stageWidth * 0.42 : Infinity
+  }
+
+  const reserved =
+    STAGE_EDGE_PADDING * 2 + MAN_STEP_GAP_NARROW + Math.max(0, cardWidth)
+  return Math.max(92, stageWidth - reserved)
+}
+
+function getManDimensions(columnHeight, stageHeight, stageWidth, isNarrow, cardWidth) {
+  const visualRatio = isNarrow ? MAN_VISUAL_COLUMN_RATIO_NARROW : MAN_VISUAL_COLUMN_RATIO
+  const maxManWidth = getMaxManWidth(stageWidth, cardWidth, isNarrow)
+  const minHeight = isNarrow ? MAN_MIN_HEIGHT_NARROW : MAN_MIN_HEIGHT
+
   if (columnHeight > 0) {
-    const visualHeight = columnHeight * MAN_VISUAL_COLUMN_RATIO
-    const manSlotHeight = Math.max(MAN_MIN_HEIGHT, visualHeight / MAN_FIGURE_SCALE)
-    const manWidth = visualHeight * MAN_WIDTH_RATIO
+    const visualHeight = columnHeight * visualRatio
+    let manSlotHeight = Math.max(minHeight, visualHeight / MAN_FIGURE_SCALE)
+    let manWidth = visualHeight * MAN_WIDTH_RATIO
+
+    if (manWidth > maxManWidth) {
+      const scale = maxManWidth / manWidth
+      manWidth = maxManWidth
+      manSlotHeight *= scale
+    }
+
     return { manSlotHeight, manWidth }
   }
 
   const manSlotHeight = getManSlotHeight(stageHeight)
-  return {
-    manSlotHeight,
-    manWidth: manSlotHeight * MAN_FIGURE_SCALE * MAN_WIDTH_RATIO,
+  let manWidth = manSlotHeight * MAN_FIGURE_SCALE * MAN_WIDTH_RATIO
+  if (manWidth > maxManWidth) {
+    const scale = maxManWidth / manWidth
+    manWidth = maxManWidth
+    return { manSlotHeight: manSlotHeight * scale, manWidth }
   }
+
+  return { manSlotHeight, manWidth }
 }
 
-function measureCenteredLayout(stageElement) {
+function measureCenteredLayout(stageElement, ladder = DEFAULT_STEP_LADDER) {
   const column = measureStepsColumn(stageElement)
   const stageHeight = stageElement.clientHeight
   const stageWidth = stageElement.clientWidth
+  const isNarrow = stageWidth < NARROW_STAGE_WIDTH
   const cardWidth =
     stageElement.querySelector('.factory-safety-step-flip')?.getBoundingClientRect().width ?? 225
 
-  const { manSlotHeight, manWidth } = getManDimensions(column.height, stageHeight)
+  const { manSlotHeight, manWidth } = getManDimensions(
+    column.height,
+    stageHeight,
+    stageWidth,
+    isNarrow,
+    cardWidth,
+  )
   const manHeight = manSlotHeight
-  const gap = MAN_STEP_GAP
+  const gap = isNarrow ? MAN_STEP_GAP_NARROW : MAN_STEP_GAP
+  const edgePadding = isNarrow ? STAGE_EDGE_PADDING : 0
+  const maxContentWidth = Math.max(0, stageWidth - edgePadding * 2)
   const totalGroupWidth = manWidth + gap + cardWidth
-  const groupLeft = Math.max(0, (stageWidth - totalGroupWidth) / 2)
-  const manLeft = groupLeft
-  const cardLeft = groupLeft + manWidth + gap
+
+  let manLeft = Math.max(edgePadding, (stageWidth - totalGroupWidth) / 2)
+  let cardLeft = manLeft + manWidth + gap
+
+  if (cardLeft + cardWidth > stageWidth - edgePadding) {
+    cardLeft = Math.max(edgePadding, stageWidth - edgePadding - cardWidth)
+    manLeft = Math.max(edgePadding, cardLeft - gap - manWidth)
+  }
+
+  if (manLeft + manWidth + gap + cardWidth > stageWidth - edgePadding) {
+    const overflow = manLeft + manWidth + gap + cardWidth - (stageWidth - edgePadding)
+    manLeft = Math.max(edgePadding, manLeft - overflow)
+  }
+
   const manTop =
     column.height > 0
       ? column.top + column.height - manSlotHeight
@@ -129,12 +184,14 @@ function measureCenteredLayout(stageElement) {
     manHeight,
     manWidth,
     manTop,
-    groupWidth: cardLeft - manLeft + cardWidth,
+    stageWidth,
+    isNarrow,
+    groupWidth: Math.min(maxContentWidth, cardLeft - manLeft + cardWidth),
   }
 }
 
-function measureLayoutWithBackdrop(stageElement) {
-  const layout = measureCenteredLayout(stageElement)
+function measureLayoutWithBackdrop(stageElement, ladder = DEFAULT_STEP_LADDER) {
+  const layout = measureCenteredLayout(stageElement, ladder)
   const mapEl = stageElement.parentElement
   const stageRect = stageElement.getBoundingClientRect()
   const mapRect = mapEl?.getBoundingClientRect() ?? stageRect
@@ -300,6 +357,8 @@ function FactorySafetyMapView({
     manTop: 0,
     groupWidth: 0,
     stageOffsetLeft: 0,
+    stageWidth: 0,
+    isNarrow: false,
   })
   const prevStatusRef = useRef({})
   const initializedRef = useRef(false)
@@ -310,13 +369,18 @@ function FactorySafetyMapView({
     const stage = stageRef.current
     if (!stage) return
 
+    const ladder =
+      stage.clientWidth < NARROW_STAGE_WIDTH
+        ? { ...stepLadder, ...NARROW_LADDER }
+        : stepLadder
+
     requestAnimationFrame(() => {
-      setColumnMetrics(measureLayoutWithBackdrop(stage))
+      setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureLayoutWithBackdrop(stage))
+        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
       })
     })
-  }, [])
+  }, [stepLadder])
 
   useEffect(() => {
     levels.forEach((level) => {
@@ -331,11 +395,16 @@ function FactorySafetyMapView({
     if (!stage) return undefined
 
     const updatePositions = () => {
-      setPositions(measureStepPositions(levels.length, stage, stepLadder))
+      const stageWidth = stage.clientWidth
+      const ladder =
+        stageWidth < NARROW_STAGE_WIDTH
+          ? { ...stepLadder, ...NARROW_LADDER }
+          : stepLadder
+      setPositions(measureStepPositions(levels.length, stage, ladder))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureLayoutWithBackdrop(stage))
+        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
         requestAnimationFrame(() => {
-          setColumnMetrics(measureLayoutWithBackdrop(stage))
+          setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
         })
       })
     }
@@ -441,6 +510,16 @@ function FactorySafetyMapView({
   const backdropStyle = useMemo(() => {
     if (!backgroundAsset) return undefined
 
+    if (columnMetrics.isNarrow) {
+      return {
+        '--factory-stage-bg-url': `url(${publicUrl(backgroundAsset)})`,
+        left: '50%',
+        width: 'calc(100% - 12px)',
+        maxWidth: `${Math.max(0, columnMetrics.stageWidth - 12)}px`,
+        transform: 'translateX(-50%)',
+      }
+    }
+
     const hasMeasuredGroup =
       columnMetrics.groupWidth > 0 && columnMetrics.manLeft >= 0
 
@@ -453,10 +532,19 @@ function FactorySafetyMapView({
       }
     }
 
-    const left =
-      columnMetrics.stageOffsetLeft +
-      Math.max(0, columnMetrics.manLeft - STAGE_BACKDROP_PADDING_X)
-    const width = columnMetrics.groupWidth + STAGE_BACKDROP_PADDING_X * 2
+    const mapWidth = columnMetrics.stageWidth || columnMetrics.groupWidth
+    const width = Math.min(
+      columnMetrics.groupWidth + STAGE_BACKDROP_PADDING_X * 2,
+      Math.max(0, mapWidth - 8),
+    )
+    const left = Math.min(
+      Math.max(
+        4,
+        columnMetrics.stageOffsetLeft +
+          Math.max(0, columnMetrics.manLeft - STAGE_BACKDROP_PADDING_X),
+      ),
+      Math.max(4, mapWidth - width - 4),
+    )
 
     return {
       '--factory-stage-bg-url': `url(${publicUrl(backgroundAsset)})`,
@@ -469,6 +557,8 @@ function FactorySafetyMapView({
     columnMetrics.groupWidth,
     columnMetrics.manLeft,
     columnMetrics.stageOffsetLeft,
+    columnMetrics.stageWidth,
+    columnMetrics.isNarrow,
   ])
 
   const stageStyle = {

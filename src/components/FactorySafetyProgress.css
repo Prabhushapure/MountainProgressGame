@@ -554,11 +554,24 @@
   }
 
   .factory-safety-stage {
-    width: 98vw;
+    width: 100%;
+    max-width: 100vw;
+    padding: 4px 6px 0;
+  }
+
+  .factory-safety-map-actions {
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    gap: 6px;
+  }
+
+  .factory-safety-exit-button {
+    padding: 6px 12px;
+    font-size: 0.72rem;
   }
 
   .factory-safety-step-flip {
-    width: min(155px, 44vw);
+    width: min(118px, 36vw);
   }
 
   .factory-safety-step {
@@ -580,7 +593,22 @@
   }
 
   .factory-safety-step-label {
-    font-size: 0.58rem;
-    line-height: 1.2;
+    font-size: 0.52rem;
+    line-height: 1.15;
+  }
+}
+
+@media (max-width: 380px) {
+  .factory-safety-title {
+    margin: 8px 10px 4px;
+    font-size: 0.82rem;
+  }
+
+  .factory-safety-step-flip {
+    width: min(108px, 35vw);
+  }
+
+  .factory-safety-step-label {
+    font-size: 0.48rem;
   }
 }
