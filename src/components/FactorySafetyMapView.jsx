@@ -300,7 +300,7 @@ function FactorySafetyStepCard({
                 <img
                   src={publicUrl(theme.assets.iconUnlock)}
                   alt=""
-                  className="factory-safety-step-lock-icon factory-safety-lock-flip-back"
+                  className="factory-safety-step-lock-icon factory-safety-step-unlock-icon factory-safety-lock-flip-back"
                   draggable={false}
                 />
               </span>
@@ -310,7 +310,12 @@ function FactorySafetyStepCard({
                   isLocked ? theme.assets.iconLock : theme.assets.iconUnlock,
                 )}
                 alt=""
-                className="factory-safety-step-lock-icon"
+                className={[
+                  'factory-safety-step-lock-icon',
+                  isLocked ? '' : 'factory-safety-step-unlock-icon',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
                 draggable={false}
               />
             )}
