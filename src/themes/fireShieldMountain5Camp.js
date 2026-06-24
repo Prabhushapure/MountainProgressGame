@@ -42,7 +42,7 @@ export const fireShieldMountain5CampTheme = {
     goalRed: 'assets/summit-flag-red.png',
     goalGreen: 'assets/summit-flag-green.png',
     passIcon: 'assets/result-pass.png',
-    splashVideo: 'assets/video.mp4',
+    splashVideo: 'assets/flash-screen-final-2.mp4',
   },
   layout: {
     positions: [
