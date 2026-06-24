@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { GlobalWorkerOptions, getDocument } from 'pdfjs-dist'
-import PdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker'
+import { GlobalWorkerOptions, getDocument } from '../vendor/pdfjs/pdf.min.mjs'
+import PdfWorker from '../vendor/pdfjs/pdf.worker.min.mjs?worker'
 import { publicUrl } from '../utils/publicUrl'
 
 GlobalWorkerOptions.workerPort = new PdfWorker()

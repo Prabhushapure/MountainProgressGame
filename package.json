@@ -16,7 +16,6 @@
     "start:api": "npm --prefix server run start"
   },
   "dependencies": {
-    "pdfjs-dist": "^6.0.227",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2"
