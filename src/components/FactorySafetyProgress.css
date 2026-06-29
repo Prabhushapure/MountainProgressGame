@@ -158,6 +158,12 @@
   animation: factory-active-character-float 1.8s ease-in-out infinite;
 }
 
+.factory-safety-character-slot--completed .factory-safety-column-character {
+  mix-blend-mode: screen;
+  transform: scale(calc(var(--factory-man-figure-scale, 1.2) * 1.08));
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+}
+
 .factory-safety-character-slot--enter {
   animation: factory-column-character-emerge 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }

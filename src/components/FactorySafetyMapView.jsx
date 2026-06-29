@@ -342,6 +342,7 @@ function FactorySafetyMapView({
   onLevelClick,
   onExitClick,
   onHelpClick,
+  allModulesComplete = false,
 }) {
   const stepLadder = useMemo(
     () => theme.layout.stepLadder ?? DEFAULT_STEP_LADDER,
@@ -388,12 +389,16 @@ function FactorySafetyMapView({
   }, [stepLadder])
 
   useEffect(() => {
+    if (theme.assets.completedCharacterIcon) {
+      const img = new Image()
+      img.src = `${publicUrl(theme.assets.completedCharacterIcon)}?v=2`
+    }
     levels.forEach((level) => {
       if (!level.characterIcon) return
       const img = new Image()
       img.src = `${publicUrl(level.characterIcon)}?v=2`
     })
-  }, [levels])
+  }, [levels, theme.assets.completedCharacterIcon])
 
   useEffect(() => {
     const stage = stageRef.current
@@ -424,7 +429,14 @@ function FactorySafetyMapView({
     }
   }, [levels.length, stepLadder, theme.id])
 
-  const characterLevel = useMemo(
+  const allStepsCompleted = useMemo(
+    () =>
+      allModulesComplete ||
+      (levels.length > 0 && levels.every((level) => level.status === 'completed')),
+    [allModulesComplete, levels],
+  )
+
+  const activeCharacterLevel = useMemo(
     () =>
       levels.find(
         (level) =>
@@ -433,8 +445,14 @@ function FactorySafetyMapView({
       ),
     [levels, unlockingIds],
   )
-  const isCharacterUnlocking = characterLevel
-    ? unlockingIds.has(characterLevel.id)
+
+  const completedCharacterIcon = theme.assets.completedCharacterIcon
+  const showCompletedCharacter = Boolean(allStepsCompleted && completedCharacterIcon)
+  const characterIcon = showCompletedCharacter
+    ? completedCharacterIcon
+    : activeCharacterLevel?.characterIcon
+  const isCharacterUnlocking = activeCharacterLevel?.id
+    ? unlockingIds.has(activeCharacterLevel.id)
     : false
 
   useEffect(() => {
@@ -448,7 +466,15 @@ function FactorySafetyMapView({
     return () => {
       window.cancelAnimationFrame(frameId)
     }
-  }, [positions, levels.length, characterLevel?.id, remeasureLayout])
+  }, [positions, levels.length, characterIcon, remeasureLayout])
+
+  useEffect(() => {
+    if (!showCompletedCharacter) return undefined
+    const frameId = requestAnimationFrame(() => {
+      remeasureLayout()
+    })
+    return () => window.cancelAnimationFrame(frameId)
+  }, [showCompletedCharacter, remeasureLayout])
 
   useEffect(() => {
     if (!initializedRef.current) {
@@ -601,18 +627,19 @@ function FactorySafetyMapView({
       </h1>
 
       <div className="factory-safety-stage" ref={stageRef} style={stageStyle}>
-        {characterLevel?.characterIcon ? (
+        {characterIcon ? (
           <div
             className={[
               'factory-safety-character-slot',
+              showCompletedCharacter ? 'factory-safety-character-slot--completed' : '',
               isCharacterUnlocking ? 'factory-safety-character-slot--enter' : '',
-              'factory-safety-character-slot--active',
+              showCompletedCharacter ? '' : 'factory-safety-character-slot--active',
             ]
               .filter(Boolean)
               .join(' ')}
           >
             <img
-              src={`${publicUrl(characterLevel.characterIcon)}?v=2`}
+              src={`${publicUrl(characterIcon)}?v=${showCompletedCharacter ? 3 : 2}`}
               alt=""
               decoding="async"
               fetchPriority="high"

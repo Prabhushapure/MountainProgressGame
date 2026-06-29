@@ -580,6 +580,7 @@ function ComboProgressGame() {
           onLevelClick={handleTentClick}
           onExitClick={() => setIsResultOpen(true)}
           onHelpClick={handleHelpClick}
+          allModulesComplete={allCampsComplete}
         />
         {helpOverlay}
         {resultOverlay}

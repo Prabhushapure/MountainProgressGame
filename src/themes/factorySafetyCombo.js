@@ -52,6 +52,7 @@ export const factorySafetyComboTheme = {
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: FACTORY_ASSET('header-hard-hat.png'),
     helpPdf: FACTORY_ASSET('safety-basics-help.pdf'),
+    completedCharacterIcon: FACTORY_ASSET('man-7.png'),
   },
   layout: {
     stepLadder: {
