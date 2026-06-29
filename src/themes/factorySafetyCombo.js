@@ -67,6 +67,10 @@ export const factorySafetyComboTheme = {
     labelLeftIds: [],
     labelClassById: {},
   },
+  scoring: {
+    fixedCompletionCampIds: [1, 2, 3, 4, 5],
+    fixedCompletionPoints: 100,
+  },
   levels: [
     {
       id: 1,
@@ -88,7 +92,7 @@ export const factorySafetyComboTheme = {
       characterIcon: FACTORY_ASSET('man-2.png'),
       icon: FACTORY_ASSET('station-2-orientation.png'),
       url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-orientation',
-      maxPoints: 200,
+      maxPoints: 100,
     },
     {
       id: 3,
@@ -99,7 +103,7 @@ export const factorySafetyComboTheme = {
       characterIcon: FACTORY_ASSET('man-3.png'),
       icon: FACTORY_ASSET('station-3-practices.png'),
       url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-practices',
-      maxPoints: 200,
+      maxPoints: 100,
     },
     {
       id: 4,
@@ -110,7 +114,7 @@ export const factorySafetyComboTheme = {
       characterIcon: FACTORY_ASSET('man-4.png'),
       icon: FACTORY_ASSET('station-4-management.png'),
       url: 'https://antiz-digital.com/safety-basics-learn/?video=safety-management-system',
-      maxPoints: 200,
+      maxPoints: 100,
     },
     {
       id: 5,
@@ -121,7 +125,7 @@ export const factorySafetyComboTheme = {
       characterIcon: FACTORY_ASSET('man-5.png'),
       icon: FACTORY_ASSET('station-5-responsibilities.png'),
       url: 'https://antiz-digital.com/safety-basics-learn/?video=employee-responsibilities',
-      maxPoints: 200,
+      maxPoints: 100,
     },
     {
       id: 6,

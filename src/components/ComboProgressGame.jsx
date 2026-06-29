@@ -211,10 +211,9 @@ function ComboProgressGame() {
     const storedScores = hasTokenInUrl
       ? engine.loadCampScoresByProgressToken(progressToken, playNoFromUrl)
       : engine.loadAnonCampScores()
-    const baseScores =
-      campId === 1
-        ? storedScores
-        : engine.mergeFinalScoreIntoCampScores(storedScores, searchParams, campId)
+    const baseScores = engine.isFixedScoreCamp(campId)
+      ? storedScores
+      : engine.mergeFinalScoreIntoCampScores(storedScores, searchParams, campId)
 
     // Final-camp completion should win when a score/return signal exists.
     // Some providers send additional outcome keys that can conflict.
@@ -315,25 +314,17 @@ function ComboProgressGame() {
     [levels],
   )
   const getCampScoreDisplay = (campId) => {
-    if (campId === 1) {
-      return levels.find((l) => l.id === 1)?.status === 'completed'
-        ? (engine.campPointsById[1] ?? 100)
+    if (engine.isFixedScoreCamp(campId)) {
+      return levels.find((l) => l.id === campId)?.status === 'completed'
+        ? engine.getFixedCampPoints(campId)
         : 0
     }
     return campScoresById[campId] ?? 0
   }
 
   const earnedPoints = useMemo(
-    () =>
-      levels.reduce((sum, level) => {
-        if (level.id === 1) {
-          return level.status === 'completed'
-            ? sum + (engine.campPointsById[1] ?? 100)
-            : sum
-        }
-        return sum + (campScoresById[level.id] ?? 0)
-      }, 0),
-    [levels, campScoresById, engine.campPointsById],
+    () => levels.reduce((sum, level) => sum + getCampScoreDisplay(level.id), 0),
+    [levels, campScoresById, engine],
   )
   const totalCamps = levels.length
   const isPassed = completedCount === totalCamps

@@ -13,8 +13,15 @@ export function createProgressEngine(theme) {
   const campPointsById = Object.fromEntries(
     theme.levels.map((level) => [level.id, level.maxPoints]),
   )
+  const fixedCompletionCampIds = theme.scoring?.fixedCompletionCampIds ?? [1]
+  const fixedCompletionPoints = theme.scoring?.fixedCompletionPoints
   const levelIds = theme.levels.map((level) => level.id)
   const maxLevelId = Math.max(...levelIds)
+
+  const isFixedScoreCamp = (campId) => fixedCompletionCampIds.includes(campId)
+
+  const getFixedCampPoints = (campId) =>
+    fixedCompletionPoints ?? campPointsById[campId] ?? 100
 
   const LEGACY_LEVELS_STORAGE_KEY = `${theme.storagePrefix}GameLevels`
   const TOKEN_PROGRESS_STORAGE_KEY = `${theme.storagePrefix}ByToken`
@@ -206,12 +213,14 @@ export function createProgressEngine(theme) {
 
   const finalizeCampScores = (scores, levels) => {
     const next = { ...normalizeCampScoresRecord(scores) }
-    const camp1 = levels.find((l) => l.id === 1)
-    if (camp1?.status === 'completed') {
-      next[1] = campPointsById[1] ?? 100
-    } else {
-      delete next[1]
-    }
+    fixedCompletionCampIds.forEach((campId) => {
+      const camp = levels.find((l) => l.id === campId)
+      if (camp?.status === 'completed') {
+        next[campId] = getFixedCampPoints(campId)
+      } else {
+        delete next[campId]
+      }
+    })
     return next
   }
 
@@ -220,7 +229,7 @@ export function createProgressEngine(theme) {
       (value) => value != null && value !== '',
     )
     if (raw == null || raw === '') return null
-    if (campId === 1) return null
+    if (isFixedScoreCamp(campId)) return null
 
     const asNumber = Number(raw)
     if (Number.isFinite(asNumber)) return asNumber
@@ -244,7 +253,7 @@ export function createProgressEngine(theme) {
   }
 
   const applyCampScoreWithMax = (existing, campId, newScore) => {
-    if (campId == null || campId === 1 || newScore == null) {
+    if (campId == null || isFixedScoreCamp(campId) || newScore == null) {
       return normalizeCampScoresRecord(existing)
     }
     const next = { ...normalizeCampScoresRecord(existing) }
@@ -254,7 +263,7 @@ export function createProgressEngine(theme) {
   }
 
   const mergeFinalScoreIntoCampScores = (existing, params, campId) => {
-    if (campId == null || campId === 1) return normalizeCampScoresRecord(existing)
+    if (campId == null || isFixedScoreCamp(campId)) return normalizeCampScoresRecord(existing)
     const score = getFinalScoreFromParams(params, campId)
     if (score == null) return normalizeCampScoresRecord(existing)
     return applyCampScoreWithMax(existing, campId, score)
@@ -485,6 +494,8 @@ export function createProgressEngine(theme) {
     FINAL_SCORE_PARAM_KEY: FINAL_SCORE_PARAM_KEYS[0],
     FINAL_SCORE_PARAM_KEYS,
     campPointsById,
+    getFixedCampPoints,
+    isFixedScoreCamp,
     cleanupLegacyStorage,
     clearAnonSessionProgress,
     clearCompletedCampScoresFromSession,
