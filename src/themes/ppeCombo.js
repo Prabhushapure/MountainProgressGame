@@ -47,6 +47,7 @@ export const ppeComboTheme = {
     splashVideo: FACTORY_ASSET('flash-screen-video.mp4'),
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: FACTORY_ASSET('header-hard-hat.png'),
+    helpPdf: FACTORY_ASSET('ppe-combo-help.pdf'),
     completedCharacterIcon: FACTORY_ASSET('man-7.png'),
   },
   layout: {
@@ -86,7 +87,7 @@ export const ppeComboTheme = {
       stepBackground: FACTORY_ASSET('step-5-assembly-line-background.png'),
       characterIcon: FACTORY_ASSET('man-5.png'),
       icon: FACTORY_ASSET('station-5-responsibilities.png'),
-      url: 'https://antiz-digital.com/hazard-hunt/?topic=PPE%20Usage',
+      url: 'https://antiz-digital.com/PPE-drag-drop/',
       maxPoints: 100,
     },
     {
@@ -96,7 +97,7 @@ export const ppeComboTheme = {
       status: 'locked',
       characterIcon: FACTORY_ASSET('man-6.png'),
       icon: FACTORY_ASSET('station-6-assessment.png'),
-      url: 'https://antiz-digital.com/hazard-hunt/?picture_quiz',
+      url: 'https://antiz-digital.com/hazard-hunt/?topic=ppe_safety',
       maxPoints: 200,
     },
   ],
