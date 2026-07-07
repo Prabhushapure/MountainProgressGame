@@ -137,7 +137,11 @@ function getManDimensions(columnHeight, stageHeight, stageWidth, isNarrow, cardW
   return { manSlotHeight, manWidth }
 }
 
-function measureCenteredLayout(stageElement, ladder = DEFAULT_STEP_LADDER) {
+function measureCenteredLayout(
+  stageElement,
+  ladder = DEFAULT_STEP_LADDER,
+  { useStageHeightForMan = false } = {},
+) {
   const column = measureStepsColumn(stageElement)
   const stageHeight = stageElement.clientHeight
   const stageWidth = stageElement.clientWidth
@@ -145,8 +149,10 @@ function measureCenteredLayout(stageElement, ladder = DEFAULT_STEP_LADDER) {
   const cardWidth =
     stageElement.querySelector('.factory-safety-step-flip')?.getBoundingClientRect().width ?? 225
 
+  const manSizingColumnHeight = useStageHeightForMan ? 0 : column.height
+
   const { manSlotHeight, manWidth } = getManDimensions(
-    column.height,
+    manSizingColumnHeight,
     stageHeight,
     stageWidth,
     isNarrow,
@@ -190,8 +196,12 @@ function measureCenteredLayout(stageElement, ladder = DEFAULT_STEP_LADDER) {
   }
 }
 
-function measureLayoutWithBackdrop(stageElement, ladder = DEFAULT_STEP_LADDER) {
-  const layout = measureCenteredLayout(stageElement, ladder)
+function measureLayoutWithBackdrop(
+  stageElement,
+  ladder = DEFAULT_STEP_LADDER,
+  layoutOptions = {},
+) {
+  const layout = measureCenteredLayout(stageElement, ladder, layoutOptions)
   const mapEl = stageElement.parentElement
   const stageRect = stageElement.getBoundingClientRect()
   const mapRect = mapEl?.getBoundingClientRect() ?? stageRect
@@ -344,13 +354,33 @@ function FactorySafetyMapView({
   onHelpClick,
   allModulesComplete = false,
 }) {
+  const customPositions = useMemo(() => {
+    const configured = theme.layout.positions
+    if (!Array.isArray(configured) || configured.length !== levels.length) {
+      return null
+    }
+    return configured
+      .map((point) => {
+        const top = Number.parseFloat(String(point?.top ?? ''))
+        if (!Number.isFinite(top)) return null
+        return { top: `${top}%` }
+      })
+      .filter(Boolean)
+  }, [theme.layout.positions, levels.length])
+
   const stepLadder = useMemo(
     () => theme.layout.stepLadder ?? DEFAULT_STEP_LADDER,
     [theme.id],
   )
+  const layoutOptions = useMemo(
+    () => ({
+      useStageHeightForMan: Boolean(theme.layout.useStageHeightForMan),
+    }),
+    [theme.layout.useStageHeightForMan],
+  )
   const stageRef = useRef(null)
   const [positions, setPositions] = useState(() =>
-    getRightColumnPositionsPercent(levels.length),
+    customPositions ?? getRightColumnPositionsPercent(levels.length),
   )
   const [columnMetrics, setColumnMetrics] = useState({
     top: 0,
@@ -381,12 +411,12 @@ function FactorySafetyMapView({
         : stepLadder
 
     requestAnimationFrame(() => {
-      setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
+      setColumnMetrics(measureLayoutWithBackdrop(stage, ladder, layoutOptions))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
+        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder, layoutOptions))
       })
     })
-  }, [stepLadder])
+  }, [stepLadder, layoutOptions])
 
   useEffect(() => {
     if (theme.assets.completedCharacterIcon) {
@@ -410,11 +440,11 @@ function FactorySafetyMapView({
         stageWidth < NARROW_STAGE_WIDTH
           ? { ...stepLadder, ...NARROW_LADDER }
           : stepLadder
-      setPositions(measureStepPositions(levels.length, stage, ladder))
+      setPositions(customPositions ?? measureStepPositions(levels.length, stage, ladder))
       requestAnimationFrame(() => {
-        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
+        setColumnMetrics(measureLayoutWithBackdrop(stage, ladder, layoutOptions))
         requestAnimationFrame(() => {
-          setColumnMetrics(measureLayoutWithBackdrop(stage, ladder))
+          setColumnMetrics(measureLayoutWithBackdrop(stage, ladder, layoutOptions))
         })
       })
     }
@@ -427,7 +457,7 @@ function FactorySafetyMapView({
     return () => {
       observer.disconnect()
     }
-  }, [levels.length, stepLadder, theme.id])
+  }, [levels.length, stepLadder, theme.id, customPositions, layoutOptions])
 
   const allStepsCompleted = useMemo(
     () =>

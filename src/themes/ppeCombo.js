@@ -51,6 +51,8 @@ export const ppeComboTheme = {
     completedCharacterIcon: FACTORY_ASSET('man-7.png'),
   },
   layout: {
+    positions: [{ top: '71%' }, { top: '50%' }, { top: '29%' }],
+    useStageHeightForMan: true,
     stepLadder: {
       marginTop: 32,
       marginBottom: 36,
