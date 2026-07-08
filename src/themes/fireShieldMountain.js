@@ -27,9 +27,9 @@ export const fireShieldMountainTheme = {
     instructionIntro:
       'Complete & PASS all Activities to reach the Summit.\nCompleting the Activity at a Camp will unlock the next Camp.\nPlay Activities as many times as you wish at unlocked Camps.\nYou will reach the Summit on Passing Activities at all four Camps.\nYou can complete the journey across multiple sittings.',
     instructionActivities: [
-      'Camp 1: Learn about Fire Safety and the correct responses.',
-      'Camp 2: Fire Safety Picture Quiz',
-      'Camp 3: Fire Buster',
+      'Camp 1: Fire Safety Video.',
+      'Camp 2: Fire Hazard Identification.',
+      'Camp 3: Fire Extinguisher Usage.',
       'Camp 4: Emergency Evacuation',
     ],
   },
