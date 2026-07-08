@@ -101,6 +101,37 @@ function ComboProgressGame() {
     engine.cleanupLegacyStorage()
   }, [engine])
 
+  // When returning from an external game via the browser back button, the page
+  // may be restored from the bfcache with stale navigation state, leaving every
+  // camp disabled (pendingLevelId set / isNavigatingRef true) until a refresh.
+  // Reset that state so the camps are interactive again.
+  useEffect(() => {
+    const resetNavigationState = () => {
+      isNavigatingRef.current = false
+      setPendingLevelId(null)
+    }
+
+    const handlePageShow = (event) => {
+      if (event.persisted) {
+        resetNavigationState()
+      }
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && isNavigatingRef.current) {
+        resetNavigationState()
+      }
+    }
+
+    window.addEventListener('pageshow', handlePageShow)
+    document.addEventListener('visibilitychange', handleVisibility)
+
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [])
+
   useEffect(() => {
     if (playNoFromUrl) return
 
