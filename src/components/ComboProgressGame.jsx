@@ -5,6 +5,7 @@ import { getActiveTheme } from '../themes'
 import FireShieldBrandHeader, { FireShieldLogoMark } from './FireShieldBrandHeader'
 import FactorySafetyBrandHeader from './FactorySafetyBrandHeader'
 import FactorySafetyMapView from './FactorySafetyMapView'
+import ChemicalSafetyMapView from './ChemicalSafetyMapView'
 import HelpPdfViewer from './HelpPdfViewer'
 import { publicUrl } from '../utils/publicUrl'
 import './MountainProgressGame.css'
@@ -316,6 +317,7 @@ function ComboProgressGame() {
   ])
 
   const isSafetyBasicsLayout = theme.layoutMode === 'safety-basics-path'
+  const isChemicalLayout = theme.layoutMode === 'chemical-safety-path'
 
   const mappedPositions = useMemo(
     () =>
@@ -591,6 +593,24 @@ function ComboProgressGame() {
           </div>
         </div>
   ) : null
+
+  if (isChemicalLayout) {
+    return (
+      <div className="chemical-safety-root">
+        <ChemicalSafetyMapView
+          theme={theme}
+          levels={levels}
+          pendingLevelId={pendingLevelId}
+          onLevelClick={handleTentClick}
+          onExitClick={() => setIsResultOpen(true)}
+          onHelpClick={handleHelpClick}
+          allModulesComplete={allCampsComplete}
+        />
+        {helpOverlay}
+        {resultOverlay}
+      </div>
+    )
+  }
 
   if (isSafetyBasicsLayout) {
     return (

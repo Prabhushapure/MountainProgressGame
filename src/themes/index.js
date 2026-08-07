@@ -1,3 +1,4 @@
+import { chemicalComboTheme } from './chemicalCombo'
 import { factorySafetyComboTheme } from './factorySafetyCombo'
 import { fireShieldMountain5CampTheme } from './fireShieldMountain5Camp'
 import { fireShieldMountainTheme } from './fireShieldMountain'
@@ -22,7 +23,7 @@ import { ppeComboTheme } from './ppeCombo'
  * @property {string} storagePrefix
  * @property {string} deployPath
  * @property {string} themeClass
- * @property {'mountain-map' | 'safety-basics-path'} layoutMode
+ * @property {'mountain-map' | 'safety-basics-path' | 'chemical-safety-path'} layoutMode
  * @property {object} brand
  * @property {object} copy
  * @property {object} assets
@@ -37,6 +38,7 @@ const themes = {
   'fire-shield-combo-5': fireShieldMountain5CampTheme,
   Factory_safety_combo: factorySafetyComboTheme,
   PPE_Combo: ppeComboTheme,
+  chemical_combo: chemicalComboTheme,
 }
 
 const DEFAULT_THEME_ID = 'fire-shield-combo'
@@ -58,4 +60,10 @@ export function getActiveThemeId() {
   return import.meta.env.VITE_COMBO_THEME || DEFAULT_THEME_ID
 }
 
-export { factorySafetyComboTheme, fireShieldMountain5CampTheme, fireShieldMountainTheme, ppeComboTheme }
+export {
+  chemicalComboTheme,
+  factorySafetyComboTheme,
+  fireShieldMountain5CampTheme,
+  fireShieldMountainTheme,
+  ppeComboTheme,
+}

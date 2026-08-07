@@ -6,6 +6,7 @@ const themeBasePaths = {
   'fire-shield-combo-5': '/fire-shield-combo-5/',
   Factory_safety_combo: '/Factory_safety_combo/',
   PPE_Combo: '/PPE_Combo/',
+  chemical_combo: '/chemical_combo/',
 }
 
 export default defineConfig(({ mode }) => {

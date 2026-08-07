@@ -12,6 +12,7 @@ server/data
 dist
 dist-factory
 dist-ppe
+dist-chemical
 dist-ssr
 *.local
 

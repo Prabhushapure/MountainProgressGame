@@ -8,11 +8,13 @@
     "dev:fire-shield-5": "vite --mode fire-shield-5",
     "dev:factory": "vite --mode factory",
     "dev:ppe": "vite --mode ppe",
+    "dev:chemical": "vite --mode chemical",
     "dev:api": "npm --prefix server run dev",
     "build": "vite build --mode fire-shield",
     "build:fire-shield-5": "vite build --mode fire-shield-5 --outDir dist-fire-shield-5",
     "build:factory": "vite build --mode factory --outDir dist-factory",
     "build:ppe": "vite build --mode ppe --outDir dist-ppe",
+    "build:chemical": "vite build --mode chemical --outDir dist-chemical",
     "lint": "eslint .",
     "preview": "vite preview",
     "start:api": "npm --prefix server run start"
