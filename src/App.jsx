@@ -135,6 +135,20 @@ function App() {
   }, [skipIntro])
 
   useEffect(() => {
+    if (!theme.assets.favicon) return
+    const href = publicUrl(theme.assets.favicon)
+    let link = document.querySelector("link[rel='icon']")
+    if (!link) {
+      link = document.createElement('link')
+      link.rel = 'icon'
+      document.head.appendChild(link)
+    }
+    link.type = 'image/png'
+    link.href = href
+    document.title = theme.brand.pageTitle || document.title
+  }, [theme])
+
+  useEffect(() => {
     if (skipIntro) return undefined
 
     const fallbackId = window.setTimeout(finishSplash, 12000)

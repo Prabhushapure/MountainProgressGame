@@ -63,8 +63,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  max-width: min(520px, calc(100% - 48px));
+  gap: 8px;
+  max-width: min(640px, calc(100% - 48px));
 }
 
 .chemical-safety-title {
@@ -75,7 +75,7 @@
   gap: 0.35em;
   white-space: nowrap;
   color: #fff;
-  font-size: clamp(1.15rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.55rem, 3.2vw, 2.35rem);
   font-weight: 800;
   letter-spacing: 0.03em;
   line-height: 1.1;
@@ -90,12 +90,27 @@
   color: #fff;
 }
 
+.chemical-safety-header-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.chemical-safety-tagline {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(0.82rem, 1.5vw, 1.05rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
 .chemical-safety-document-pill {
-  position: absolute;
-  top: max(16px, env(safe-area-inset-top));
-  right: max(16px, env(safe-area-inset-right));
-  left: auto;
-  z-index: 30;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -124,17 +139,16 @@
   transform: translateX(-50%);
   display: flex;
   align-items: stretch;
-  gap: 14px;
-  width: min(96vw, 1180px);
+  justify-content: center;
+  gap: 12px;
+  width: min(90vw, 1080px);
   padding: 10px 12px 4px;
 }
 
 .chemical-safety-chevron-wrap {
-  --arrow-join: 86%;
-  --arrow-neck-top: 18%;
-  --arrow-neck-bottom: 82%;
   position: relative;
   flex: 1 1 0;
+  max-width: 236px;
   min-width: 0;
   display: flex;
 }
@@ -144,97 +158,130 @@
   animation: chemical-chevron-float 1.7s ease-in-out infinite;
 }
 
-.chemical-safety-chevron-glow {
-  position: absolute;
-  inset: -7px -10px -7px -7px;
-  z-index: 0;
-  pointer-events: none;
-  clip-path: polygon(
-    0 0,
-    var(--arrow-join) 0,
-    var(--arrow-join) var(--arrow-neck-top),
-    100% 50%,
-    var(--arrow-join) var(--arrow-neck-bottom),
-    var(--arrow-join) 100%,
-    0 100%
-  );
-}
-
-.chemical-safety-chevron-glow--active {
-  background: linear-gradient(180deg, #ffe082 0%, #ffc107 45%, #ff8f00 100%);
-  filter: drop-shadow(0 0 10px rgba(255, 193, 7, 0.95));
-}
-
-.chemical-safety-chevron-glow--completed {
-  background: linear-gradient(180deg, #81c784 0%, #43a047 45%, #2e7d32 100%);
-  filter: drop-shadow(0 0 8px rgba(67, 160, 71, 0.85));
-}
-
-.chemical-safety-chevron-glow--locked {
-  background: linear-gradient(180deg, #ef9a9a 0%, #e53935 45%, #c62828 100%);
-  filter: drop-shadow(0 0 8px rgba(229, 57, 53, 0.8));
-}
-
-/* PowerPoint "Right Arrow Callout" shape: flat left edge, arrow tip on the right */
+/* Rounded-left arrow: white fill, burnt-orange border */
 .chemical-safety-chevron {
+  --chevron-border: #c45c22;
+  --chevron-outline: #2a1810;
   position: relative;
   z-index: 1;
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  min-height: clamp(78px, 12vh, 104px);
+  min-height: clamp(96px, 15vh, 128px);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 12px 36px 12px 18px;
+  padding: 14px 36px 28px 18px;
   border: none;
-  color: #fff;
-  background: var(--chevron-color, #156082);
-  clip-path: polygon(
-    0 0,
-    var(--arrow-join) 0,
-    var(--arrow-join) var(--arrow-neck-top),
-    100% 50%,
-    var(--arrow-join) var(--arrow-neck-bottom),
-    var(--arrow-join) 100%,
-    0 100%
-  );
+  color: #1a1a1a;
+  background: transparent;
   cursor: pointer;
-  transition: filter 0.18s ease, opacity 0.18s ease;
+  transition: filter 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+}
+
+.chemical-safety-chevron-shape {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.chemical-safety-chevron-shape-fill {
+  fill: #fff;
+  stroke: var(--chevron-border);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 0 0.6px var(--chevron-outline))
+    drop-shadow(0 0 0.6px var(--chevron-outline));
 }
 
 .chemical-safety-chevron-wrap:first-child .chemical-safety-chevron {
-  padding-left: 16px;
+  padding-left: 20px;
+}
+
+.chemical-safety-chevron-number {
+  position: absolute;
+  top: 8px;
+  left: 14px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1em;
+  color: #1a1a1a;
+  font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+  font-weight: 800;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
 }
 
 .chemical-safety-chevron-label {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 92%;
+  padding: 0 8px 4px 0;
   text-align: center;
-  font-size: clamp(0.8rem, 1.45vw, 1.08rem);
+  font-size: clamp(0.78rem, 1.35vw, 1.02rem);
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0.01em;
+  color: #1a1a1a;
 }
 
 .chemical-safety-chevron-check {
+  position: relative;
+  z-index: 1;
   font-size: 0.95rem;
   font-weight: 800;
+  color: #2e7d32;
   opacity: 0.95;
 }
 
-.chemical-safety-chevron.status-locked {
-  filter: grayscale(0.2) brightness(0.88);
-  cursor: not-allowed;
-  opacity: 0.85;
+.chemical-safety-chevron-lock {
+  position: absolute;
+  right: 22%;
+  bottom: 8px;
+  z-index: 2;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
 }
 
-.chemical-safety-chevron.status-active {
-  filter: brightness(1.18) saturate(1.12);
+.chemical-safety-chevron-lock--locked {
+  width: clamp(14px, 1.9vw, 18px);
+  height: clamp(14px, 1.9vw, 18px);
+}
+
+.chemical-safety-chevron-lock--unlocked {
+  width: clamp(17px, 2.3vw, 22px);
+  height: clamp(17px, 2.3vw, 22px);
+}
+
+.chemical-safety-chevron.status-locked {
+  cursor: not-allowed;
+  opacity: 0.88;
+}
+
+.chemical-safety-chevron.status-locked .chemical-safety-chevron-shape-fill {
+  fill: #fafafa;
+}
+
+.chemical-safety-chevron.status-active .chemical-safety-chevron-shape-fill {
+  fill: #fffef8;
+}
+
+.chemical-safety-chevron.status-completed .chemical-safety-chevron-shape-fill {
+  fill: #f7fff8;
 }
 
 .chemical-safety-chevron-wrap--active:hover {
@@ -242,8 +289,10 @@
   transform: translateY(-6px);
 }
 
-.chemical-safety-chevron-wrap:not(.chemical-safety-chevron-wrap--active):hover .chemical-safety-chevron:not(:disabled) {
-  filter: brightness(1.12);
+.chemical-safety-chevron-wrap:not(.chemical-safety-chevron-wrap--active):hover
+  .chemical-safety-chevron:not(:disabled)
+  .chemical-safety-chevron-shape-fill {
+  fill: #fff8f0;
 }
 
 .chemical-safety-chevron--pending,
@@ -265,48 +314,24 @@
   }
 }
 
-.chemical-safety-certificate {
-  flex: 0 0 auto;
-  margin-left: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.35;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.chemical-safety-certificate--earned {
-  opacity: 1;
-  transform: scale(1.04);
-}
-
-.chemical-safety-certificate-icon {
-  width: clamp(52px, 7.5vw, 72px);
-  height: auto;
-  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
-}
-
 @media (max-width: 820px) {
   .chemical-safety-path {
     flex-wrap: nowrap;
     justify-content: center;
     gap: 10px;
     bottom: max(72px, env(safe-area-inset-bottom));
-    width: min(98vw, 720px);
+    width: min(94vw, 700px);
     overflow-x: auto;
   }
 
   .chemical-safety-chevron-wrap {
     flex: 1 1 0;
+    max-width: 176px;
     min-width: 120px;
   }
 
   .chemical-safety-chevron {
-    min-height: 56px;
-    padding: 8px 28px 8px 12px;
-  }
-
-  .chemical-safety-certificate {
-    margin-left: 4px;
+    min-height: 80px;
+    padding: 10px 26px 24px 12px;
   }
 }

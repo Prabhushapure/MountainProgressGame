@@ -1,33 +1,6 @@
 import { publicUrl } from '../utils/publicUrl'
 import './ChemicalSafetyMapView.css'
 
-function CertificateIcon({ className = '' }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 72 80"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect x="10" y="6" width="44" height="54" rx="3" fill="#fff" stroke="#111" strokeWidth="2.5" />
-      <rect x="18" y="16" width="28" height="3" rx="1.5" fill="#64748b" />
-      <rect x="18" y="24" width="24" height="3" rx="1.5" fill="#64748b" />
-      <rect x="18" y="32" width="20" height="3" rx="1.5" fill="#64748b" />
-      <circle cx="42" cy="54" r="13" fill="#f59e0b" stroke="#111" strokeWidth="2" />
-      <circle cx="42" cy="54" r="7.5" fill="#fde68a" />
-      <circle cx="54" cy="62" r="11" fill="#22c55e" stroke="#111" strokeWidth="2" />
-      <path
-        d="M49 62.5 L52.2 65.8 L59 58.5"
-        fill="none"
-        stroke="#fff"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function ChemicalSafetyMapView({
   theme,
   levels,
@@ -35,7 +8,6 @@ function ChemicalSafetyMapView({
   onLevelClick,
   onExitClick,
   onHelpClick,
-  allModulesComplete = false,
 }) {
   const skinUrl = publicUrl(theme.assets.map)
   const documentLabel = theme.copy.documentPillLabel || 'Safety Guideline Document'
@@ -52,15 +24,19 @@ function ChemicalSafetyMapView({
         </button>
       </div>
 
-      <button type="button" className="chemical-safety-document-pill" onClick={onHelpClick}>
-        {documentLabel}
-      </button>
-
       <div className="chemical-safety-header">
         <h1 className="chemical-safety-title">
           <span className="chemical-safety-title-accent">{theme.brand.instructionTitleAccent}</span>{' '}
           <span className="chemical-safety-title-rest">{theme.brand.instructionTitleRest}</span>
         </h1>
+        <div className="chemical-safety-header-copy">
+          {theme.brand.instructionTagline ? (
+            <p className="chemical-safety-tagline">{theme.brand.instructionTagline}</p>
+          ) : null}
+          <button type="button" className="chemical-safety-document-pill" onClick={onHelpClick}>
+            {documentLabel}
+          </button>
+        </div>
       </div>
 
       <div className="chemical-safety-path" role="navigation" aria-label="Chemical safety modules">
@@ -83,19 +59,6 @@ function ChemicalSafetyMapView({
                 .filter(Boolean)
                 .join(' ')}
             >
-              {isActive || isCompleted || isLocked ? (
-                <span
-                  className={[
-                    'chemical-safety-chevron-glow',
-                    isActive ? 'chemical-safety-chevron-glow--active' : '',
-                    isCompleted ? 'chemical-safety-chevron-glow--completed' : '',
-                    isLocked ? 'chemical-safety-chevron-glow--locked' : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  aria-hidden="true"
-                />
-              ) : null}
               <button
                 type="button"
                 className={[
@@ -105,11 +68,25 @@ function ChemicalSafetyMapView({
                 ]
                   .filter(Boolean)
                   .join(' ')}
-                style={{ '--chevron-color': level.chevronColor || '#156082' }}
                 onClick={() => onLevelClick(level)}
                 disabled={disabled}
                 aria-label={String(level.activityLabel).replace('\n', ' ')}
               >
+                <svg
+                  className="chemical-safety-chevron-shape"
+                  viewBox="0 0 200 100"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path
+                    className="chemical-safety-chevron-shape-fill"
+                    d="M28,4 H152 L194,50 L152,96 H28 C13,96 4,87 4,72 V28 C4,13 13,4 28,4 Z"
+                  />
+                </svg>
+                <span className="chemical-safety-chevron-number" aria-hidden="true">
+                  {level.id}
+                </span>
                 <span className="chemical-safety-chevron-label">
                   {String(level.activityLabel)
                     .split('\n')
@@ -122,22 +99,20 @@ function ChemicalSafetyMapView({
                     ✓
                   </span>
                 ) : null}
+                <img
+                  className={[
+                    'chemical-safety-chevron-lock',
+                    isLocked ? 'chemical-safety-chevron-lock--locked' : 'chemical-safety-chevron-lock--unlocked',
+                  ].join(' ')}
+                  src={publicUrl(isLocked ? theme.assets.iconLock : theme.assets.iconUnlock)}
+                  alt=""
+                  aria-hidden="true"
+                  draggable="false"
+                />
               </button>
             </div>
           )
         })}
-
-        <div
-          className={[
-            'chemical-safety-certificate',
-            allModulesComplete ? 'chemical-safety-certificate--earned' : '',
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          aria-hidden={!allModulesComplete}
-        >
-          <CertificateIcon className="chemical-safety-certificate-icon" />
-        </div>
       </div>
     </div>
   )
