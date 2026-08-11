@@ -47,7 +47,7 @@ export const chemicalComboTheme = {
     markerCompleted: FACTORY_ASSET('station-6-assessment.png'),
     goalRed: FACTORY_ASSET('station-6-assessment.png'),
     goalGreen: FACTORY_ASSET('station-6-assessment.png'),
-    passIcon: CHEMICAL_ASSET('chemical-combo-icon.png'),
+    passIcon: 'assets/result-pass.png',
     splashVideo: CHEMICAL_ASSET('chemical-combo-splash.mp4'),
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: CHEMICAL_ASSET('chemical-combo-icon.png'),
