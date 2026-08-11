@@ -247,14 +247,13 @@ function ComboProgressGame() {
       ? storedScores
       : engine.mergeFinalScoreIntoCampScores(storedScores, searchParams, campId)
 
-    // Final-camp completion should win when a score/return signal exists.
-    // Some providers send additional outcome keys that can conflict.
-    if (isLastCamp && campId >= 2 && (hasFinalScoreParam || Boolean(returnToken))) {
+    // Explicit pass/fail from the activity always wins (including last-module fails).
+    if (explicit) {
       const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
         progressToken,
         hasTokenInUrl,
         campId,
-        true,
+        passed,
         baseScores,
         playNoFromUrl,
       )
@@ -264,12 +263,13 @@ function ComboProgressGame() {
       return
     }
 
-    if (explicit) {
+    // Final-camp fallback only when providers return a score/token without a clear outcome.
+    if (isLastCamp && campId >= 2 && (hasFinalScoreParam || Boolean(returnToken))) {
       const { levels: nextLevels, campScores: nextScores } = engine.applyOutcomeForContext(
         progressToken,
         hasTokenInUrl,
         campId,
-        passed,
+        true,
         baseScores,
         playNoFromUrl,
       )
