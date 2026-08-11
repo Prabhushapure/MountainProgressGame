@@ -3,6 +3,7 @@ import { factorySafetyComboTheme } from './factorySafetyCombo'
 import { fireShieldMountain5CampTheme } from './fireShieldMountain5Camp'
 import { fireShieldMountainTheme } from './fireShieldMountain'
 import { ppeComboTheme } from './ppeCombo'
+import { workingAtHeightComboTheme } from './workingAtHeightCombo'
 
 /**
  * @typedef {object} ComboThemeLevel
@@ -39,6 +40,7 @@ const themes = {
   Factory_safety_combo: factorySafetyComboTheme,
   PPE_Combo: ppeComboTheme,
   chemical_combo: chemicalComboTheme,
+  working_at_height_combo: workingAtHeightComboTheme,
 }
 
 const DEFAULT_THEME_ID = 'fire-shield-combo'
@@ -66,4 +68,5 @@ export {
   fireShieldMountain5CampTheme,
   fireShieldMountainTheme,
   ppeComboTheme,
+  workingAtHeightComboTheme,
 }

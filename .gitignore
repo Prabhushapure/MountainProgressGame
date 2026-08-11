@@ -13,6 +13,7 @@ dist
 dist-factory
 dist-ppe
 dist-chemical
+dist-working-at-height
 dist-ssr
 *.local
 
