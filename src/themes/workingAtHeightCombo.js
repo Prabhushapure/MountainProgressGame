@@ -99,7 +99,7 @@ export const workingAtHeightComboTheme = {
       activityLabel: 'Hazard Identification &\nCorrective Action',
       status: 'locked',
       chevronColor: '#CE43C8',
-      url: 'https://antiz-digital.com/video-hazard/',
+      url: 'https://antiz-digital.com/video-hazard/?topic=working-at-height',
       maxPoints: 200,
     },
   ],
