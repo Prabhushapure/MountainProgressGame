@@ -52,6 +52,7 @@ export const workingAtHeightComboTheme = {
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: HEIGHT_ASSET('working-at-height-icon.png'),
     favicon: HEIGHT_ASSET('working-at-height-icon.png'),
+    helpPdf: HEIGHT_ASSET('working-at-height-guideline.pdf'),
   },
   layout: {
     goalPosition: { top: '17%', left: '50%' },
