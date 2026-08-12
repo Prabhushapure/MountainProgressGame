@@ -48,7 +48,7 @@ export const workingAtHeightComboTheme = {
     goalRed: FACTORY_ASSET('station-6-assessment.png'),
     goalGreen: FACTORY_ASSET('station-6-assessment.png'),
     passIcon: 'assets/result-pass.png',
-    splashVideo: FACTORY_ASSET('flash-screen-video.mp4'),
+    splashVideo: HEIGHT_ASSET('working-at-height-splash.mp4'),
     mascot: FACTORY_ASSET('worker-mascot.png'),
     headerIcon: HEIGHT_ASSET('working-at-height-icon.png'),
     favicon: HEIGHT_ASSET('working-at-height-icon.png'),
