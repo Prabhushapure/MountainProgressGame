@@ -2,6 +2,7 @@ import { chemicalComboTheme } from './chemicalCombo'
 import { factorySafetyComboTheme } from './factorySafetyCombo'
 import { fireShieldMountain5CampTheme } from './fireShieldMountain5Camp'
 import { fireShieldMountainTheme } from './fireShieldMountain'
+import { materialHandlingComboTheme } from './materialHandlingCombo'
 import { ppeComboTheme } from './ppeCombo'
 import { workingAtHeightComboTheme } from './workingAtHeightCombo'
 
@@ -41,6 +42,7 @@ const themes = {
   PPE_Combo: ppeComboTheme,
   chemical_combo: chemicalComboTheme,
   working_at_height_combo: workingAtHeightComboTheme,
+  material_handling_combo: materialHandlingComboTheme,
 }
 
 const DEFAULT_THEME_ID = 'fire-shield-combo'
@@ -67,6 +69,7 @@ export {
   factorySafetyComboTheme,
   fireShieldMountain5CampTheme,
   fireShieldMountainTheme,
+  materialHandlingComboTheme,
   ppeComboTheme,
   workingAtHeightComboTheme,
 }

@@ -8,6 +8,7 @@ const themeBasePaths = {
   PPE_Combo: '/PPE_Combo/',
   chemical_combo: '/chemical_combo/',
   working_at_height_combo: '/working_at_height_combo/',
+  material_handling_combo: '/material_handling_combo/',
 }
 
 export default defineConfig(({ mode }) => {

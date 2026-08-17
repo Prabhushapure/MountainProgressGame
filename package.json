@@ -10,6 +10,7 @@
     "dev:ppe": "vite --mode ppe",
     "dev:chemical": "vite --mode chemical",
     "dev:working-at-height": "vite --mode working-at-height",
+    "dev:material-handling": "vite --mode material-handling",
     "dev:api": "npm --prefix server run dev",
     "build": "vite build --mode fire-shield",
     "build:fire-shield-5": "vite build --mode fire-shield-5 --outDir dist-fire-shield-5",
@@ -17,6 +18,7 @@
     "build:ppe": "vite build --mode ppe --outDir dist-ppe",
     "build:chemical": "vite build --mode chemical --outDir dist-chemical",
     "build:working-at-height": "vite build --mode working-at-height --outDir dist-working-at-height",
+    "build:material-handling": "vite build --mode material-handling --outDir dist-material-handling",
     "lint": "eslint .",
     "preview": "vite preview",
     "start:api": "npm --prefix server run start"

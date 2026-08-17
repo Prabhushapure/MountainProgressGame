@@ -14,6 +14,7 @@ dist-factory
 dist-ppe
 dist-chemical
 dist-working-at-height
+dist-material-handling
 dist-ssr
 *.local
 
